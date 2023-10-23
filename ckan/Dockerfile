@@ -8,8 +8,9 @@ RUN echo ${TZ} > /etc/timezone
 
 # Make sure both files are not exactly the same
 RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
-        cp /usr/share/zoneinfo/${TZ} /etc/localtime ;\
-    fi ;
+  cp /usr/share/zoneinfo/${TZ} /etc/localtime ;\
+  fi ;
+
 
 ### Spatial extension ###
 RUN apk add python3-dev libxml2-dev libxslt-dev geos geos-dev proj proj-dev proj-util py3-shapely
@@ -20,6 +21,12 @@ RUN pip install -r /tmp/spatial-reqs.txt
 
 ### doi extension ###
 RUN pip install ckanext-doi
-
-
 COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
+
+# For production copy the source files into the image (Dev will mount them as a volume)
+COPY src ${APP_DIR}/src_extensions
+
+# Install the extension(s) you wrote for your own project
+RUN pip install $APP_DIR/src_extensions/ckanext-oidc-pkce && \
+  pip install $APP_DIR/src_extensions/ckanext-auscope-theme
+
