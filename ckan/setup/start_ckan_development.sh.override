@@ -73,13 +73,24 @@ ckan config-tool $SRC_DIR/ckan/test-core.ini \
     "solr_url = $TEST_CKAN_SOLR_URL" \
     "ckan.redis.url = $TEST_CKAN_REDIS_URL"
 
+# DOI config
+ckan config-tool $CKAN_INI "ckanext.doi.account_name = my-account-name"
+ckan config-tool $CKAN_INI "ckanext.doi.account_password = my-password"
+ckan config-tool $CKAN_INI "ckanext.doi.prefix = 12.34567"
+ckan config-tool $CKAN_INI "ckanext.doi.publisher = my-publisher"
+ckan config-tool $CKAN_INI "ckanext.doi.test_mode = True" # Set to False for production DOI minting
+ckan -c $CKAN_INI doi initdb
+
+
 # Run the prerun script to init CKAN and create the default admin user
-sudo -u ckan -EH python3 prerun.py
+echo "python3 prerun"
+su ckan -c "/usr/bin/python3 prerun.py"
 
 echo "Set up ckan.datapusher.api_token in the CKAN config file"
 ckan config-tool $CKAN_INI "ckan.datapusher.api_token=$(ckan -c $CKAN_INI user token add ckan_admin datapusher | tail -n 1 | tr -d '\t')"
 
 # Run any startup scripts provided by images extending this one
+echo "Starting entrypoint scripts"
 if [[ -d "/docker-entrypoint.d" ]]
 then
     for f in /docker-entrypoint.d/*; do
@@ -95,5 +106,7 @@ fi
 # Start supervisord
 supervisord --configuration /etc/supervisord.conf &
 
+echo "Starting CKAN"
+
 # Start the development server with automatic reload
-sudo -u ckan -EH ckan -c $CKAN_INI run -H 0.0.0.0
+su ckan -c "/usr/bin/ckan -c $CKAN_INI run -H 0.0.0.0"

@@ -49,6 +49,9 @@ RUN pip install -e "git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-
 COPY spatial-reqs.txt /tmp/spatial-reqs.txt
 RUN pip install -r /tmp/spatial-reqs.txt
 
+### DOI extension ###
+RUN pip install ckanext-doi
+
 ### Contact extension ###
 RUN pip install -e "git+https://github.com/NaturalHistoryMuseum/ckanext-contact.git#egg=ckanext-contact"
 
@@ -67,3 +70,5 @@ RUN for d in $APP_DIR/patches/*; do \
             done ; \
         fi ; \
     done
+
+COPY setup/start_ckan_development.sh.override ${APP_DIR}/start_ckan_development.sh

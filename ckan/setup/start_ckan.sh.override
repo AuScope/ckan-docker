@@ -15,8 +15,16 @@ then
     ckan config-tool $CKAN_INI "api_token.jwt.decode.secret=${JWT_SECRET}"
 fi
 
+# DOI config
+ckan config-tool $CKAN_INI "ckanext.doi.account_name = my-account-name"
+ckan config-tool $CKAN_INI "ckanext.doi.account_password = my-password"
+ckan config-tool $CKAN_INI "ckanext.doi.prefix = 12.34567"
+ckan config-tool $CKAN_INI "ckanext.doi.publisher = my-publisher"
+ckan config-tool $CKAN_INI "ckanext.doi.test_mode = True" # Set to False for production DOI minting
+ckan -c $CKAN_INI doi initdb
+
 # Run the prerun script to init CKAN and create the default admin user
-sudo -u ckan -EH python3 prerun.py
+su ckan -c "/usr/bin/python3 prerun.py"
 
 echo "Set up ckan.datapusher.api_token in the CKAN config file"
 ckan config-tool $CKAN_INI "ckan.datapusher.api_token=$(ckan -c $CKAN_INI user token add ckan_admin datapusher | tail -n 1 | tr -d '\t')"
@@ -51,7 +59,7 @@ then
     # Start supervisord
     supervisord --configuration /etc/supervisord.conf &
     # Start uwsgi
-    sudo -u ckan -EH uwsgi $UWSGI_OPTS
+    su ckan -c "/usr/sbin/uwsgi $UWSGI_OPTS"
 else
   echo "[prerun] failed...not starting CKAN."
 fi
