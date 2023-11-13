@@ -2,15 +2,15 @@ import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
 
-# import ckanext.auscope_theme.cli as cli
-# import ckanext.auscope_theme.helpers as helpers
-# import ckanext.auscope_theme.views as views
-# from ckanext.auscope_theme.logic import (
+# import ckanext.igsn_theme.cli as cli
+# import ckanext.igsn_theme.helpers as helpers
+# import ckanext.igsn_theme.views as views
+# from ckanext.igsn_theme.logic import (
 #     action, auth, validators
 # )
 
 
-class AuscopeThemePlugin(plugins.SingletonPlugin):
+class IgsnThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     
     # plugins.implements(plugins.IAuthFunctions)
@@ -28,7 +28,7 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
         toolkit.add_template_directory(config_, "templates")
         toolkit.add_public_directory(config_, '/shared/public')
         toolkit.add_public_directory(config_, "public")
-        toolkit.add_resource("assets", "auscope_theme")
+        toolkit.add_resource("assets", "igsn_theme")
 
     
     # IAuthFunctions
