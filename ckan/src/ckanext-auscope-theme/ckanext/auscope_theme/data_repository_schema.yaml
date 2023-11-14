@@ -1,0 +1,233 @@
+scheming_version: 2
+dataset_type: dataset
+about: AuScope Data Repository schema
+about_url: https://github.com/AuScope/ckan-docker
+
+
+dataset_fields:
+
+- field_name: title
+  label: Title
+  preset: title
+  help_text: The title of the dataset should be informative, short and define technical terms and acronyms
+
+- field_name: description
+  label: Description
+  form_snippet: large_text.html
+  help_text: A summary describing the purpose, nature, and scope of the dataset
+
+# XXX Disabled until we know how this works with DOI minting
+#- field_name: identifier
+#  label: Identifier
+#  help_text: Persistent identifier (DOI) of the dataset
+
+- field_name: keywords
+  label: Keywords
+  preset: tag_string_autocomplete
+  help_text: Keywords help with the discovery of the collection. Enter one or more key terms that describe important aspect of the dataset separated by a comma ','
+
+- field_name: author_name
+  label: Author Name
+  help_text: The full name of the entity, e.g. a person or organization, that created the dataset
+
+- field_name: author_name_type
+  label: Author Name Type
+  preset: radio
+  choices:
+    - value: organizational
+      label: Organizational
+    - value: personal
+      label: Personal
+  help_text: The type of name, e.g. Organizational or Personal
+
+- field_name: author_affiliation
+  label: Author Affiliation
+  help_text: The name of the entity affiliated with the author, e.g. an organization's name (if applicable)
+
+- field_name: author_identifier_scheme
+  label: Author Identifier Scheme
+  preset: select
+  choices:
+    - value: orcid
+      label: ORCID
+    - value: isni
+      label: ISNI
+    - value: lcna
+      label: LCNA
+    - value: viaf
+      label: VIAF
+    - value: gnd
+      label: GND
+    - value: dai
+      label: DAI
+    - value: researcherid
+      label: ResearcherID
+    - value: scopusid
+      label: ScopusID
+    - value: other
+      label: Other
+  help_text: The type of identifier that uniquely identifies the author (e.g. ORCID, ISNI).
+
+- field_name: author_identifier
+  label: Author Identifier
+  preset: dataset_slug
+  help_text: Uniquely identifies an individual or legal entity, according to identifier schemes
+
+- field_name: author_email
+  label: Author Email
+  display_snippet: email.html
+  #display_email_name_field: author
+  help_text: The email of the author
+
+- field_name: primary_contact_name
+  label: Primary Contact Name
+  help_text: A primary contact can be approached by users requesting futher information of the dataset
+
+- field_name: primary_contact_email
+  label: Primary Contact Email
+  display_snippet: email.html
+  #display_email_name_field: author
+  help_text: Email of the primary contact
+
+# XXX Need to be uneditable "AuScope Australia"
+#- field_name: publisher
+#  label: Publisher
+#  help_text: The entity that publishes the dataset - AuScope Australia
+
+# XXX See if we can read in from somewhere, if select only need to store code
+#- field_name: fields_of_reserch
+#  label: Fields of Research
+#  preset:
+#  help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
+
+#- field_name: fields_of_research_code
+#  label: Fields of Research Code
+#  preset:
+#  help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
+
+- field_name: lineage
+  label: Lineage
+  form_snippet: large_text.html
+  help_text: The Lineage should contain information about how the data was produced. Processes involved in the production of the data could be included here
+
+- field_name: start_date
+  label: Start Date
+  preset: date
+  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
+
+- field_name: end_date
+  label: End Date
+  preset: date
+  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
+
+- field_name: locality
+  label: Locality
+  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
+
+# XXX Restrict to decimal, use map widget
+- field_name: point_latitude
+  label: Point Latitude
+  help_text: The latitude of the location of the dataset represents, in WGS84 in decimal degrees
+
+# XXX Restrict to decimal, use map widget
+- field_name: point_longitude
+  label: Point Longitude
+  help_text: The longitude of the location of the dataset represents, in WGS84 in decimal degrees
+
+# XXX Restrict to decimal, use map widget
+- field_name: bounding_box
+  label: Bounding Box
+  help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
+
+- field_name: supplementation_information
+  label: Supplemental Information
+  form_snippet: large_text.html
+  help_text: Any other descriptive information about the dataset that can promote its reuse
+
+- field_name: credit
+  label: Credit
+  form_snippet: large_text.html
+  help_text: The Credit field is where you acknowledge people or organisations who contributed to the collection
+
+- field_name: citation
+  label: Citation
+  form_snippet: large_text.html
+  help_text: The full bibliographic citation of the dataset
+
+- field_name: publication_date
+  label: Publication Date
+  preset: date
+  help_text: The date the dataset is published through the repository
+
+- field_name: resource_type
+  label: Resource Type
+  preset: select
+  choices:
+    - value: website
+      label: Website
+    - value: publication
+      label: Publication
+    - value: dataset
+      label: Dataset
+  help_text: The type of the resource to be published
+
+- field_name: license
+  label: License
+  form_snippet: license.html
+  help_text: License for the distribution and sharing of the dataset (license definitions and additional information can be found at http://opendefinition.org/)
+
+- field_name: funder_name
+  label: Funder Name
+  help_text: Information about financial support for the dataset. Provide the full (official) name of the funding provider, e.g., Australian Research Council (ARC)
+
+- field_name: funder_identifier
+  label: Funder Identifier
+  preset: dataset_slug
+  help_text: Unique identifier of the funding entity
+
+- field_name: funder_identifier_scheme
+  label: Funder Identifier Scheme
+  preset: select
+  choices:
+    - value: crossref_funder_id
+      label: Crossref Funder ID
+    - value: grid
+      label: GRID
+    - value: isni
+      label: ISNI
+    - value: ror
+      label: ROR
+    - value: wikidata
+      label: Wikidata
+  help_text: The type of the funder identifier
+
+- field_name: project_grant_id
+  label: Project or Grant ID
+  help_text: The code assigned by the funder to a sponsored grant or project of the dataset
+
+- field_name: project_grant_name
+  label: Project or Grant Name
+  help_text: The full name of sponsored project/grant of the dataset
+
+# XXX Values not ready yet
+#- field_name: related_resource_type
+#  label: Related Resource Type
+#  preset: select
+#  choices:
+#      - value:
+#        label:
+#  help_text: Select the type of this related resource
+
+- field_name: related_resource_url
+  label: Related Resource URL
+  preset: dataset_slug
+  help_text: Associated resources (e.g. report, article, data) related to the dataset. Enter the complete URL address of the related link. Permanent links are preferred
+
+- field_name: related_resource_title
+  label: Related Resource Title
+  help_text: Enter the short title that represents the related resource
+
+- field_name: relation_type
+  label: Relation Type
+  help_text: Description of the relationship from the dataset being published to the related resource
+

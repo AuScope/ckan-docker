@@ -15,7 +15,7 @@ services:
       args:
         - TZ=${TZ}
     env_file:
-      - .env
+      - .env.dev
     depends_on:
       db:
         condition: service_healthy

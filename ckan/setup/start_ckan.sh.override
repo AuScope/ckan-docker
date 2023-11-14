@@ -24,7 +24,8 @@ ckan config-tool $CKAN_INI "ckanext.doi.test_mode = True" # Set to False for pro
 ckan -c $CKAN_INI doi initdb
 
 # Run the prerun script to init CKAN and create the default admin user
-su ckan -c "/usr/bin/python3 prerun.py"
+#su ckan -c "/usr/bin/python3 prerun.py"
+su ckan -c "python3 prerun.py"
 
 echo "Set up ckan.datapusher.api_token in the CKAN config file"
 ckan config-tool $CKAN_INI "ckan.datapusher.api_token=$(ckan -c $CKAN_INI user token add ckan_admin datapusher | tail -n 1 | tr -d '\t')"
