@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "ckan-helm.datapusher.fullname" . }}
+  labels:
+{{ include "ckan-helm.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.datapusher.service.type }}
+  ports:
+    - port: {{ .Values.datapusher.service.port }}
+      targetPort: datapusher
+      protocol: TCP
+      name: datapusher
+  selector:
+    app: {{ include "ckan-helm.datapusher.fullname" . }}

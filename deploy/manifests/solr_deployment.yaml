@@ -1,0 +1,33 @@
+# solr-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solr
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solr
+  template:
+    metadata:
+      labels:
+        app: solr
+    spec:
+      containers:
+      - name: solr
+        image: ckan/ckan-solr:2.10-solr9-spatial # solr:latest  # Use the appropriate image for Solr
+        resources:
+          requests:
+            memory: "1Gi" # Adjust the memory request as needed
+            cpu: "100m"    # Adjust the CPU request as needed (250m means 0.25 cores)
+          limits:
+            memory: "1Gi"  # Adjust the memory limit as needed
+            cpu: "100m"    # Adjust the CPU limit as needed (500m means 0.5 cores)
+        volumeMounts:
+        - name: solr-storage
+          mountPath: /var/solr
+      volumes:
+      - name: solr-storage
+        persistentVolumeClaim:
+          claimName: solr-pvc

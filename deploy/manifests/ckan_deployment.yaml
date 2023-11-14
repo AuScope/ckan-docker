@@ -1,0 +1,42 @@
+# ckan-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ckan
+  namespace: apps
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ckan
+  template:
+    metadata:
+      labels:
+        app: ckan
+    spec:
+      containers:
+      - name: ckan
+        image: benmotevalli/ckan-auscope # ckan-docker-ckan:latest # ckan/ckan:2.10.1
+        resources:
+          requests:
+            memory: "512Mi" # Adjust the memory request as needed
+            cpu: "200m"    # Adjust the CPU request as needed (250m means 0.25 cores)
+          limits:
+            memory: "2Gi"  # Adjust the memory limit as needed
+            cpu: "200m"    # Adjust the CPU limit as needed (500m means 0.5 cores)
+        envFrom:
+        - configMapRef:
+            name: env-ckan-config
+      #   volumeMounts:
+      #   - name: ckan-storage
+      #     mountPath: /var/lib/ckan
+      #   # readinessProbe:
+      #   #   httpGet:
+      #   #     path: /api/3/action/status_show
+      #   #     port: 5000
+      #   #   initialDelaySeconds: 30
+      #   #   timeoutSeconds: 5
+      # volumes:
+      # - name: ckan-storage
+      #   persistentVolumeClaim:
+      #     claimName: ckan-pvc

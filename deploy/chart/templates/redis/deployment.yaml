@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ckan-helm.redis.fullname" . }}
+  labels:
+    {{- include "ckan-helm.labels" . | nindent 4 }}
+spec:
+  serviceName: "{{ include "ckan-helm.redis.fullname" . }}"
+  replicas: {{ .Values.redis.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "ckan-helm.redis.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "ckan-helm.redis.fullname" . }}
+    spec:
+      containers:
+      - name: redis
+        image: "{{ .Values.redis.image.repository }}:{{ .Values.redis.image.tag }}"
+        ports:
+        - name: redis
+          containerPort: {{ .Values.redis.service.port }}
+        resources:
+          {{- toYaml .Values.redis.resources | nindent 10 }}
+        livenessProbe:
+          {{- toYaml .Values.redis.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.redis.readinessProbe | nindent 10 }}
+        envFrom:
+          - configMapRef:
+              name: {{.Values.global.appName}}-{{ .Release.Name }}-config
+          - secretRef:
+              name: {{.Values.global.appName}}-{{ .Release.Name }}-secrets
+

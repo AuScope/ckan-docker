@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "ckan-helm.postgresql.fullname" . }}
+  labels:
+    {{- include "ckan-helm.labels" . | nindent 4 }}
+spec:
+  serviceName: "{{ include "ckan-helm.postgresql.fullname" . }}"
+  replicas: {{ .Values.postgresql.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "ckan-helm.postgresql.fullname" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "ckan-helm.postgresql.fullname" . }}
+    spec:
+      containers:
+      - name: postgres
+        image: "{{ .Values.postgresql.image.repository }}:{{ .Values.postgresql.image.tag }}"
+        resources:
+          {{- toYaml .Values.postgresql.resources | nindent 10 }}
+        livenessProbe:
+          {{- toYaml .Values.postgresql.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.postgresql.readinessProbe | nindent 10 }}
+        ports:
+        - name: postgres
+          containerPort: {{ .Values.postgresql.service.port }}
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+        {{- if .Values.postgresql.initScripts.enabled }}
+        - name: init-scripts
+          mountPath: /docker-entrypoint-initdb.d
+        {{- end }}
+        envFrom:
+          - configMapRef:
+              name: {{.Values.global.appName}}-{{ .Release.Name }}-config
+          - secretRef:
+              name: {{.Values.global.appName}}-{{ .Release.Name }}-secrets
+        env:
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        # Add other environment variables as needed here
+      volumes:
+      {{- if .Values.postgresql.initScripts.enabled }}
+      - name: init-scripts
+        configMap:
+          name: {{ include "ckan-helm.postgresql.fullname" . }}-init-scripts
+          defaultMode: 0744
+      {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-data
+    spec:
+      accessModes:
+      - "ReadWriteOnce"
+      resources:
+        requests:
+          storage: {{ .Values.postgresql.persistence.size }}
+      storageClassName: {{ .Values.postgresql.persistence.storageClass | quote }}
