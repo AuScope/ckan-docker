@@ -20,6 +20,22 @@
 
 }
 
+/*! Squarespace LESS Compiler  (less.js language v1.3.3)  */
+@font-face {
+    font-family: 'Calibre-light';
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b718f950b713d5f073c3/1531295513244/CalibreWeb-Light.eot');
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b718f950b713d5f073c3/1531295513244/CalibreWeb-Light.eot?#iefix') format('embedded-opentype'),url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b76a2b6a28c31c635df2/1531295594953/CalibreWeb-Light.woff') format('woff');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Calibre-Medium';
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b86ff950b713d5f08f05/1531295855849/CalibreWeb-Medium.eot');
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b86ff950b713d5f08f05/1531295855849/CalibreWeb-Medium.eot?#iefix') format('embedded-opentype'),url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b872aa4a99336fbaf2c3/1531295858310/CalibreWeb-Medium.woff') format('woff');
+    font-weight: normal;
+    font-style: normal
+}
 
 .homepage .hero, 
 .homepage .module-feeds, 
