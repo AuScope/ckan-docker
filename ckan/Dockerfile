@@ -31,6 +31,7 @@ RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext
 
 # For production copy the source files into the image (Dev will mount them as a volume)
 COPY src ${APP_DIR}/src_extensions
+COPY src/shared /shared
 
 # Adding below paths similar to above.
 COPY src/shared/public /shared/public
@@ -38,6 +39,5 @@ COPY src/shared/templates /shared/templates
 
 # # Install the extension(s) you wrote for your own project
 RUN pip install $APP_DIR/src_extensions/ckanext-oidc-pkce && \
-  pip install $APP_DIR/src_extensions/ckanext-auscope-theme && \
-  pip install $APP_DIR/src_extensions/ckanext-igsn-theme
-
+  pip install -e $APP_DIR/src_extensions/ckanext-auscope-theme && \
+  pip install -e $APP_DIR/src_extensions/ckanext-igsn-theme

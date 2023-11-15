@@ -74,7 +74,7 @@ ckan config-tool $SRC_DIR/ckan/test-core.ini \
     "ckan.redis.url = $TEST_CKAN_REDIS_URL"
 
 ckan config-tool $CKAN_INI "scheming.presets = ckanext.scheming:presets.json"
-ckan config-tool $CKAN_INI "scheming.dataset_schemas = ckanext.auscope_theme:data_repository_schema_min.yaml"
+ckan config-tool $CKAN_INI "scheming.dataset_schemas = ckanext.auscope_theme:data_repository_schema.yaml"
 
 # DOI config
 ckan config-tool $CKAN_INI "ckanext.doi.account_name = my-account-name"

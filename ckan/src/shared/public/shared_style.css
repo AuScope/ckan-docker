@@ -14,11 +14,27 @@
   /* Body font family now uses Arial as the primary typeface */
   --bs-body-font-family: var(--bs-font-sans-serif);
   
-  /* Continue with the original settings for font size, weight, and line height */
-  --bs-body-font-size: 0.875rem; /* Keep the original size or update it as needed */
-  --bs-body-font-weight: 400; /* Keep the original weight or update it as needed */
-  --bs-body-line-height: 1.5; /* Keep the original line height or update it as needed */
+  --bs-body-font-size: 1.063rem;
+  --bs-body-font-weight: 400;
+  --bs-body-line-height: 1.5; 
 
+}
+
+/*! Squarespace LESS Compiler  (less.js language v1.3.3)  */
+@font-face {
+    font-family: 'Calibre-light';
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b718f950b713d5f073c3/1531295513244/CalibreWeb-Light.eot');
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b718f950b713d5f073c3/1531295513244/CalibreWeb-Light.eot?#iefix') format('embedded-opentype'),url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b76a2b6a28c31c635df2/1531295594953/CalibreWeb-Light.woff') format('woff');
+    font-weight: normal;
+    font-style: normal
+}
+
+@font-face {
+    font-family: 'Calibre-Medium';
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b86ff950b713d5f08f05/1531295855849/CalibreWeb-Medium.eot');
+    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b86ff950b713d5f08f05/1531295855849/CalibreWeb-Medium.eot?#iefix') format('embedded-opentype'),url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b872aa4a99336fbaf2c3/1531295858310/CalibreWeb-Medium.woff') format('woff');
+    font-weight: normal;
+    font-style: normal
 }
 
 .homepage .hero, 
@@ -30,6 +46,9 @@
     background-color: var(--color-background-default);
 }
 
+.form-actions {
+  padding-bottom: 20px;
+}
 /* =====================================================
    Typography styles for headers   
 ===================================================== */
@@ -82,7 +101,7 @@ h1+h1,h1+h2,h1+h3,h2+h1,h2+h2,h2+h3,h3+h1,h3+h2,h3+h3 {
 }
 
 h1 {
-    color: var(--bs-teal)
+    color: var(--color-aus-black)
 }
 
 h1 a {
@@ -206,6 +225,7 @@ hr {
 /* The text and icons in the user account info. */
 .account-masthead .account ul li a {
   color: var(--color-aus-black);
+  font-size: 1rem;
 }
 .account-masthead .account ul li a:hover {
   background-color: var(--color-aus-royal-blue);
@@ -223,6 +243,7 @@ hr {
 }
 .masthead .main-navbar ul li a {
   color: var(--color-aus-black);
+  font-size: 1.2rem;
 }
 
 .masthead .main-navbar ul li:hover a,
@@ -241,6 +262,8 @@ hr {
   background-color: rgb(48, 48, 48);
   color: var(--color-aus-royal-blue);
 }
+
+
 
 .logo-text {
   font-weight: bold;
@@ -279,7 +302,11 @@ hr {
 }
 /* Change the background color of the "Popular Tags" box. */
 .homepage .module-search .tags {
-  background-color: var(--bs-teal);
+  background-color: var(--color-aus-royal-blue);
+}
+.homepage .module-search .tags h3 {
+  color: var(--bs-white);
+  font-size: 1rem;
 }
 /* Remove some padding. This makes the bottom edges of the "Welcome to CKAN"
    and "Search Your Data" boxes line up. */
@@ -295,7 +322,8 @@ hr {
 }
 
 .media-overlay .media-heading {
-  background-color: var(--bs-teal);
+  background-color: var(--color-aus-royal-blue);
+  font-size: 1rem;
 }
 /* ====================================
    The footer at the bottom of the site
@@ -321,12 +349,12 @@ body {
 }
 
 /* Footer Top Blocks Styling */
-.footerBlocksTop {
+.site-footer img {
   max-width: 140px;
   height: auto !important;
 }
 
-.footerBlocksTop strong {
+.site-footer strong {
   font-family: 'Calibre-Medium', sans-serif;
   letter-spacing: 0.035em;
 }
@@ -338,17 +366,26 @@ body {
 
 .site-footer a.social-media-link {
   text-decoration: none;
+  margin-right: 5px;
 }
 
-/* Consistent Box Sizing */
+.social-media-link i {
+    font-size: 1.25em; 
+}
+
 .site-footer *, .site-footer *::before, .site-footer *::after {
   box-sizing: border-box;
+}
+
+.site-footer .col-md-4 {
+  margin-top: 40px ;  
+  margin-bottom: 40px ;
 }
 
 /* Footer Bottom Styling */
 .footer-bottom {
   margin: 0;
-  background-color: #b5b5b5; /* Consider using a variable for consistency */
+  margin-bottom: 50px ;
 }
 
 .footer-bottom p {
@@ -356,7 +393,7 @@ body {
 }
 
 .footer-bottom em {
-  color: var(--color-aus-royal-blue) !important;
+  color: #7e7caa;
   font-style: normal;
-  font-size: 0.75rem !important;
+  font-size: 0.938rem !important;
 }
