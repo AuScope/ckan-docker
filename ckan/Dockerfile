@@ -21,9 +21,13 @@ RUN pip install -r /tmp/spatial-reqs.txt
 ### DOI extension ###
 RUN pip install ckanext-doi
 COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
+COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 
 ### Contact extension ###
 RUN pip install -e "git+https://github.com/NaturalHistoryMuseum/ckanext-contact.git#egg=ckanext-contact"
+
+### Schemeing Extension
+RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming"
 
 # For production copy the source files into the image (Dev will mount them as a volume)
 COPY src ${APP_DIR}/src_extensions
