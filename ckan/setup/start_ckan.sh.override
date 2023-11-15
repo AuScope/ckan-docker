@@ -15,7 +15,7 @@ then
     ckan config-tool $CKAN_INI "api_token.jwt.decode.secret=${JWT_SECRET}"
 fi
 
-# Need to see if this is necessary
+# This seems to be necessary as the envvar equivlents are not resolved
 ckan config-tool $CKAN_INI "scheming.presets = ckanext.scheming:presets.json"
 ckan config-tool $CKAN_INI "scheming.dataset_schemas = ckanext.auscope_theme:data_repository_schema.yaml"
 
