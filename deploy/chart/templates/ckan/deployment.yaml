@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: Deployment # StatefulSet
 metadata:
   name: {{ include "ckan-helm.ckan.fullname" . }}
   labels:
@@ -14,6 +14,20 @@ spec:
       labels:
         app: {{ include "ckan-helm.ckan.fullname" . }}
     spec:
+      # initContainers:
+      #   - name: check-postgres
+      #     image: appropriate/curl
+      #     command: ['sh', '-c', 'until curl -sf http://postgres-service:5432; do echo waiting for postgres; sleep 2; done;']
+      #   - name: check-solr
+      #     image: appropriate/curl
+      #     command: ['sh', '-c', 'until curl -sf $CKAN_SOLR_URL; do echo waiting for solr; sleep 2; done;']
+      #   - name: check-datapusher
+      #     image: appropriate/curl
+      #     command: ['sh', '-c', 'until curl -sf $CKAN_DATAPUSHER_URL; do echo waiting for datapusher; sleep 2; done;']
+      #   - name: check-redis
+      #     image: appropriate/curl
+      #     command: ['sh', '-c', 'until curl -sf $CKAN_REDIS_URL; do echo waiting for redis; sleep 2; done;']
+
       # initContainers:
       # - name: ckan-volume-permissions
       #   image: busybox
@@ -34,11 +48,21 @@ spec:
               name: {{.Values.global.appName}}-{{ .Release.Name }}-config
           - secretRef:
               name: {{.Values.global.appName}}-{{ .Release.Name }}-secrets
-      #   volumeMounts:
-      #   - name: ckan-storage
-      #     mountPath: /var/lib/ckan
-      # volumes:
-      #   - name: ckan-storage
-      #     persistentVolumeClaim:
-      #       claimName: {{ include "ckan-helm.ckan.fullname" . }}-pvc
+        volumeMounts:
+        - name: ckan-storage
+          mountPath: /var/lib/ckan
+      volumes:
+        - name: ckan-storage
+          persistentVolumeClaim:
+            claimName: {{ include "ckan-helm.ckan.fullname" . }}-pvc
+  # volumeClaimTemplates:
+  # - metadata:
+  #     name: ckan-storage
+  #   spec:
+  #     accessModes:
+  #     - {{ .Values.ckan.persistence.accessMode }}
+  #     resources:
+  #       requests:
+  #         storage: {{ .Values.ckan.persistence.size }}
+  #     storageClassName: {{ .Values.ckan.persistence.storageClass | quote }}
 

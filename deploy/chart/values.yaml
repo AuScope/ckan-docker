@@ -81,8 +81,8 @@ affinity: {}
 ckan:
   replicaCount: 1
   image:
-    repository: benmotevalli/ckan-auscope
-    tag: latest
+    repository: benmotevalli/ckan-auscope # benmotevalli/ckan-auscope-dev # benmotevalli/ckan-auscope
+    tag: prod # latest
   service:
     type: ClusterIP
     port: 5000
@@ -347,6 +347,10 @@ secrets:
   CKAN_SQLALCHEMY_URL: postgresql://ckandbuser:ckandbpassword@db/ckandb
   CKAN_DATASTORE_WRITE_URL: postgresql://ckandbuser:ckandbpassword@db/datastore
   CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore
+
+  TEST_CKAN_SQLALCHEMY_URL: postgres://ckan:ckan@db/ckan_test
+  TEST_CKAN_DATASTORE_WRITE_URL: postgresql://ckan:ckan@db/datastore_test
+  TEST_CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore_test
 
   # CKAN_DATASTORE_WRITE_URL: postgresql://{{ .Values.secrets.CKAN_DB_USER }}:{{ .Values.secrets.CKAN_DB_PASSWORD }}@{{ include "ckan-helm.postgresql.fullname" . }}/{{ .Values.globalEnv.DATASTORE_DB }}
   # CKAN_DATASTORE_READ_URL: postgresql://{{ .Values.secrets.DATASTORE_READONLY_USER }}:{{ .Values.secrets.DATASTORE_READONLY_PASSWORD }}@{{ include "ckan-helm.postgresql.fullname" . }}/{{ .Values.globalEnv.DATASTORE_DB }}
