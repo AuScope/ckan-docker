@@ -6,9 +6,25 @@ metadata:
   namespace: cmr-avre-team
   annotations:
     kubernetes.io/ingress.class: "alb"
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-2:444488357543:certificate/9a531f14-c9bb-47c5-bf4c-5423d3731533
+    alb.ingress.kubernetes.io/group.name: auscope-data  # Used to refer to the same load balancer
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/success-codes: 200,302
+    alb.ingress.kubernetes.io/target-type: ip
+    # alb.ingress.kubernetes.io/auth-on-unauthenticated-request: allow # Don't authenticate by default
+    # alb.ingress.kubernetes.io/auth-scope: "email openid profile aws.cognito.signin.user.admin"
+    # alb.ingress.kubernetes.io/auth-session-cookie: AWSELBAuthSessionCookie
+    # alb.ingress.kubernetes.io/auth-session-timeout: "43200"
+    # alb.ingress.kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=43200
+    # alb.ingress.kubernetes.io/auth-type: oidc
+    # alb.ingress.kubernetes.io/actions.redirect-to-wordpress: '{"Type":"redirect","RedirectConfig":{"Host":"research.csiro.au","Path":"/xt","Port":"443","Protocol":"HTTPS","Query":"#{query}","StatusCode":"HTTP_301"}}'
+    # alb.ingress.kubernetes.io/actions.redirect-to-servicedesk: '{"Type":"redirect","RedirectConfig":{"Host":"jira-sd.csiro.au","Path":"/servicedesk/customer/portal/76","Port":"443","Protocol":"HTTPS","Query":"#{query}","StatusCode":"HTTP_301"}}'
+
 spec:
   rules:
-  - host: ckan.dorfak-group.com
+  - host: ckan-test.exploration.tools
     http:
       paths:
       - path: /

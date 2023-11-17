@@ -8,17 +8,23 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
+  {{- if .Values.useDumpedEnvs}}
+  {{- range $key, $value := .Values.globalDumpedEnv }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- else }}
   {{- range $key, $value := .Values.globalEnv }}
   {{ $key }}: {{ $value | quote }}
   {{- end }}
-  # CKAN_PORT_HOST: "{{ .Values.ckan.service.port }}"
-  # CKAN_PORT: "{{ .Values.ckan.service.port }}"
-  # SOLR_PORT: "{{ .Values.solr.service.port }}"
-  # CKAN_SOLR_URL: http://{{ include "ckan-helm.solr.fullname" . }}:{{ .Values.solr.service.port }}/solr/ckan # http://solr:{{ .Values.solr.service.port }}/solr/ckan
-  # CKAN_SITE_URL: https://localhost:{{ .Values.ckan.service.port }}
-  # TEST_CKAN_SOLR_URL: http://{{ include "ckan-helm.solr.fullname" . }}/solr/ckan # http://solr:{{ .Values.solr.service.port }}/solr/ckan
-  # CKAN_REDIS_URL: redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://redis:{{ .Values.redis.service.port }}/1
-  # TEST_CKAN_REDIS_URL: redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://redis:{{ .Values.redis.service.port }}/1
-  # CKAN_DATAPUSHER_URL: http://{{ include "ckan-helm.datapusher.fullname" . }}:{{ .Values.datapusher.service.port }} # http://datapusher:{{ .Values.datapusher.service.port }}
-  # CKAN__DATAPUSHER__CALLBACK_URL_BASE: http://{{ include "ckan-helm.ckan.fullname" . }}:{{ .Values.ckan.service.port }} # http://ckan:{{ .Values.ckan.service.port }}
-  # DATAPUSHER_REWRITE_URL: http://{{ include "ckan-helm.ckan.fullname" . }}:{{ .Values.ckan.service.port }} # http://ckan:{{ .Values.ckan.service.port }}
+  CKAN_PORT_HOST: "{{ .Values.ckan.service.port }}"
+  CKAN_PORT: "{{ .Values.ckan.service.port }}"
+  SOLR_PORT: "{{ .Values.solr.service.port }}"
+  CKAN_SOLR_URL: http://{{ include "ckan-helm.solr.fullname" . }}:{{ .Values.solr.service.port }}/solr/ckan # http://solr:{{ .Values.solr.service.port }}/solr/ckan
+  CKAN_SITE_URL: https://localhost:{{ .Values.ckan.service.port }}
+  TEST_CKAN_SOLR_URL: http://{{ include "ckan-helm.solr.fullname" . }}/solr/ckan # http://solr:{{ .Values.solr.service.port }}/solr/ckan
+  CKAN_REDIS_URL: redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://redis:{{ .Values.redis.service.port }}/1
+  TEST_CKAN_REDIS_URL: redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://{{ include "ckan-helm.redis.fullname" . }}:{{ .Values.redis.service.port }}/1 # redis://redis:{{ .Values.redis.service.port }}/1
+  CKAN_DATAPUSHER_URL: http://{{ include "ckan-helm.datapusher.fullname" . }}:{{ .Values.datapusher.service.port }} # http://datapusher:{{ .Values.datapusher.service.port }}
+  CKAN__DATAPUSHER__CALLBACK_URL_BASE: http://{{ include "ckan-helm.ckan.fullname" . }}:{{ .Values.ckan.service.port }} # http://ckan:{{ .Values.ckan.service.port }}
+  DATAPUSHER_REWRITE_URL: http://{{ include "ckan-helm.ckan.fullname" . }}:{{ .Values.ckan.service.port }} # http://ckan:{{ .Values.ckan.service.port }}
+  {{- end}}

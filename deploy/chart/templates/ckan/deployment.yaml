@@ -20,7 +20,11 @@ spec:
       #     command: ['sh', '-c', 'until curl -sf http://postgres-service:5432; do echo waiting for postgres; sleep 2; done;']
         - name: check-solr
           image: appropriate/curl
+          {{- if .Values.useDumpedEnvs}}
           command: ['sh', '-c', 'until curl -sf http://solr:{{.Values.solr.service.port}}; do echo waiting for solr; sleep 2; done;']
+          {{- else}}
+          command: ['sh', '-c', 'until curl -sf http://{{ include "ckan-helm.solr.fullname" . }}:{{.Values.solr.service.port}}; do echo waiting for solr; sleep 2; done;']
+          {{- end}}
       #   - name: check-datapusher
       #     image: appropriate/curl
       #     command: ['sh', '-c', 'until curl -sf $CKAN_DATAPUSHER_URL; do echo waiting for datapusher; sleep 2; done;']
