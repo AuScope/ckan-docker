@@ -14,27 +14,26 @@ spec:
       labels:
         app: {{ include "ckan-helm.ckan.fullname" . }}
     spec:
-      # initContainers:
+      initContainers:
       #   - name: check-postgres
       #     image: appropriate/curl
       #     command: ['sh', '-c', 'until curl -sf http://postgres-service:5432; do echo waiting for postgres; sleep 2; done;']
-      #   - name: check-solr
-      #     image: appropriate/curl
-      #     command: ['sh', '-c', 'until curl -sf $CKAN_SOLR_URL; do echo waiting for solr; sleep 2; done;']
+        - name: check-solr
+          image: appropriate/curl
+          command: ['sh', '-c', 'until curl -sf http://solr:{{.Values.solr.service.port}}; do echo waiting for solr; sleep 2; done;']
       #   - name: check-datapusher
       #     image: appropriate/curl
       #     command: ['sh', '-c', 'until curl -sf $CKAN_DATAPUSHER_URL; do echo waiting for datapusher; sleep 2; done;']
       #   - name: check-redis
       #     image: appropriate/curl
       #     command: ['sh', '-c', 'until curl -sf $CKAN_REDIS_URL; do echo waiting for redis; sleep 2; done;']
+        - name: ckan-volume-permissions
+          image: busybox
+          command: ['sh', '-c', 'chmod -R 777 /var/lib/ckan']
+          volumeMounts:
+          - mountPath: /var/lib/ckan
+            name: ckan-storage
 
-      # initContainers:
-      # - name: ckan-volume-permissions
-      #   image: busybox
-      #   command: ['sh', '-c', 'chown -R 0:0 /var/lib/ckan']
-      #   volumeMounts:
-      #   - mountPath: /var/lib/ckan
-      #     name: ckan-storage
       containers:
       - name: ckan
         image: "{{ .Values.ckan.image.repository }}:{{ .Values.ckan.image.tag }}"
@@ -55,14 +54,16 @@ spec:
         - name: ckan-storage
           persistentVolumeClaim:
             claimName: {{ include "ckan-helm.ckan.fullname" . }}-pvc
-  # volumeClaimTemplates:
-  # - metadata:
-  #     name: ckan-storage
-  #   spec:
-  #     accessModes:
-  #     - {{ .Values.ckan.persistence.accessMode }}
-  #     resources:
-  #       requests:
-  #         storage: {{ .Values.ckan.persistence.size }}
-  #     storageClassName: {{ .Values.ckan.persistence.storageClass | quote }}
-
+---
+# Ckan-PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "ckan-helm.ckan.fullname" . }}-pvc
+spec:
+    accessModes:
+    - {{ .Values.ckan.persistence.accessMode }}
+    resources:
+      requests:
+        storage: {{ .Values.ckan.persistence.size }}
+    storageClassName: {{ .Values.ckan.persistence.storageClass | quote }}

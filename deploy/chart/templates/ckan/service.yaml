@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ckan-helm.ckan.fullname" . }}
+  name: ckan # {{ include "ckan-helm.ckan.fullname" . }}
   labels:
 {{ include "ckan-helm.labels" . | nindent 4 }}
 spec:

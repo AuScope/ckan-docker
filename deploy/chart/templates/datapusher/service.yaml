@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ckan-helm.datapusher.fullname" . }}
+  name: datapusher # {{ include "ckan-helm.datapusher.fullname" . }}
   labels:
 {{ include "ckan-helm.labels" . | nindent 4 }}
 spec:
