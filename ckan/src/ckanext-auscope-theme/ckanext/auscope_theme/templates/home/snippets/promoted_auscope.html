@@ -15,13 +15,18 @@
       </p>
     {% endif %}
   </div>
-
+  <style>
+    .cropped-image {
+      object-fit: cover;
+      max-height: 350px; 
+    }
+  </style>
   {% block home_image %}
     <section class="featured media-overlay hidden-xs">
       <h2 class="media-heading">{% block home_image_caption %}{{ _("This is a featured section") }}{% endblock %}</h2>
       {% block home_image_content %}
         <a class="media-image" href="#">
-          <img class="img-fluid" src="{{ h.url_for_static('/base/images/placeholder-420x220.png') }}" alt="Placeholder" />
+          <img class="img-fluid cropped-image" src="{{ h.url_for_static('/base/images/RS6242_Maia 63244_corrected_balfeti.jpg') }}" alt="Placeholder" />
         </a>
       {% endblock %}
     </section>

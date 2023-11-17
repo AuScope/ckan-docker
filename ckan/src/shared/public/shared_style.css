@@ -8,34 +8,32 @@
   --bs-font-sans-serif: 'Calibre-light', Arial, sans-serif;
   --bs-font-serif: 'Karmina', Georgia, serif;
   
-  /* If need to have a monospace typeface guideline, update it as needed, otherwise keep the original */
   --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  
-  /* Body font family now uses Arial as the primary typeface */
   --bs-body-font-family: var(--bs-font-sans-serif);
-  
   --bs-body-font-size: 1.063rem;
   --bs-body-font-weight: 400;
   --bs-body-line-height: 1.5; 
 
 }
 
-/*! Squarespace LESS Compiler  (less.js language v1.3.3)  */
+
 @font-face {
     font-family: 'Calibre-light';
-    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b718f950b713d5f073c3/1531295513244/CalibreWeb-Light.eot');
-    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b718f950b713d5f073c3/1531295513244/CalibreWeb-Light.eot?#iefix') format('embedded-opentype'),url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b76a2b6a28c31c635df2/1531295594953/CalibreWeb-Light.woff') format('woff');
+    src: url('/base/fonts/CalibreWeb-Light.eot');
+    src: url('/base/fonts/CalibreWeb-Light.eot?#iefix') format('embedded-opentype'),
+    url('/base/fonts/CalibreWeb-Light.woff') format('woff');
     font-weight: normal;
-    font-style: normal
+    font-style: normal;
 }
 
 @font-face {
     font-family: 'Calibre-Medium';
-    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b86ff950b713d5f08f05/1531295855849/CalibreWeb-Medium.eot');
-    src: url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b86ff950b713d5f08f05/1531295855849/CalibreWeb-Medium.eot?#iefix') format('embedded-opentype'),url('https://static1.squarespace.com/static/5b440dc18ab722131f76b631/t/5b45b872aa4a99336fbaf2c3/1531295858310/CalibreWeb-Medium.woff') format('woff');
+    src: url('/base/fonts/CalibreWeb-Medium.eot');
+    src: url('/base/fonts/CalibreWeb-Medium.eot?#iefix') format('embedded-opentype'),
+    url('/base/fonts/CalibreWeb-Medium.woff') format('woff');
     font-weight: normal;
     font-style: normal
-}
+} 
 
 .homepage .hero, 
 .homepage .module-feeds, 
@@ -45,10 +43,29 @@
     background: none;
     background-color: var(--color-background-default);
 }
-
 .form-actions {
   padding-bottom: 20px;
 }
+
+h5, .h5,
+h6, .h6,
+.form-control,
+.form-select,
+.input-group-text,
+.btn,
+.dropdown-menu,
+.toast,
+.popover-header,
+.fs-5,
+.fs-6,
+.module-heading,
+.module-narrow .nav-aside li a,
+.homepage .module-search .tags h3, .homepage .module-search .tags .h3,
+.site-footer .attribution p,
+.site-footer .lang-select .form-group label   {
+  font-size: var(--bs-body-font-size);
+}
+
 /* =====================================================
    Typography styles for headers   
 ===================================================== */
@@ -214,6 +231,7 @@ hr {
     background: none;
     background-color: var(--color-background-default);
 }
+
 /* The "bubble" containing the number of new notifications. */
 .account-masthead .account .notifications a span {
   background-color: var(--color-aus-black);
@@ -223,15 +241,19 @@ hr {
     border-left: none;
 }
 /* The text and icons in the user account info. */
+.account-masthead,
 .account-masthead .account ul li a {
+  background: none;
+  background-color: var(--color-background-default);
   color: var(--color-aus-black);
   font-size: 1rem;
+  border: none;
+  box-shadow: none;
 }
 .account-masthead .account ul li a:hover {
   background-color: var(--color-aus-royal-blue);
   color: var( --bs-white); 
 }
-
 
 /* ========================================================================
    The main masthead bar that contains the site logo, nav links, and search
@@ -396,4 +418,45 @@ body {
   color: #7e7caa;
   font-style: normal;
   font-size: 0.938rem !important;
+}
+
+.login-info-message {
+  display: block; /* or inline-block */
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+
+.btn{
+  font-weight: normal; 
+}
+.btn-primary {
+    color: var(--bs-white);
+    background-color: var(--color-aus-royal-blue);
+    border-color: var(--color-aus-royal-blue);
+        box-shadow: none;
+
+}
+
+.btn-check:checked + .btn-primary, .btn-check:active + .btn-primary, .btn-primary:active, .btn-primary.active, .show > .btn-primary.dropdown-toggle {
+    color: var(--bs-white);
+    background-color: var(--color-aus-royal-blue);
+    border-color: var(--color-aus-royal-blue);
+        box-shadow: none;
+
+}
+
+.btn-check:focus + .btn-primary, .btn-primary:focus {
+    color: var(--bs-white);
+    background-color: var(--color-aus-royal-blue);
+    border-color:var(--color-aus-royal-blue);
+    box-shadow: none;
+}
+.btn-primary:hover {
+    color: var(--bs-white);
+    background-color:var(--color-aus-royal-blue);
+    border-color: var(--color-aus-royal-blue);
+        box-shadow: none;
+
 }
