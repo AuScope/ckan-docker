@@ -24,7 +24,7 @@ COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
 COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 
 ### Contact extension ###
-RUN pip install -e "git+https://github.com/NaturalHistoryMuseum/ckanext-contact.git#egg=ckanext-contact"
+RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckanext-contact"
 
 ### Schemeing Extension
 RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming"
