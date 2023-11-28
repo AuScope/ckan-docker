@@ -1,3 +1,4 @@
+schema_wip.yaml
 scheming_version: 2
 dataset_type: dataset
 about: AuScope Data Repository schema
@@ -6,30 +7,47 @@ about_url: https://github.com/AuScope/ckan-docker
 dataset_fields:
   - field_name: title
     label: Title
+    required: true
     preset: title
     help_text: The title of the dataset should be informative, short and define technical terms and acronyms
 
-  - field_name: description
-    label: Description
-    form_snippet: large_text.html
-    help_text: A summary describing the purpose, nature, and scope of the dataset
+  - field_name: name
+    label: URL
+    preset: dataset_slug
+    form_placeholder: eg. my-dataset
 
-  # XXX Disabled until we know how this works with DOI minting
-  #- field_name: identifier
-  #  label: Identifier
-  #  help_text: Persistent identifier (DOI) of the dataset
+  # field_name conflicts with documentation (identifier)
+  - field_name: doi
+    label: Identifier
+    form_placeholder: A DOI will be automatically minted when the dataset is published
+    #form_snippet: uneditable.html
+    form_attrs:
+      disabled: true
+    help_text: Persistent identifier (DOI) of the dataset
+
+  # XXX This conflicts with resource description, changed to notes to match original schema
+  #- field_name: description
+  - field_name: notes
+    label: Description
+    preset: markdown
+    help_text: A summary describing the purpose, nature, and scope of the dataset
 
   - field_name: keywords
     label: Keywords
     preset: tag_string_autocomplete
     help_text: Keywords help with the discovery of the collection. Enter one or more key terms that describe important aspect of the dataset separated by a comma ','
 
-  - field_name: author_name
+  # XXX This was causing an error with DOI
+  #- field_name: author_name
+  - field_name: author
     label: Author Name
+    required: true
+    display_property: dc:creator
     help_text: The full name of the entity, e.g. a person or organization, that created the dataset
 
   - field_name: author_name_type
     label: Author Name Type
+    required: true
     preset: radio
     choices:
       - value: organizational
@@ -40,10 +58,12 @@ dataset_fields:
 
   - field_name: author_affiliation
     label: Author Affiliation
+    required: true
     help_text: The name of the entity affiliated with the author, e.g. an organization's name (if applicable)
 
   - field_name: author_identifier_scheme
     label: Author Identifier Scheme
+    required: true
     preset: select
     choices:
       - value: orcid
@@ -72,39 +92,203 @@ dataset_fields:
 
   - field_name: author_email
     label: Author Email
+    required: true
     display_snippet: email.html
     #display_email_name_field: author
     help_text: The email of the author
 
   - field_name: primary_contact_name
     label: Primary Contact Name
+    required: true
     help_text: A primary contact can be approached by users requesting futher information of the dataset
 
   - field_name: primary_contact_email
     label: Primary Contact Email
+    required: true
     display_snippet: email.html
     #display_email_name_field: author
     help_text: Email of the primary contact
 
-  # XXX Need to be uneditable "AuScope Australia"
-  #- field_name: publisher
-  #  label: Publisher
-  #  help_text: The entity that publishes the dataset - AuScope Australia
+  - field_name: publisher
+    label: Publisher
+    required: true
+    preset: select
+    choices:
+      - value: auscope
+        label: AuScope
+    help_text: The entity that publishes the dataset - AuScope
 
-  # XXX See if we can read in from somewhere, if select only need to store code
   #- field_name: fields_of_reserch
   #  label: Fields of Research
   #  preset:
   #  help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
 
-  #- field_name: fields_of_research_code
-  #  label: Fields of Research Code
-  #  preset:
-  #  help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
+  # XXX We store this as part of previous select, should we include the codes in labels there?
+  - field_name: fields_of_research_code
+    #label: Fields of Research Code
+    label: Field of Research
+    required: true
+    #form_snippet: multiple_select.html
+    #preset: select
+    preset: multiple_select
+    select_size: 8
+    choices:
+      - value: "3701"
+        label: Atmospheric sciences
+      - value: "370101"
+        label: Adverse weather events
+      - value: "370102"
+        label: Air pollution processes and air quality measurement
+      - value: "370103"
+        label: Atmospheric aerosols
+      - value: "370104"
+        label: Atmospheric composition, chemistry and processes
+      - value: "370105"
+        label: Atmospheric dynamics
+      - value: "370106"
+        label: Atmospheric radiation
+      - value: "370107"
+        label: Cloud physics
+      - value: "370108"
+        label: Meteorology
+      - value: "370109"
+        label: Tropospheric and stratospheric physics
+      - value: "370199"
+        label: Atmospheric sciences not elsewhere classified
+      - value: "3702"
+        label: Climate change science
+      - value: "370201"
+        label: Climate change processes
+      - value: "370202"
+        label: Climatology
+      - value: "370203"
+        label: Greenhouse gas inventories and fluxes
+      - value: "370299"
+        label: Climate change science not elsewhere classified
+      - value: "3703"
+        label: Geochemistry
+      - value: "370301"
+        label: Exploration geochemistry
+      - value: "370302"
+        label: Inorganic geochemistry
+      - value: "370303"
+        label: Isotope geochemistry
+      - value: "370304"
+        label: Organic geochemistry
+      - value: "370399"
+        label: Geochemistry not elsewhere classified
+      - value: "3704"
+        label: Geoinformatics
+      - value: "370401"
+        label: Computational modelling and simulation in earth sciences
+      - value: "370402"
+        label: Earth and space science informatics
+      - value: "370403"
+        label: Geoscience data visualisation
+      - value: "370499"
+        label: Geoinformatics not elsewhere classified
+      - value: "3705"
+        label: Geology
+      - value: "370501"
+        label: Biomineralisation
+      - value: "370502"
+        label: Geochronology
+      - value: "370503"
+        label: Igneous and metamorphic petrology
+      - value: "370504"
+        label: Marine geoscience
+      - value: "370505"
+        label: Mineralogy and crystallography
+      - value: "370506"
+        label: Palaeontology (incl. palynology)
+      - value: "370507"
+        label: Planetary geology
+      - value: "370508"
+        label: Resource geoscience
+      - value: "370509"
+        label: Sedimentology
+      - value: "370510"
+        label: Stratigraphy (incl. biostratigraphy, sequence stratigraphy and basin analysis)
+      - value: "370511"
+        label: Structural geology and tectonics
+      - value: "370512"
+        label: Volcanology
+      - value: "370599"
+        label: Geology not elsewhere classified
+      - value: "3706"
+        label: Geophysics
+      - value: "370601"
+        label: Applied geophysics
+      - value: "370602"
+        label: Electrical and electromagnetic methods in geophysics
+      - value: "370603"
+        label: Geodesy
+      - value: "370604"
+        label: Geodynamics
+      - value: "370605"
+        label: Geothermics and radiometrics
+      - value: "370606"
+        label: Gravimetrics
+      - value: "370607"
+        label: Magnetism and palaeomagnetism
+      - value: "370608"
+        label: Petrophysics and rock mechanics
+      - value: "370609"
+        label: Seismology and seismic exploration
+      - value: "370699"
+        label: Geophysics not elsewhere classified
+      - value: "3707"
+        label: Hydrology
+      - value: "370701"
+        label: Contaminant hydrology
+      - value: "370702"
+        label: Ecohydrology
+      - value: "370703"
+        label: Groundwater hydrology
+      - value: "370704"
+        label: Surface water hydrology
+      - value: "370705"
+        label: Urban hydrology
+      - value: "370799"
+        label: Hydrology not elsewhere classified
+      - value: "3708"
+        label: Oceanography
+      - value: "370801"
+        label: Biological oceanography
+      - value: "370802"
+        label: Chemical oceanography
+      - value: "370803"
+        label: Physical oceanography
+      - value: "370899"
+        label: Oceanography not elsewhere classified
+      - value: "3709"
+        label: Physical geography and environmental geoscience
+      - value: "370901"
+        label: Geomorphology and earth surface processes
+      - value: "370902"
+        label: Glaciology
+      - value: "370903"
+        label: Natural hazards
+      - value: "370904"
+        label: Palaeoclimatology
+      - value: "370905"
+        label: Quaternary environments
+      - value: "370906"
+        label: Regolith and landscape evolution
+      - value: "370999"
+        label: Physical geography and environmental geoscience not elsewhere classified
+      - value: "3799"
+        label: Other earth sciences
+      - value: "379901"
+        label: Earth system sciences
+      - value: "379999"
+        label: Other earth sciences not elsewhere classified
+    help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
+    #help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
 
   - field_name: lineage
     label: Lineage
-    form_snippet: large_text.html
+    form_snippet: textarea.html
     help_text: The Lineage should contain information about how the data was produced. Processes involved in the production of the data could be included here
 
   - field_name: start_date
@@ -138,26 +322,31 @@ dataset_fields:
 
   - field_name: supplementation_information
     label: Supplemental Information
-    form_snippet: large_text.html
+    #form_snippet: large_text.html
+    form_snippet: textarea.html
     help_text: Any other descriptive information about the dataset that can promote its reuse
 
   - field_name: credit
     label: Credit
-    form_snippet: large_text.html
+    required: true
+    form_snippet: textarea.html
     help_text: The Credit field is where you acknowledge people or organisations who contributed to the collection
 
   - field_name: citation
     label: Citation
-    form_snippet: large_text.html
+    required: true
+    form_snippet: textarea.html
     help_text: The full bibliographic citation of the dataset
 
   - field_name: publication_date
     label: Publication Date
+    required: true
     preset: date
     help_text: The date the dataset is published through the repository
 
   - field_name: resource_type
     label: Resource Type
+    required: true
     preset: select
     choices:
       - value: website
@@ -170,8 +359,14 @@ dataset_fields:
 
   - field_name: license
     label: License
-    form_snippet: license.html
-    help_text: License for the distribution and sharing of the dataset (license definitions and additional information can be found at http://opendefinition.org/)
+    required: true
+    preset: select
+    choices:
+      - value: cc-by-4.0-international
+        label: CC BY 4.0 International
+    help_text: License for the distribution and sharing of the dataset
+    #form_snippet: license.html
+    #help_text: License for the distribution and sharing of the dataset (license definitions and additional information can be found at http://opendefinition.org/)
 
   - field_name: funder_name
     label: Funder Name
@@ -225,3 +420,23 @@ dataset_fields:
   - field_name: relation_type
     label: Relation Type
     help_text: Description of the relationship from the dataset being published to the related resource
+
+
+resource_fields:
+
+- field_name: url
+  label: URL
+  preset: resource_url_upload
+
+- field_name: name
+  label: Name
+  help: The name of the dataset
+
+- field_name: description
+  label: Description
+  preset: markdown
+  form_placeholder: Some useful notes about the data
+
+- field_name: format
+  label: Format
+  preset: resource_format_autocomplete
