@@ -89,8 +89,6 @@ ckan config-tool $CKAN_INI "ckanext.doi.account_password = my-password"
 ckan config-tool $CKAN_INI "ckanext.doi.prefix = 12.34567"
 ckan config-tool $CKAN_INI "ckanext.doi.publisher = my-publisher"
 ckan config-tool $CKAN_INI "ckanext.doi.test_mode = True" # Set to False for production DOI minting
-ckan -c $CKAN_INI doi initdb
-
 
 # Run the prerun script to init CKAN and create the default admin user
 echo "python3 prerun"
@@ -112,6 +110,9 @@ then
         echo
     done
 fi
+
+# Delay initializing DB so DOI tables exist
+ckan -c $CKAN_INI doi initdb
 
 # Start supervisord
 supervisord --configuration /etc/supervisord.conf &
