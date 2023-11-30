@@ -79,8 +79,8 @@ ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = False"
 ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
 ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = False"
 
-### Schemeing Settings ###
-ckan config-tool $CKAN_INI "scheming.presets = ckanext.scheming:presets.json"
+### Scheming Settings ###
+ckan config-tool $CKAN_INI "scheming.presets = ckanext.scheming:presets.json ckanext.repeating:presets.json ckanext.composite:presets.json"
 ckan config-tool $CKAN_INI "scheming.dataset_schemas = ckanext.auscope_theme:data_repository_schema.yaml"
 
 # DOI config
@@ -111,7 +111,7 @@ then
     done
 fi
 
-# Delay initializing DB so DOI tables exist
+# Delay initializing DB for DOI
 ckan -c $CKAN_INI doi initdb
 
 # Start supervisord
