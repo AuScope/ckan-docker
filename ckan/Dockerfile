@@ -26,6 +26,9 @@ COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 ### Contact extension ###
 RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckanext-contact"
 
+### S3 Filestore extension ###
+RUN pip install -e "git+https://github.com/keitaroinc/ckanext-s3filestore.git#egg=ckanext-s3filestore"
+
 ### Schemeing Extension
 RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming"
 
