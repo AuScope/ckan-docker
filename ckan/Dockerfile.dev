@@ -58,7 +58,13 @@ RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckane
 RUN pip install -e "git+https://github.com/keitaroinc/ckanext-s3filestore.git#egg=ckanext-s3filestore"
 
 ### Scheming ###
-RUN  pip install -e 'git+https://github.com/ckan/ckanext-scheming.git@master#egg=ckanext-scheming'
+RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git@master#egg=ckanext-scheming"
+
+### Repeating fields ###
+RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=ckanext-repeating"
+
+### Composite fields ###
+RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime

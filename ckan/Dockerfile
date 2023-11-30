@@ -29,8 +29,15 @@ RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckane
 ### S3 Filestore extension ###
 RUN pip install -e "git+https://github.com/keitaroinc/ckanext-s3filestore.git#egg=ckanext-s3filestore"
 
-### Schemeing Extension
+### Scheming Extension
 RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming"
+
+### Repeating fields ###
+RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=ckanext-repeating"
+
+### Composite fields ###
+RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
+
 
 # For production copy the source files into the image (Dev will mount them as a volume)
 COPY src ${APP_DIR}/src_extensions
