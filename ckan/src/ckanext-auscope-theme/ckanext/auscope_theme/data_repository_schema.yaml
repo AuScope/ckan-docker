@@ -42,7 +42,7 @@ dataset_fields:
   label: Authors
   preset: composite_repeating
   #required: true
-  #form_blanks: 3 
+  #form_blanks: 3
   subfields:
     - field_name: author_name
       label: Author Name
@@ -445,6 +445,9 @@ dataset_fields:
   display_snippet: null
   help_text: The full bibliographic citation of the dataset
 
+- field_name: owner_org
+  label: Organization
+  preset: dataset_organization
 
 resource_fields:
 
@@ -464,3 +467,4 @@ resource_fields:
 - field_name: format
   label: Format
   preset: resource_format_autocomplete
+  
