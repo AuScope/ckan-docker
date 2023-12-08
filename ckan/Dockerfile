@@ -38,6 +38,9 @@ RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=c
 ### Composite fields ###
 RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
 
+### Zip preview ###
+RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview"
+
 
 # For production copy the source files into the image (Dev will mount them as a volume)
 COPY src ${APP_DIR}/src_extensions
