@@ -22,7 +22,7 @@ ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
 ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = False"
 
 # This seems to be necessary as the envvar equivlents are not resolved
-ckan config-tool $CKAN_INI "scheming.presets = ckanext.scheming:presets.json"
+ckan config-tool $CKAN_INI "scheming.presets = ckanext.scheming:presets.json ckanext.repeating:presets.json ckanext.composite:presets.json"
 ckan config-tool $CKAN_INI "scheming.dataset_schemas = ckanext.auscope_theme:data_repository_schema.yaml"
 
 # DOI config
@@ -31,7 +31,6 @@ ckan config-tool $CKAN_INI "ckanext.doi.account_password = my-password"
 ckan config-tool $CKAN_INI "ckanext.doi.prefix = 12.34567"
 ckan config-tool $CKAN_INI "ckanext.doi.publisher = my-publisher"
 ckan config-tool $CKAN_INI "ckanext.doi.test_mode = True" # Set to False for production DOI minting
-ckan -c $CKAN_INI doi initdb
 
 # Run the prerun script to init CKAN and create the default admin user
 #su ckan -c "/usr/bin/python3 prerun.py"
@@ -52,6 +51,9 @@ then
         echo
     done
 fi
+
+# Delay initializing DB so DOI tables exist
+ckan -c $CKAN_INI doi initdb
 
 # Set the common uwsgi options
 UWSGI_OPTS="--plugins http,python \

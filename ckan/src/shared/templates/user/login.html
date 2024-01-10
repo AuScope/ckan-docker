@@ -1,0 +1,23 @@
+{% extends "page.html" %}
+
+{% block subtitle %}{{ _('Login') }}{% endblock %}
+
+{% block breadcrumb_content %}
+  <li class="active">{{ h.nav_link(_('Login'), named_route='user.login') }}</li>
+{% endblock %}
+
+{% block main_content %}
+    <div class="row wrapper no-nav">
+        <section class="module">
+            <div class="module-content">
+            <h1 class="page-heading">{% block page_heading %}{{ _('Login') }}{% endblock %}</h1>
+            {% block form %}
+                {% snippet "user/snippets/login_form.html", error_summary=error_summary %}
+            {% endblock %}
+            </div>
+        </section>
+    </div>
+{% endblock %}
+
+{% block secondary_content %}
+{% endblock %}

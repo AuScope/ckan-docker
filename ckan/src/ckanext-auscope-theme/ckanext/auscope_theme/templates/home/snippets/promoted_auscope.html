@@ -22,13 +22,20 @@
     }
   </style>
   {% block home_image %}
-    <section class="featured media-overlay hidden-xs">
-      <h2 class="media-heading">{% block home_image_caption %}{{ _("This is a featured section") }}{% endblock %}</h2>
-      {% block home_image_content %}
-        <a class="media-image" href="#">
-          <img class="img-fluid cropped-image" src="{{ h.url_for_static('/base/images/RS6242_Maia 63244_corrected_balfeti.jpg') }}" alt="Placeholder" />
-        </a>
-      {% endblock %}
-    </section>
+      <section class="featured media-overlay hidden-xs">
+        <h2 class="media-heading">{% block home_image_caption %}{{ _("Characterisation image of natural mineral iron-oxide nodules") }}{% endblock %}</h2>
+        {% block home_image_content %}
+          <div class="media-image-wrapper">
+            <a class="media-image" href="#">
+              <img class="img-fluid cropped-image" 
+                  src="{{ h.url_for_static('/base/images/RS6242_Maia 63244_corrected_balfeti.jpg') }}" 
+                  alt="Placeholder" />
+            </a>
+            <div class="image-caption">
+              Characterisation image of natural mineral iron-oxide nodules. Taken with CSIRO-developed Maia x-ray imaging.
+            </div>
+          </div>
+        {% endblock %}
+      </section>
   {% endblock %}
 </div>

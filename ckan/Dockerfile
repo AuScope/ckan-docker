@@ -24,10 +24,23 @@ COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
 COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 
 ### Contact extension ###
-RUN pip install -e "git+https://github.com/NaturalHistoryMuseum/ckanext-contact.git#egg=ckanext-contact"
+RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckanext-contact"
 
-### Schemeing Extension
+### S3 Filestore extension ###
+RUN pip install -e "git+https://github.com/keitaroinc/ckanext-s3filestore.git#egg=ckanext-s3filestore"
+
+### Scheming Extension
 RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming"
+
+### Repeating fields ###
+RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=ckanext-repeating"
+
+### Composite fields ###
+RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
+
+### Zip preview ###
+RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview"
+
 
 # For production copy the source files into the image (Dev will mount them as a volume)
 COPY src ${APP_DIR}/src_extensions
