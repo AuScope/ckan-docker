@@ -1,3 +1,4 @@
+
 name: Build CKAN Docker
 
 on:
@@ -5,21 +6,20 @@ on:
   # but only for the master branch
   push:
     branches:
-      # -
+      # - master
       - deploy
   pull_request:
     branches:
       # - master
       - deploy
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    -  uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-    -  name: Set up Docker Buildx
-       uses: docker/setup-buildx-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v1
@@ -27,16 +27,64 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    -  name: Build and Push Docker image
-       uses: docker/build-push-action@v2
-       with:
-          context: ./ckan
-          file: ./ckan/Dockerfile
-          push: true
-          tags: |
-            benmotevalli/ckan-auscope:latest
-            benmotevalli/ckan-auscope:${{ github.sha }}
-            benmotevalli/ckan-auscope:${{ github.ref_name }}
+    - name: Change to CKAN directory
+      run: cd ckan
+      working-directory: ./
+
+    - name: Build and Push Docker image
+      run: |
+        docker build -t benmotevalli/ckan-auscope:latest -t benmotevalli/ckan-auscope:${{ github.sha }} -t benmotevalli/ckan-auscope:${{ github.ref_name }} .
+        docker push benmotevalli/ckan-auscope:latest
+        docker push benmotevalli/ckan-auscope:${{ github.sha }}
+        docker push benmotevalli/ckan-auscope:${{ github.ref_name }}
+      working-directory: ./ckan
+
+
+
+# Below block Failed
+# ===================
+
+# name: Build CKAN Docker
+
+# on:
+#   # Trigger the workflow on push or pull request,
+#   # but only for the master branch
+#   push:
+#     branches:
+#       # -
+#       - deploy
+#   pull_request:
+#     branches:
+#       # - master
+#       - deploy
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#     -  uses: actions/checkout@v2
+
+#     -  name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v1
+
+#     - name: Log in to Docker Hub
+#       uses: docker/login-action@v1
+#       with:
+#         username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+#     -  name: Build and Push Docker image
+#        uses: docker/build-push-action@v2
+#        with:
+#           context: ./ckan
+#           file: ./ckan/Dockerfile
+#           push: true
+#           tags: |
+#             benmotevalli/ckan-auscope:latest
+#             benmotevalli/ckan-auscope:${{ github.sha }}
+#             benmotevalli/ckan-auscope:${{ github.ref_name }}
+
+
 
 # Original Build
 # ==============
