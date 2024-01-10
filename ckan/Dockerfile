@@ -12,34 +12,34 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
   fi ;
 
 ### Spatial extension ###
-# RUN apk add python3-dev libxml2-dev libxslt-dev geos geos-dev proj proj-dev proj-util py3-shapely
+RUN apk add python3-dev libxml2-dev libxslt-dev geos geos-dev proj proj-dev proj-util py3-shapely
 RUN pip install --upgrade pip
-# RUN pip install -e "git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-spatial"
-# COPY spatial-reqs.txt /tmp/spatial-reqs.txt
-# RUN pip install -r /tmp/spatial-reqs.txt
+RUN pip install -e "git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-spatial"
+COPY spatial-reqs.txt /tmp/spatial-reqs.txt
+RUN pip install -r /tmp/spatial-reqs.txt
 
-# ### DOI extension ###
-# RUN pip install ckanext-doi
-# COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
-# COPY setup/prerun.py.override ${APP_DIR}/prerun.py
+### DOI extension ###
+RUN pip install ckanext-doi
+COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
+COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 
-# ### Contact extension ###
-# RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckanext-contact"
+### Contact extension ###
+RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckanext-contact"
 
-# ### S3 Filestore extension ###
-# RUN pip install -e "git+https://github.com/keitaroinc/ckanext-s3filestore.git#egg=ckanext-s3filestore"
+### S3 Filestore extension ###
+RUN pip install -e "git+https://github.com/keitaroinc/ckanext-s3filestore.git#egg=ckanext-s3filestore"
 
-# ### Scheming Extension
-# RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming"
+### Scheming Extension
+RUN pip install -e "git+https://github.com/ckan/ckanext-scheming.git#egg=ckanext-scheming"
 
-# ### Repeating fields ###
-# RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=ckanext-repeating"
+### Repeating fields ###
+RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=ckanext-repeating"
 
-# ### Composite fields ###
-# RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
+### Composite fields ###
+RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
 
-# ### Zip preview ###
-# RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview"
+### Zip preview ###
+RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview"
 
 
 # For production copy the source files into the image (Dev will mount them as a volume)
@@ -49,8 +49,6 @@ COPY src/shared /shared
 # Adding below paths similar to above.
 COPY src/shared/public /shared/public
 COPY src/shared/templates /shared/templates
-
-RUN ls -alh /srv/app/src_extensions/ckanext-oidc-pkce
 
 # # Install the extension(s) you wrote for your own project
 RUN pip install $APP_DIR/src_extensions/ckanext-oidc-pkce && \
