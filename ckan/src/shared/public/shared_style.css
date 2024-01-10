@@ -457,6 +457,25 @@ body {
     color: var(--bs-white);
     background-color:var(--color-aus-royal-blue);
     border-color: var(--color-aus-royal-blue);
-        box-shadow: none;
+    box-shadow: none;
+}
 
+
+.image-caption {
+  position: absolute;
+  bottom: 0;
+  color: var(--bs-white);
+  background-color:var(--color-aus-royal-blue);
+  border-color: var(--color-aus-royal-blue);
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none; 
+  z-index: 10;
+}
+
+.media-image-wrapper:hover .image-caption {
+  opacity: 1;
 }
