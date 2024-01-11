@@ -1,101 +1,87 @@
 
-name: Build CKAN Docker
+name: Build and Publish Docker Image
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the master branch
   push:
     branches:
       # - master
-      - deploy
-  pull_request:
+      # - dev
+      - build-pipeline
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'Release Type (patch/minor/major)'
+        required: true
+        default: 'patch'
     branches:
       # - master
-      - deploy
+      - build-pipeline
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository and submodules
-      uses: actions/checkout@v2
-      with:
-       submodules: true
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
-        password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    - name: List contents of the ckan directory
-      run: ls -alh ./ckan
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./ckan
+          file: ./ckan/Dockerfile
+          push: true
+          tags: |
+            benmotevalli/ckan-auscope:${{ github.ref == 'refs/heads/master' && 'latest' || 'dev' }}
 
-    - name: List contents of src/ckanext-oidc-pkce
-      run: ls -alh ./ckan/src/ckanext-oidc-pkce
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
 
-    - name: Build and Push Docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: ./ckan
-        file: ./ckan/Dockerfile
-        push: true
-        tags: |
-          benmotevalli/ckan-auscope:latest
-          benmotevalli/ckan-auscope:${{ github.sha }}
-          benmotevalli/ckan-auscope:${{ github.ref_name }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
 
+      - name: Install bump2version
+        run: pip install bump2version
 
+      - name: Bump version
+        id: bump_version
+        run: |
+          bump2version ${{ github.event.inputs.releaseType }} --list | grep new_version | sed -r 's/^.*?([0-9]+\.[0-9]+\.[0-9]+).*$$/\1/'
+          echo "::set-output name=version::$(bump2version ${{ github.event.inputs.releaseType }} --list | grep current_version | sed -r 's/^.*?([0-9]+\.[0-9]+\.[0-9]+).*$$/\1/')"
 
-# Original Build
-# ==============
-# name: Build CKAN Docker
+      - name: Push the tags and changes
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git push origin --tags
+          git push
 
-# on:
-#   # Trigger the workflow on push or pull request,
-#   # but only for the master branch
-#   push:
-#     branches:
-#       - master
-#   pull_request:
-#     branches:
-#       - master
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     steps:
-#     -  uses: actions/checkout@v2
-
-#     -  name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v1
-
-#     -  name: Set up QEMU
-#        uses: docker/setup-qemu-action@v1
-
-#     -  name: NGINX build
-#        uses: docker/build-push-action@v2
-#        with:
-#           context: ./nginx
-#           file: ./nginx/Dockerfile
-#           push: false
-#           tags: kowhai/ckan-docker-nginx:test-build-only
-
-#     -  name: PostgreSQL build
-#        uses: docker/build-push-action@v2
-#        with:
-#           context: ./postgresql
-#           file: ./postgresql/Dockerfile
-#           push: false
-#           tags: kowhai/ckan-docker-postgresql:test-build-only
-
-#     -  name: CKAN build
-#        uses: docker/build-push-action@v2
-#        with:
-#           context: ./ckan
-#           file: ./ckan/Dockerfile
-#           push: false
-#           tags: kowhai/ckan-docker-ckan:test-build-only
+      - name: Build and Push Versioned Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./ckan
+          file: ./ckan/Dockerfile
+          push: true
+          tags: benmotevalli/ckan-auscope:${{ steps.bump_version.outputs.version }}
