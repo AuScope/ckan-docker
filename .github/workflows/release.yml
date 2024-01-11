@@ -40,7 +40,7 @@ jobs:
           NEW_VERSION=$(grep 'current_version = ' ./ckan/setup.cfg | sed -r 's/current_version = //')
           echo "New version: $NEW_VERSION"
           echo "::set-output name=version::$NEW_VERSION"
-        working-directory: ./ckan
+        # working-directory: ./ckan
 
       - name: Push the tags and changes
         run: |
