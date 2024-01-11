@@ -8,14 +8,13 @@ on:
         required: true
         default: 'patch'
     branches:
-      # - master
+      - master
       - build-pipeline
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    # if: github.ref == 'refs/heads/master'
-    if: github.ref == 'refs/heads/build-pipeline'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/build-pipeline'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -32,7 +31,7 @@ jobs:
       - name: Bump version
         id: bump_version
         run: |
-          bump2version ${{ github.event.inputs.releaseType }} --list
+          bump2version ${{ github.event.inputs.releaseType }}
           echo "New version: $(grep 'current_version = ' setup.cfg | sed -r 's/current_version = //')"
           echo "::set-output name=version::$(grep 'current_version = ' setup.cfg | sed -r 's/current_version = //')"
 
