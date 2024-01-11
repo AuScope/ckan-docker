@@ -1,0 +1,58 @@
+name: Versioned Release Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'Release Type (patch/minor/major)'
+        required: true
+        default: 'patch'
+    branches:
+      # - master
+      - build-pipeline
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/build-pipeline'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install bump2version
+        run: pip install bump2version
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          bump2version ${{ github.event.inputs.releaseType }} --list
+          echo "New version: $(grep 'current_version = ' setup.cfg | sed -r 's/current_version = //')"
+          echo "::set-output name=version::$(grep 'current_version = ' setup.cfg | sed -r 's/current_version = //')"
+
+      - name: Push the tags and changes
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "GitHub Actions"
+          git push origin --tags
+          git push
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and Push Versioned Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./ckan
+          file: ./ckan/Dockerfile
+          push: true
+          tags: benmotevalli/ckan-auscope:${{ steps.bump_version.outputs.version }}
