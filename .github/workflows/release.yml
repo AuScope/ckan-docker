@@ -9,13 +9,12 @@ on:
         default: 'patch'
     branches:
       - master
-      # - build-pipeline
+      - test-pipeline
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    # if: github.ref == 'refs/heads/build-pipeline'
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/test-pipeline'
     steps:
       - uses: actions/checkout@v2
         with:
@@ -29,17 +28,22 @@ jobs:
       - name: Install bump2version
         run: pip install bump2version
 
-      - name: Bump version
-        id: bump_version
-        run: |
-          bump2version ${{ github.event.inputs.releaseType }} --list
-          echo "New version: $(grep 'current_version = ' setup.cfg | sed -r 's/current_version = //')"
-          echo "::set-output name=version::$(grep 'current_version = ' setup.cfg | sed -r 's/current_version = //')"
-
-      - name: Push the tags and changes
+      - name: Set up Git identity
         run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "GitHub Actions"
+
+      - name: Bump version
+        id: bump_version
+        run: |
+          bump2version ${{ github.event.inputs.releaseType }} --config-file ./ckan/setup.cfg
+          NEW_VERSION=$(grep 'current_version = ' ./ckan/setup.cfg | sed -r 's/current_version = //')
+          echo "New version: $NEW_VERSION"
+          echo "::set-output name=version::$NEW_VERSION"
+        # working-directory: ./ckan
+
+      - name: Push the tags and changes
+        run: |
           git push origin --tags
           git push
 
