@@ -54,3 +54,5 @@ COPY src/shared/templates /shared/templates
 RUN pip install $APP_DIR/src_extensions/ckanext-oidc-pkce && \
   pip install -e $APP_DIR/src_extensions/ckanext-auscope-theme && \
   pip install -e $APP_DIR/src_extensions/ckanext-igsn-theme
+
+RUN chmod +x ${APP_DIR}/start_ckan.sh
