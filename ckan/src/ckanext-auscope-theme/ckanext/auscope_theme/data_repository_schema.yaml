@@ -314,10 +314,8 @@ dataset_fields:
 - field_name: location_choice
   label: Location Details
   preset: radio
-  default: noLocation
+  default: area
   choices:
-    - value: noLocation
-      label: "No" 
     - value: area
       label: Area on Map
     - value: point
@@ -346,7 +344,9 @@ dataset_fields:
 - field_name: bounding_box
   label: Bounding Box
   help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
-
+  form_snippet: null
+  display_snippet: null
+  
 - field_name: supplementation_information
   label: Supplemental Information
   form_snippet: textarea.html

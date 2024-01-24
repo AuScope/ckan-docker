@@ -32,6 +32,7 @@
     </div>
 </div>
 
+
 <script type="text/javascript">
     $(document).ready(function() {
         // Map Initialization
@@ -41,16 +42,7 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Initialize the marker but don't add it to the map yet
         var marker = L.marker([-31.9505, 115.8605], {draggable: true});
-
-        // Function to update the latitude and longitude fields
-        function updateLatLngFields(lat, lng) {
-            $('#point_latitude').val(lat);
-            $('#point_longitude').val(lng);
-        }
-
-        // Feature Group and Draw Control for bounding box
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
         var drawControl = new L.Control.Draw({
@@ -69,7 +61,10 @@
             }
         });
 
-        // Reset map function
+        function updateLatLngFields(lat, lng) {
+            $('#point_latitude').val(lat);
+            $('#point_longitude').val(lng);
+        }
         function resetMap() {
             drawnItems.clearLayers();
             map.removeLayer(drawnItems);
@@ -77,45 +72,47 @@
             map.removeControl(drawControl);
             map.removeLayer(marker);
         }
+        function showMapAndInvalidate() {
+            $('#map-container').show();
+            setTimeout(function() { map.invalidateSize(); }, 100);
+        }
+        function initializeDrawControl() {
+            map.addLayer(drawnItems);
+            map.addControl(drawControl);
+            new L.Draw.Rectangle(map, drawControl.options.draw.rectangle).enable();
+        }
+
+        // Initialize map for bounding box as default
+        showMapAndInvalidate();
+        initializeDrawControl();
+        $('#bounding-box-coordinates').show();
+
+        map.on(L.Draw.Event.CREATED, function(event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
+            var bounds = layer.getBounds();
+            $('#field-bounding_box').val(bounds.getSouthWest().lat + ', ' + bounds.getSouthWest().lng + ', ' + bounds.getNorthEast().lat + ', ' + bounds.getNorthEast().lng);
+        });
 
         // Change event for location choice radio buttons
         $('input[type=radio][name=location_choice]').change(function() {
-            resetMap(); 
+            resetMap();
             var choice = $(this).val();
 
             $('#single-point-coordinates').hide();
             $('#bounding-box-coordinates').hide();
             $('#map-container').hide();
-            updateLatLngFields(null, null)
-            $('#field-bounding_box').val(null);
+            updateLatLngFields(null, null);
+            $('#field-bounding_box').val('');
 
             switch (choice) {
-                case 'noLocation':
-                    // Nothing to show
-                    break;
                 case 'area':
-                    $('#map-container').show();
-                    setTimeout(function() { map.invalidateSize(); }, 100);
-
-                    // Initialize draw control and automatically start rectangle drawing
-                    map.addLayer(drawnItems);
-                    map.addControl(drawControl);
-                    new L.Draw.Rectangle(map, drawControl.options.draw.rectangle).enable();
-
-                    map.on(L.Draw.Event.CREATED, function(event) {
-                        var layer = event.layer;
-                        drawnItems.addLayer(layer);
-                        var bounds = layer.getBounds();
-                        $('#field-bounding_box').val(bounds.getSouthWest().lat + ', ' + bounds.getSouthWest().lng + ', ' +bounds.getNorthEast().lat + ', ' +bounds.getNorthEast().lng);
-                    });
-                    
+                    showMapAndInvalidate();
+                    initializeDrawControl();
                     $('#bounding-box-coordinates').show();
                     break;
                 case 'point':
-                    $('#map-container').show();
-                    setTimeout(function() { map.invalidateSize(); }, 100);
-
-                    // Map click event to move the marker and update fields
+                    showMapAndInvalidate();
                     map.on('click', function(e) {
                         marker.setLatLng(e.latlng);
                         updateLatLngFields(e.latlng.lat, e.latlng.lng);
@@ -124,7 +121,6 @@
                             marker.addTo(map);
                         }
                     });
-
                     $('#single-point-coordinates').show();
                     break;
             }
