@@ -15,12 +15,12 @@
     <!-- Latitude -->
     <div class="form-group">
         <label for="point_latitude">Latitude</label>
-        <input type="text" class="form-control" id="point_latitude" name="point_latitude" readonly>
+        <input type="text" class="form-control" id="point_latitude" name="point_latitude">
     </div>
     <!-- Longitude -->
     <div class="form-group">
         <label for="point_longitude">Longitude</label>
-        <input type="text" class="form-control" id="point_longitude" name="point_longitude" readonly>
+        <input type="text" class="form-control" id="point_longitude" name="point_longitude">
     </div>
 </div>
 
@@ -28,7 +28,7 @@
 <div id="bounding-box-coordinates" style="display: none;">
     <div class="form-group" >
         <label for="field-bounding_box">Bounding Box</label>
-        <input type="text" class="form-control" id="field-bounding_box" name="bounding_box" placeholder="Min Latitude, Min Longitude, Max Latitude, Max Longitude" readonly>
+        <input type="text" class="form-control" id="field-bounding_box" name="bounding_box" placeholder="Min Latitude, Min Longitude, Max Latitude, Max Longitude">
     </div>
 </div>
 
@@ -82,6 +82,34 @@
             new L.Draw.Rectangle(map, drawControl.options.draw.rectangle).enable();
         }
 
+        // Function to update the marker position based on textbox input
+        function updateMarkerPosition() {
+            var lat = parseFloat($('#point_latitude').val());
+            var lng = parseFloat($('#point_longitude').val());
+            if (!isNaN(lat) && !isNaN(lng)) {
+                var newLatLng = new L.LatLng(lat, lng);
+                marker.setLatLng(newLatLng);
+                map.panTo(newLatLng);
+            }
+        }
+
+        // Function to draw a new rectangle based on textbox input
+        function updateRectangleBounds() {
+            var bboxString = $('#field-bounding_box').val().split(',').map(Number);
+            if (bboxString.length === 4 && bboxString.every(n => !isNaN(n))) {
+                var southWest = L.latLng(bboxString[0], bboxString[1]);
+                var northEast = L.latLng(bboxString[2], bboxString[3]);
+                var bounds = L.latLngBounds(southWest, northEast);
+                drawnItems.clearLayers();
+                L.rectangle(bounds).addTo(drawnItems);
+                // map.fitBounds(bounds);
+            }
+        }
+
+        // Event listeners for the coordinate input fields
+        $('#point_latitude, #point_longitude').on('input', updateMarkerPosition);
+        $('#field-bounding_box').on('input', updateRectangleBounds);
+
         // Initialize map for bounding box as default
         showMapAndInvalidate();
         initializeDrawControl();
@@ -89,6 +117,7 @@
 
         map.on(L.Draw.Event.CREATED, function(event) {
             var layer = event.layer;
+            drawnItems.clearLayers(); // Clear existing layers before adding new one
             drawnItems.addLayer(layer);
             var bounds = layer.getBounds();
             $('#field-bounding_box').val(bounds.getSouthWest().lat + ', ' + bounds.getSouthWest().lng + ', ' + bounds.getNorthEast().lat + ', ' + bounds.getNorthEast().lng);
