@@ -10,29 +10,6 @@
   <div id="map-container" style="height: 400px; display: none;" ></div>
 </div>
 
-<!-- Single Point Coordinates (initially hidden) -->
-<div id="single-point-coordinates" style="display: none;">
-    <!-- Latitude -->
-    <div class="form-group">
-        <label for="point_latitude">Latitude</label>
-        <input type="text" class="form-control" id="point_latitude" name="point_latitude">
-    </div>
-    <!-- Longitude -->
-    <div class="form-group">
-        <label for="point_longitude">Longitude</label>
-        <input type="text" class="form-control" id="point_longitude" name="point_longitude">
-    </div>
-</div>
-
-<!-- Bounding Box Coordinates (initially hidden) -->
-<div id="bounding-box-coordinates" style="display: none;">
-    <div class="form-group" >
-        <label for="field-bounding_box">Bounding Box</label>
-        <input type="text" class="form-control" id="field-bounding_box" name="bounding_box" placeholder="Min Latitude, Min Longitude, Max Latitude, Max Longitude">
-    </div>
-</div>
-
-
 <script type="text/javascript">
     $(document).ready(function() {
         // Map Initialization
@@ -61,96 +38,151 @@
             }
         });
 
-        function updateLatLngFields(lat, lng) {
-            $('#point_latitude').val(lat);
-            $('#point_longitude').val(lng);
+        function debounce(func, wait) {
+            var timeout;
+            return function() {
+                var context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(function() {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }        
+
+        function validatePointCoordinates(lat, lng) {
+            return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
         }
+
+        function validateBoundingBoxCoordinates(bboxString) {
+            if (bboxString.length !== 4 || !bboxString.every(n => !isNaN(n))) {
+                return false;
+            }
+            var [minLat, minLng, maxLat, maxLng] = bboxString;
+            return minLat >= -90 && minLat <= 90 && maxLat >= -90 && maxLat <= 90 &&
+                minLng >= -180 && minLng <= 180 && maxLng >= -180 && maxLng <= 180 &&
+                minLat < maxLat && minLng < maxLng;
+        }
+
+        function updateLatLngFields(lat, lng) {
+            $('#field-point_latitude').val(lat);
+            $('#field-point_longitude').val(lng);
+        }
+        
+        function updateBboxField(bboxString) {
+            $('#field-bounding_box').val(bboxString);
+        }
+
         function resetMap() {
             drawnItems.clearLayers();
             map.removeLayer(drawnItems);
             map.off('click');
             map.removeControl(drawControl);
             map.removeLayer(marker);
+
+            $('#point_latitude_container').hide();
+            $('#point_longitude_container').hide();
+            $('#bounding_box_coordinates').hide();
+            $('#map-container').hide();
         }
+        
         function showMapAndInvalidate() {
             $('#map-container').show();
             setTimeout(function() { map.invalidateSize(); }, 100);
         }
+        
         function initializeDrawControl() {
             map.addLayer(drawnItems);
             map.addControl(drawControl);
             new L.Draw.Rectangle(map, drawControl.options.draw.rectangle).enable();
         }
 
-        // Function to update the marker position based on textbox input
-        function updateMarkerPosition() {
-            var lat = parseFloat($('#point_latitude').val());
-            var lng = parseFloat($('#point_longitude').val());
-            if (!isNaN(lat) && !isNaN(lng)) {
+        function reinitializeMarker() {
+            if (!map.hasLayer(marker)) {
+                marker = L.marker(map.getCenter(), { draggable: true }).addTo(map);
+            }
+        }
+        function updateMarkerPosition(checkValidity=true) {
+            var lat = parseFloat($('#field-point_latitude').val());
+            var lng = parseFloat($('#field-point_longitude').val());
+            if (validatePointCoordinates(lat, lng)) {
                 var newLatLng = new L.LatLng(lat, lng);
                 marker.setLatLng(newLatLng);
                 map.panTo(newLatLng);
-            }
+            } else if (checkValidity && !validatePointCoordinates(lat, lng)) {
+                alert("Invalid point coordinates. Latitude must be between -90 and 90, Longitude between -180 and 180.");
+            }        
         }
 
-        // Function to draw a new rectangle based on textbox input
-        function updateRectangleBounds() {
+        function updateRectangleBounds(checkValidity=true) {
             var bboxString = $('#field-bounding_box').val().split(',').map(Number);
-            if (bboxString.length === 4 && bboxString.every(n => !isNaN(n))) {
+            if (validateBoundingBoxCoordinates(bboxString)) {
                 var southWest = L.latLng(bboxString[0], bboxString[1]);
                 var northEast = L.latLng(bboxString[2], bboxString[3]);
                 var bounds = L.latLngBounds(southWest, northEast);
                 drawnItems.clearLayers();
                 L.rectangle(bounds).addTo(drawnItems);
-                // map.fitBounds(bounds);
-            }
+            } else if (checkValidity && !validateBoundingBoxCoordinates(bboxString)){
+                alert("Invalid bounding box coordinates. Please enter valid latitudes and longitudes.");
+            }        
         }
 
-        // Event listeners for the coordinate input fields
-        $('#point_latitude, #point_longitude').on('input', updateMarkerPosition);
-        $('#field-bounding_box').on('input', updateRectangleBounds);
+          // Debounced functions
+        var debouncedUpdateMarkerPosition = debounce(updateMarkerPosition, 500); // 500 ms delay
+        var debouncedUpdateRectangleBounds = debounce(updateRectangleBounds, 500); // 500 ms delay
 
-        // Initialize map for bounding box as default
+        // Event listeners for the coordinate input fields with debounce
+        $('#field-point_latitude, #field-point_longitude').on('input', debouncedUpdateMarkerPosition);
+        $('#field-bounding_box').on('input', debouncedUpdateRectangleBounds);
+
+
+        resetMap();
         showMapAndInvalidate();
-        initializeDrawControl();
-        $('#bounding-box-coordinates').show();
+        // Restore state
+        var selected = $('input[type=radio][name=location_choice]:checked').val();
+        if(selected=='area')
+        {
+            initializeDrawControl();
+            map.on(L.Draw.Event.CREATED, function(event) {
+                var layer = event.layer;
+                drawnItems.clearLayers();
+                drawnItems.addLayer(layer);
+                var bounds = layer.getBounds();
+                updateBboxField(bounds.getSouthWest().lat + ', ' + bounds.getSouthWest().lng + ', ' + bounds.getNorthEast().lat + ', ' + bounds.getNorthEast().lng);
+            });
+            updateRectangleBounds(false);
+            $('#bounding_box_coordinates').show();
+        }else{
+            reinitializeMarker();
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                updateLatLngFields(e.latlng.lat, e.latlng.lng);
+            });
+            updateMarkerPosition(false);
+            $('#point_latitude_container').show();
+            $('#point_longitude_container').show();
+        }
 
-        map.on(L.Draw.Event.CREATED, function(event) {
-            var layer = event.layer;
-            drawnItems.clearLayers(); // Clear existing layers before adding new one
-            drawnItems.addLayer(layer);
-            var bounds = layer.getBounds();
-            $('#field-bounding_box').val(bounds.getSouthWest().lat + ', ' + bounds.getSouthWest().lng + ', ' + bounds.getNorthEast().lat + ', ' + bounds.getNorthEast().lng);
-        });
-
-        // Change event for location choice radio buttons
+            // Adjusted for 'point' option handling
         $('input[type=radio][name=location_choice]').change(function() {
             resetMap();
+            updateLatLngFields('', '');
+            updateBboxField('');
             var choice = $(this).val();
-
-            $('#single-point-coordinates').hide();
-            $('#bounding-box-coordinates').hide();
-            $('#map-container').hide();
-            updateLatLngFields(null, null);
-            $('#field-bounding_box').val('');
-
             switch (choice) {
                 case 'area':
                     showMapAndInvalidate();
                     initializeDrawControl();
-                    $('#bounding-box-coordinates').show();
+                    $('#bounding_box_coordinates').show();
                     break;
                 case 'point':
                     showMapAndInvalidate();
+                    reinitializeMarker();
+                    $('#point_latitude_container').show();
+                    $('#point_longitude_container').show();
                     map.on('click', function(e) {
                         marker.setLatLng(e.latlng);
                         updateLatLngFields(e.latlng.lat, e.latlng.lng);
-
-                        if (!map.hasLayer(marker)) {
-                            marker.addTo(map);
-                        }
                     });
-                    $('#single-point-coordinates').show();
                     break;
             }
         });

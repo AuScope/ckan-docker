@@ -321,32 +321,29 @@ dataset_fields:
     - value: point
       label: Single point on Map        
   help_text: Choose how to specify the location.
-  display_property: null
-  display_snippet: null
 
 - field_name: map_display
   label: Map Display
   form_snippet: map_field.html
   help_text: Interactive map for selecting coordinates.
-  display_property: null
 
 
 - field_name: point_latitude
   label: Point Latitude
-  form_snippet: null
-  display_snippet: null
+  form_snippet: custom_point_latitude_snippet.html
+  validators: location_validator
 
 - field_name: point_longitude
   label: Point Longitude
-  form_snippet: null
-  display_snippet: null
+  form_snippet: custom_point_longitude_snippet.html
+  validators: location_validator
 
 - field_name: bounding_box
   label: Bounding Box
   help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
-  form_snippet: null
-  display_snippet: null
-  
+  form_snippet: custom_bounding_box_snippet.html
+  validators: location_validator
+
 - field_name: supplementation_information
   label: Supplemental Information
   form_snippet: textarea.html
