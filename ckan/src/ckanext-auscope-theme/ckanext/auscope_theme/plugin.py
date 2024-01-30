@@ -1,5 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from ckanext.auscope_theme.scheming.validation import location_validator
+
 
 
 # import ckanext.auscope_theme.cli as cli
@@ -18,7 +20,7 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
     # plugins.implements(plugins.IBlueprint)
     # plugins.implements(plugins.IClick)
     # plugins.implements(plugins.ITemplateHelpers)
-    # plugins.implements(plugins.IValidators)
+    plugins.implements(plugins.IValidators)
     
 
     # IConfigurer
@@ -58,6 +60,5 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
 
     # IValidators
 
-    # def get_validators(self):
-    #     return validators.get_validators()
-    
+    def get_validators(self):
+        return {"location_validator": location_validator}

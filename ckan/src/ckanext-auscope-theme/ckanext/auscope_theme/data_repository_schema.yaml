@@ -311,20 +311,38 @@ dataset_fields:
   label: Locality
   help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
 
-# XXX Restrict to decimal, use map widget, have long field on same line
+- field_name: location_choice
+  label: Location Details
+  preset: radio
+  default: area
+  choices:
+    - value: area
+      label: Area on Map
+    - value: point
+      label: Single point on Map        
+  help_text: Choose how to specify the location.
+
+- field_name: map_display
+  label: Map Display
+  form_snippet: map_field.html
+  help_text: Interactive map for selecting coordinates.
+
+
 - field_name: point_latitude
   label: Point Latitude
-  help_text: The latitude of the location of the dataset represents, in WGS84 in decimal degrees
+  form_snippet: custom_point_latitude_snippet.html
+  validators: location_validator
 
-# XXX Restrict to decimal, use map widget
 - field_name: point_longitude
   label: Point Longitude
-  help_text: The longitude of the location of the dataset represents, in WGS84 in decimal degrees
+  form_snippet: custom_point_longitude_snippet.html
+  validators: location_validator
 
-# XXX Restrict to decimal, use map widget
 - field_name: bounding_box
   label: Bounding Box
   help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
+  form_snippet: custom_bounding_box_snippet.html
+  validators: location_validator
 
 - field_name: supplementation_information
   label: Supplemental Information
