@@ -1,0 +1,525 @@
+# Default values for ckan-helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  appName: "igsn"
+
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: false
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+
+ckan:
+  replicaCount: 1
+  image:
+    repository: benmotevalli/ckan-auscope # benmotevalli/ckan-auscope-dev # benmotevalli/ckan-auscope
+    tag: latest # prod # latest
+  service:
+    type: ClusterIP
+    port: 5000
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "200m"
+    limits:
+      memory: "2Gi"
+      cpu: "200m"
+
+  # Persistence settings
+  persistence:
+    enabled: true
+    storageClass: null  # Set to null to use the default storage class
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  livenessProbe:
+    initialDelaySeconds: 140
+    timeoutSeconds: 50
+    failureThreshold: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec wget -qO /dev/null http://localhost:5000
+
+  readinessProbe:
+    initialDelaySeconds: 80
+    timeoutSeconds: 30
+    periodSeconds: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec wget -qO /dev/null http://localhost:5000
+
+
+postgresql:
+  replicaCount: 1
+  # Default values for the image
+  image:
+    repository: postgres
+    tag: "12-alpine"
+  # Service settings
+  service:
+    type: ClusterIP
+    port: 5432
+
+  # Persistence settings
+  persistence:
+    enabled: true
+    storageClass: null  # Set to null to use the default storage class
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  # Resource requests and limits
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  livenessProbe:
+    initialDelaySeconds: 40
+    timeoutSeconds: 5
+    failureThreshold: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec pg_isready -U $POSTGRES_USER -d $POSTGRES_DB
+
+  # Init scripts to create additional databases and users
+  initScripts:
+    enabled: true
+
+
+solr:
+  image:
+    repository: ckan/ckan-solr
+    tag: 2.10-solr9-spatial
+  service:
+    type: ClusterIP
+    port: 8983
+
+  # Persistence settings
+  persistence:
+    enabled: true
+    storageClass: null  # Set to null to use the default storage class
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  # Resource requests and limits
+  resources:
+    requests:
+      memory: "1.5Gi" # Adjust the memory request as needed
+      cpu: "200m"    # Adjust the CPU request as needed (250m means 0.25 cores)
+    limits:
+      memory: "2Gi"  # Adjust the memory limit as needed
+      cpu: "200m"    # Adjust the CPU limit as needed (500m means 0.5 cores)
+
+  livenessProbe:
+    initialDelaySeconds: 300
+    timeoutSeconds: 30
+    failureThreshold: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec wget -qO /dev/null http://localhost:8983/solr/
+
+  readinessProbe:
+    initialDelaySeconds: 240
+    timeoutSeconds: 20
+    periodSeconds: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec wget -qO /dev/null http://localhost:8983/solr/
+
+
+redis:
+  service:
+    type: ClusterIP
+    port: 6379
+  replicaCount: 1
+  image:
+    repository: redis
+    tag: "6"
+  resources:
+    requests:
+      memory: "256Mi" # Adjust the memory request as needed
+      cpu: "100m"    # Adjust the CPU request as needed (250m means 0.25 cores)
+    limits:
+      memory: "256Mi"  # Adjust the memory limit as needed
+      cpu: "100m"    # Adjust the CPU limit as needed (500m means 0.5 cores)
+  livenessProbe:
+    initialDelaySeconds: 40
+    timeoutSeconds: 5
+    failureThreshold: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec redis-cli -e QUIT
+
+  readinessProbe:
+    initialDelaySeconds: 10
+    timeoutSeconds: 5
+    periodSeconds: 5
+    exec:
+      command:
+      - sh
+      - -c
+      - exec redis-cli -e QUIT
+
+
+datapusher:
+  service:
+    type: ClusterIP
+    port: 8800
+  replicaCount: 1
+  image:
+    repository: ckan/ckan-base-datapusher
+    tag: "0.0.20"
+  resources:
+    requests:
+      memory: "256Mi" # Adjust the memory request as needed
+      cpu: "100m"    # Adjust the CPU request as needed (250m means 0.25 cores)
+    limits:
+      memory: "256Mi"  # Adjust the memory limit as needed
+      cpu: "100m"    # Adjust the CPU limit as needed (500m means 0.5 cores)
+
+
+
+useDumpedEnvs: true
+#================================================== DUMPED ENV VARS ==========================================================#
+globalDumpedEnv:
+  # Container names
+  NGINX_CONTAINER_NAME:  nginx
+  REDIS_CONTAINER_NAME:  redis
+  POSTGRESQL_CONTAINER_NAME:  db
+  SOLR_CONTAINER_NAME:  solr
+  DATAPUSHER_CONTAINER_NAME:  datapusher
+  CKAN_CONTAINER_NAME:  ckan
+  WORKER_CONTAINER_NAME: ckan-worker
+
+  # Host Ports
+  NGINX_PORT_HOST: 81
+  NGINX_SSLPORT_HOST: 8443
+
+  # CKAN databases
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: postgres
+  POSTGRES_HOST: db
+  CKAN_DB_USER: ckandbuser
+  CKAN_DB_PASSWORD: ckandbpassword
+  CKAN_DB: ckandb
+  DATASTORE_READONLY_USER: datastore_ro
+  DATASTORE_READONLY_PASSWORD: datastore
+  DATASTORE_DB: datastore
+  CKAN_SQLALCHEMY_URL: postgresql://ckandbuser:ckandbpassword@db/ckandb
+  CKAN_DATASTORE_WRITE_URL: postgresql://ckandbuser:ckandbpassword@db/datastore
+  CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore
+
+  # Test database connections
+  TEST_CKAN_SQLALCHEMY_URL: postgres://ckan:ckan@db/ckan_test
+  TEST_CKAN_DATASTORE_WRITE_URL: postgresql://ckan:ckan@db/datastore_test
+  TEST_CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore_test
+
+  # CKAN core
+  CKAN_VERSION: 2.10.0
+  CKAN_SITE_ID: default
+  CKAN_SITE_URL: http://localhost:5000 # https://ckan-test.exploration.tools # http://localhost:5000 #
+  CKAN_PORT: 5000
+  CKAN_PORT_HOST: 5000
+  CKAN___BEAKER__SESSION__SECRET: CHANGE_ME
+  # See https://docs.ckan.org/en/latest/maintaining/configuration.html#api-token-settings
+  CKAN___API_TOKEN__JWT__ENCODE__SECRET: string:CHANGE_ME
+  CKAN___API_TOKEN__JWT__DECODE__SECRET: string:CHANGE_ME
+  CKAN_SYSADMIN_NAME: ckan_admin
+  CKAN_SYSADMIN_PASSWORD: test1234
+  CKAN_SYSADMIN_EMAIL: your_email@example.com
+  CKAN_STORAGE_PATH: /var/lib/ckan
+  CKAN_SMTP_SERVER: smtp.corporateict.domain:25
+  CKAN_SMTP_STARTTLS: True
+  CKAN_SMTP_USER: user
+  CKAN_SMTP_PASSWORD: pass
+  CKAN_SMTP_MAIL_FROM: ckan@localhost
+  TZ: UTC
+
+  # Solr
+  SOLR_IMAGE_VERSION: 2.10-solr9
+  CKAN_SOLR_URL: http://solr:8983/solr/ckan
+  TEST_CKAN_SOLR_URL: http://solr:8983/solr/ckan
+
+  # Redis
+  REDIS_VERSION: 6
+  CKAN_REDIS_URL: redis://redis:6379/1
+  TEST_CKAN_REDIS_URL: redis://redis:6379/1
+
+  # Datapusher
+  DATAPUSHER_VERSION: 0.0.20
+  CKAN_DATAPUSHER_URL: http://datapusher:8800
+  CKAN__DATAPUSHER__CALLBACK_URL_BASE: http://ckan:5000
+  DATAPUSHER_REWRITE_RESOURCES: True
+  DATAPUSHER_REWRITE_URL: http://ckan:5000
+
+  # NGINX
+  NGINX_PORT: 80
+  NGINX_SSLPORT: 443
+
+  # Extensions
+  #CKAN__PLUGINS: "envvars oidc_pkce contact auscope_theme scheming_datasets image_view text_view recline_view datastore datapusher spatial_metadata spatial_query doi"
+  CKAN__PLUGINS: "envvars oidc_pkce scheming_datasets contact auscope_theme image_view text_view recline_view datastore datapusher doi"
+  CKAN__HARVEST__MQ__TYPE: redis
+  CKAN__HARVEST__MQ__HOSTNAME: redis
+  CKAN__HARVEST__MQ__PORT: 6379
+  CKAN__HARVEST__MQ__REDIS_DB: 1
+
+
+  CKANEXT_OIDC_PKCE_BASE_URL: https://central.test.aaf.edu.au
+  CKANEXT_OIDC_PKCE_CLIENT_ID: wont-work-in-dev
+  CKANEXT_OIDC_PKCE_CLIENT_SECRET: wont-work-in-dev
+  CKANEXT__OIDC_PKCE__AUTH_PATH: /oidc/authorize
+  CKANEXT__OIDC_PKCE__TOKEN_PATH: /oidc/token
+  CKANEXT__OIDC_PKCE__USERINFO_PATH: /oidc/userinfo
+  # CKANEXT__OIDC_PKCE__SCOPE :  openid email profile
+  # CKANEXT__OIDC_PKCE__USE_SAME_ID :  true
+  # CKANEXT__OIDC_PKCE__MUNGE_PASSWORD :  true
+
+  # CKAN___SCHEMING__PRESETS: ckanext.scheming:presets.json
+  # #CKAN___SCHEMING__DATASET_SCHEMAS: ckanext.auscope_theme:data_repository_schema.yaml
+  # CKAN___SCHEMING__DATASET_SCHEMAS: ckanext.scheming:camel_photos.yaml
+
+
+
+#==================================================  DUMPED ENV VARS  ==========================================================#
+
+globalEnv:
+  # Container names
+  NGINX_CONTAINER_NAME:  nginx
+  REDIS_CONTAINER_NAME:  redis
+  POSTGRESQL_CONTAINER_NAME:  db
+  SOLR_CONTAINER_NAME:  solr
+  DATAPUSHER_CONTAINER_NAME:  datapusher
+  CKAN_CONTAINER_NAME:  ckan
+  WORKER_CONTAINER_NAME: ckan-worker
+
+  # Host Ports
+  NGINX_PORT_HOST: 81
+  NGINX_SSLPORT_HOST: 8443
+
+  # CKAN databases
+  POSTGRES_DB: postgres
+  POSTGRES_HOST: db
+  CKAN_DB: ckandb
+  DATASTORE_DB: datastore
+
+  # CKAN core
+  CKAN_VERSION: 2.10.0
+  CKAN_SITE_ID: default
+
+  CKAN_STORAGE_PATH: /var/lib/ckan
+  CKAN_SMTP_SERVER: smtp.corporateict.domain:25
+  CKAN_SMTP_STARTTLS: True
+  CKAN_SMTP_MAIL_FROM: ckan@localhost
+
+  TZ: UTC
+
+  # Solr
+  SOLR_IMAGE_VERSION: 2.10-solr9
+  # CKAN_SOLR_URL: http://solr:8983/solr/ckan
+  # TEST_CKAN_SOLR_URL: http://solr:8983/solr/ckan
+
+  # Redis
+  REDIS_VERSION: 6
+  # CKAN_REDIS_URL: redis://redis:6379/1
+  # TEST_CKAN_REDIS_URL: redis://redis:6379/1
+
+  # Datapusher
+  DATAPUSHER_VERSION: 0.0.20
+  # CKAN_DATAPUSHER_URL: http://datapusher:8800
+  # CKAN__DATAPUSHER__CALLBACK_URL_BASE: http://ckan:5000
+  DATAPUSHER_REWRITE_RESOURCES: True
+  # DATAPUSHER_REWRITE_URL: http://ckan:5000
+
+  # NGINX
+  NGINX_PORT: 80
+  NGINX_SSLPORT: 443
+
+  # Extensions
+  #CKAN__PLUGINS: "envvars oidc_pkce contact auscope_theme scheming_datasets image_view text_view recline_view datastore datapusher spatial_metadata spatial_query doi"
+  CKAN__PLUGINS: "envvars oidc_pkce scheming_datasets contact auscope_theme image_view text_view recline_view datastore datapusher doi"
+  CKAN__HARVEST__MQ__TYPE: redis
+  CKAN__HARVEST__MQ__HOSTNAME: redis
+  CKAN__HARVEST__MQ__PORT: 6379
+  CKAN__HARVEST__MQ__REDIS_DB: 1
+
+
+  CKANEXT_OIDC_PKCE_BASE_URL: https://central.test.aaf.edu.au
+  CKANEXT__OIDC_PKCE__AUTH_PATH: /oidc/authorize
+  CKANEXT__OIDC_PKCE__TOKEN_PATH: /oidc/token
+  CKANEXT__OIDC_PKCE__USERINFO_PATH: /oidc/userinfo
+  # CKANEXT__OIDC_PKCE__SCOPE :  openid email profile
+  # CKANEXT__OIDC_PKCE__USE_SAME_ID :  true
+  # CKANEXT__OIDC_PKCE__MUNGE_PASSWORD :  true
+
+  # CKAN___SCHEMING__PRESETS: ckanext.scheming:presets.json
+  # #CKAN___SCHEMING__DATASET_SCHEMAS: ckanext.auscope_theme:data_repository_schema.yaml
+  # CKAN___SCHEMING__DATASET_SCHEMAS: ckanext.scheming:camel_photos.yaml
+
+  #================================================================
+  # MOVE BELOW TO SECRETS
+  #================================================================
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  CKAN_DB_USER: ckandbuser
+  CKAN_DB_PASSWORD: ckandbpassword
+  DATASTORE_READONLY_USER: datastore_ro
+  DATASTORE_READONLY_PASSWORD: datastore
+  CKAN___BEAKER__SESSION__SECRET: CHANGE_ME
+  # See https://docs.ckan.org/en/latest/maintaining/configuration.html#api-token-settings
+  CKAN___API_TOKEN__JWT__ENCODE__SECRET: string:CHANGE_ME
+  CKAN___API_TOKEN__JWT__DECODE__SECRET: string:CHANGE_ME
+  CKAN_SYSADMIN_NAME: ckan_admin
+  CKAN_SYSADMIN_PASSWORD: test1234
+  CKAN_SYSADMIN_EMAIL: your_email@example.com
+  CKAN_SMTP_USER: user
+  CKAN_SMTP_PASSWORD: pass
+  CKANEXT_OIDC_PKCE_CLIENT_ID: wont-work-in-dev
+  CKANEXT_OIDC_PKCE_CLIENT_SECRET: wont-work-in-dev
+
+
+#   # FIXME: Maybe it is better to construct these urls within ckan app. Maybe somewhere
+#   # in prerun.py.override.
+
+  CKAN_SQLALCHEMY_URL: postgresql://ckandbuser:ckandbpassword@db/ckandb
+  CKAN_DATASTORE_WRITE_URL: postgresql://ckandbuser:ckandbpassword@db/datastore
+  CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore
+
+  TEST_CKAN_SQLALCHEMY_URL: postgres://ckan:ckan@db/ckan_test
+  TEST_CKAN_DATASTORE_WRITE_URL: postgresql://ckan:ckan@db/datastore_test
+  TEST_CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore_test
+#================================================================
+
+# =============================================
+# NOTE: DO NOT HARDCODE SECRETS IN BELOW BLOCK
+# CREATE A SEPARATE values.yaml FILE, AND USE
+# THAT FOR INSTALLATION.
+# =============================================
+secrets:
+  # POSTGRES_USER: postgres
+  # POSTGRES_PASSWORD: postgres
+  # CKAN_DB_USER: ckandbuser
+  # CKAN_DB_PASSWORD: ckandbpassword
+  # DATASTORE_READONLY_USER: datastore_ro
+  # DATASTORE_READONLY_PASSWORD: datastore
+  # CKAN___BEAKER__SESSION__SECRET: CHANGE_ME
+  # # See https://docs.ckan.org/en/latest/maintaining/configuration.html#api-token-settings
+  # CKAN___API_TOKEN__JWT__ENCODE__SECRET: CHANGE_ME
+  # CKAN___API_TOKEN__JWT__DECODE__SECRET: CHANGE_ME
+  # CKAN_SYSADMIN_NAME: ckan_admin
+  # CKAN_SYSADMIN_PASSWORD: test1234
+  # CKAN_SYSADMIN_EMAIL: your_email@example.com
+  # CKAN_SMTP_USER: user
+  # CKAN_SMTP_PASSWORD: pass
+  # CKANEXT_OIDC_PKCE_CLIENT_ID: AAF_CLIENT_ID
+  # CKANEXT_OIDC_PKCE_CLIENT_SECRET: AAF_SECRET
+
+
+  # # FIXME: Maybe it is better to construct these urls within ckan app. Maybe somewhere
+  # # in prerun.py.override.
+
+  # CKAN_SQLALCHEMY_URL: postgresql://ckandbuser:ckandbpassword@db/ckandb
+  # CKAN_DATASTORE_WRITE_URL: postgresql://ckandbuser:ckandbpassword@db/datastore
+  # CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore
+
+  # TEST_CKAN_SQLALCHEMY_URL: postgres://ckan:ckan@db/ckan_test
+  # TEST_CKAN_DATASTORE_WRITE_URL: postgresql://ckan:ckan@db/datastore_test
+  # TEST_CKAN_DATASTORE_READ_URL: postgresql://datastore_ro:datastore@db/datastore_test
+
+  # CKAN_DATASTORE_WRITE_URL: postgresql://{{ .Values.secrets.CKAN_DB_USER }}:{{ .Values.secrets.CKAN_DB_PASSWORD }}@{{ include "ckan-helm.postgresql.fullname" . }}/{{ .Values.globalEnv.DATASTORE_DB }}
+  # CKAN_DATASTORE_READ_URL: postgresql://{{ .Values.secrets.DATASTORE_READONLY_USER }}:{{ .Values.secrets.DATASTORE_READONLY_PASSWORD }}@{{ include "ckan-helm.postgresql.fullname" . }}/{{ .Values.globalEnv.DATASTORE_DB }}

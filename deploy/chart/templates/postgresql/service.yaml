@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db # {{ include "ckan-helm.postgresql.fullname" . }}
+  labels:
+{{ include "ckan-helm.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.postgresql.service.type }}
+  ports:
+    - port: {{ .Values.postgresql.service.port }}
+      targetPort: postgres
+      protocol: TCP
+      name: postgres
+  selector:
+    app: {{ include "ckan-helm.postgresql.fullname" . }}

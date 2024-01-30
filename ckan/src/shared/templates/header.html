@@ -1,7 +1,7 @@
 {% ckan_extends %}
 
 {% block header_account_notlogged %}
-<li>{% link_for _('Log in (AAF)'), named_route='oidc_pkce.login' %}</li>
+<li>{% link_for _('Log in (Test)'), named_route='oidc_pkce.login' %}</li>
 <li>
     <a href="#" role="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#aafLoginModal">
         Don't have AAF?
@@ -9,7 +9,7 @@
 </li>
 <li>{% link_for _('Log in'), named_route='user.login' %}</li>
 {% if h.check_access('user_create') %}
-{% endif %} 
+{% endif %}
 
 <div class="modal fade" id="aafLoginModal" tabindex="-1" aria-labelledby="aafLoginModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -19,7 +19,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Don’t have an AAF account yet? Please contact us to set up an account. 
+                Don’t have an AAF account yet? Please contact us to set up an account.
             </div>
             <div class="modal-footer">
                 <a href="mailto:auscope.doi@csiro.au?subject=AuScope%20Data%20Repository%20-%20Request%20Account" class="btn btn-primary">Contact Us</a>

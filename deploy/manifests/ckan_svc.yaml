@@ -1,0 +1,13 @@
+# ckan-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ckan
+  namespace: apps
+spec:
+  selector:
+    app: ckan
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000

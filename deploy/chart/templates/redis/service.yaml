@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  {{- if .Values.useDumpedEnvs}}
+  name: redis
+  {{- else}}
+  name: {{ include "ckan-helm.redis.fullname" . }}
+  {{- end}}
+  labels:
+{{ include "ckan-helm.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.redis.service.type }}
+  ports:
+    - port: {{ .Values.redis.service.port }}
+      targetPort: redis
+      protocol: TCP
+      name: redis
+  selector:
+    app: {{ include "ckan-helm.redis.fullname" . }}
