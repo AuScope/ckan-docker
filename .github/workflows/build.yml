@@ -37,7 +37,7 @@ jobs:
             echo "::set-output name=image_tag::latest"
             echo "::set-output name=image_repo::benmotevalli/ckan-auscope"
           elif [[ "${{ steps.extract_branch.outputs.branch }}" == "dev" ]]; then
-            echo "::set-output name=image_tag::latest-$(date +'%Y%m%d%H%M%S)"
+            echo "::set-output name=image_tag::latest-$(date +'%Y%m%d%H%M%S')"
             echo "::set-output name=image_repo::benmotevalli/ckan-auscope-dev"
           fi
 
