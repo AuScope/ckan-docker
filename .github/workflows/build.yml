@@ -36,7 +36,7 @@ jobs:
           if [[ "${{ steps.extract_branch.outputs.branch }}" == "master" ]]; then
             echo "::set-output name=image_tag::latest"
             echo "::set-output name=image_repo::benmotevalli/ckan-auscope"
-          elif [[ "${{ steps.extract_branch.outputs.branch }}" == "dev" ]]
+          elif [[ "${{ steps.extract_branch.outputs.branch }}" == "dev" ]]; then
             echo "::set-output name=image_tag::${{ steps.extract_sha.outputs.sha }}"
             echo "::set-output name=image_repo::benmotevalli/ckan-auscope-dev"
           fi
