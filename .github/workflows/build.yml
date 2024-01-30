@@ -37,7 +37,7 @@ jobs:
             echo "::set-output name=image_tag::latest"
             echo "::set-output name=image_repo::benmotevalli/ckan-auscope"
           elif [[ "${{ steps.extract_branch.outputs.branch }}" == "dev" ]]; then
-            echo "::set-output name=image_tag::${{ steps.extract_sha.outputs.sha }}"
+            echo "::set-output name=image_tag::latest-$(date +'%Y%m%d%H%M%S)"
             echo "::set-output name=image_repo::benmotevalli/ckan-auscope-dev"
           fi
 
@@ -45,7 +45,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./ckan
-          file: ./ckan/Dockerfile
+          file: ${{ github.ref == 'refs/heads/master' && './ckan/Dockerfile' || './ckan/Dockerfile.dev' }}
           push: true
           tags: ${{ steps.tag.outputs.image_repo }}:${{ steps.tag.outputs.image_tag }}
 
