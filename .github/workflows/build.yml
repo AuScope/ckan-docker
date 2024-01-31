@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - dev
+      - test-pipeline
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
