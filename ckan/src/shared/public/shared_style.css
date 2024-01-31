@@ -228,6 +228,69 @@ hr {
     background-color: var(--bs-gray) !important
 }
 
+
+.btn-success {
+  color: #fff;
+  background-color: var(--color-aus-royal-blue-bright);
+  border-color: var(--color-aus-royal-blue);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+.btn-success:hover {
+  color: #fff;
+  background-color: var(--color-aus-royal-blue-dark);
+  border-color: var(--color-aus-royal-blue-dark);
+}
+.btn-check:focus + .btn-success, .btn-success:focus {
+  color: #fff;
+  background-color: var(--color-aus-royal-blue-dark);
+  border-color: var(--color-aus-royal-blue-dark);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 0.25rem  var(--color-aus-royal-blue);
+}
+.btn-check:checked + .btn-success, .btn-check:active + .btn-success, .btn-success:active, .btn-success.active, .show > .btn-success.dropdown-toggle {
+  color: #fff;
+  background-color: var(--color-aus-royal-blue-dark);
+  border-color: var(--color-aus-royal-blue-dark);
+}
+.btn-check:checked + .btn-success:focus, .btn-check:active + .btn-success:focus, .btn-success:active:focus, .btn-success.active:focus, .show > .btn-success.dropdown-toggle:focus {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125), 0 0 0 0.25rem  var(--color-aus-royal-blue);
+}
+.btn-success:disabled, .btn-success.disabled {
+  color: #fff;
+  background-color: var(--color-aus-royal-blue);
+  border-color: var(--color-aus-royal-blue);
+}
+
+
+.btn-danger, .control-custom.disabled .checkbox.btn {
+  color: #fff;
+  background-color: var(--bs-tangerine);
+  border-color: var(--bs-tangerine);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
+}
+.btn-danger:hover, .control-custom.disabled .checkbox.btn:hover {
+  color: #fff;
+  background-color: var(--bs-red);
+  border-color: var(--bs-red);
+}
+.btn-check:focus + .btn-danger, .control-custom.disabled .btn-check:focus + .checkbox.btn, .btn-danger:focus, .control-custom.disabled .checkbox.btn:focus {
+  color: #fff;
+  background-color: var(--bs-red);
+  border-color: var(--bs-red);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 0.25rem rgba(218, 92, 88, 0.5);
+}
+.btn-check:checked + .btn-danger, .control-custom.disabled .btn-check:checked + .checkbox.btn, .btn-check:active + .btn-danger, .control-custom.disabled .btn-check:active + .checkbox.btn, .btn-danger:active, .control-custom.disabled .checkbox.btn:active, .btn-danger.active, .control-custom.disabled .active.checkbox.btn, .show > .btn-danger.dropdown-toggle, .control-custom.disabled .show > .dropdown-toggle.checkbox.btn {
+  color: #fff;
+  background-color: var(--bs-red);
+  border-color: var(--bs-red);
+}
+.btn-check:checked + .btn-danger:focus, .control-custom.disabled .btn-check:checked + .checkbox.btn:focus, .btn-check:active + .btn-danger:focus, .control-custom.disabled .btn-check:active + .checkbox.btn:focus, .btn-danger:active:focus, .control-custom.disabled .checkbox.btn:active:focus, .btn-danger.active:focus, .control-custom.disabled .active.checkbox.btn:focus, .show > .btn-danger.dropdown-toggle:focus, .control-custom.disabled .show > .dropdown-toggle.checkbox.btn:focus {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125), 0 0 0 0.25rem rgba(218, 92, 88, 0.5);
+}
+.btn-danger:disabled, .control-custom.disabled .checkbox.btn:disabled, .btn-danger.disabled, .control-custom.disabled .disabled.checkbox.btn {
+  color: #fff;
+  background-color: var(--bs-tangerine);
+  border-color: var(--bs-tangerine);
+}
 /* =====================================================
    The "account masthead" bar across the top of the site
    ===================================================== */
@@ -502,65 +565,9 @@ body {
 }
 
 
-.btn-success {
-  color: #fff;
-  background-color: var(--color-aus-royal-blue-bright);
-  border-color: var(--color-aus-royal-blue);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
-}
-.btn-success:hover {
-  color: #fff;
-  background-color: var(--color-aus-royal-blue-dark);
-  border-color: var(--color-aus-royal-blue-dark);
-}
-.btn-check:focus + .btn-success, .btn-success:focus {
-  color: #fff;
-  background-color: var(--color-aus-royal-blue-dark);
-  border-color: var(--color-aus-royal-blue-dark);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 0.25rem  var(--color-aus-royal-blue);
-}
-.btn-check:checked + .btn-success, .btn-check:active + .btn-success, .btn-success:active, .btn-success.active, .show > .btn-success.dropdown-toggle {
-  color: #fff;
-  background-color: var(--color-aus-royal-blue-dark);
-  border-color: var(--color-aus-royal-blue-dark);
-}
-.btn-check:checked + .btn-success:focus, .btn-check:active + .btn-success:focus, .btn-success:active:focus, .btn-success.active:focus, .show > .btn-success.dropdown-toggle:focus {
-  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125), 0 0 0 0.25rem  var(--color-aus-royal-blue);
-}
-.btn-success:disabled, .btn-success.disabled {
-  color: #fff;
-  background-color: var(--color-aus-royal-blue);
-  border-color: var(--color-aus-royal-blue);
-}
-
-
-.btn-danger, .control-custom.disabled .checkbox.btn {
-  color: #fff;
-  background-color: var(--bs-tangerine);
-  border-color: var(--bs-tangerine);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
-}
-.btn-danger:hover, .control-custom.disabled .checkbox.btn:hover {
-  color: #fff;
-  background-color: var(--bs-red);
-  border-color: var(--bs-red);
-}
-.btn-check:focus + .btn-danger, .control-custom.disabled .btn-check:focus + .checkbox.btn, .btn-danger:focus, .control-custom.disabled .checkbox.btn:focus {
-  color: #fff;
-  background-color: var(--bs-red);
-  border-color: var(--bs-red);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 0 0.25rem rgba(218, 92, 88, 0.5);
-}
-.btn-check:checked + .btn-danger, .control-custom.disabled .btn-check:checked + .checkbox.btn, .btn-check:active + .btn-danger, .control-custom.disabled .btn-check:active + .checkbox.btn, .btn-danger:active, .control-custom.disabled .checkbox.btn:active, .btn-danger.active, .control-custom.disabled .active.checkbox.btn, .show > .btn-danger.dropdown-toggle, .control-custom.disabled .show > .dropdown-toggle.checkbox.btn {
-  color: #fff;
-  background-color: var(--bs-red);
-  border-color: var(--bs-red);
-}
-.btn-check:checked + .btn-danger:focus, .control-custom.disabled .btn-check:checked + .checkbox.btn:focus, .btn-check:active + .btn-danger:focus, .control-custom.disabled .btn-check:active + .checkbox.btn:focus, .btn-danger:active:focus, .control-custom.disabled .checkbox.btn:active:focus, .btn-danger.active:focus, .control-custom.disabled .active.checkbox.btn:focus, .show > .btn-danger.dropdown-toggle:focus, .control-custom.disabled .show > .dropdown-toggle.checkbox.btn:focus {
-  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125), 0 0 0 0.25rem rgba(218, 92, 88, 0.5);
-}
-.btn-danger:disabled, .control-custom.disabled .checkbox.btn:disabled, .btn-danger.disabled, .control-custom.disabled .disabled.checkbox.btn {
-  color: #fff;
-  background-color: var(--bs-tangerine);
-  border-color: var(--bs-tangerine);
+.form-actions .control-required-message {
+    float: left;
+    margin-left: 0;
+    margin-bottom: 0;
+    line-height: 30px;
 }
