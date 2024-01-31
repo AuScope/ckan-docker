@@ -1,1 +1,45 @@
 {% snippet "snippets/map_field.html" %}
+
+<div class="form-group" id="bounding_box_coordinates" style="display: none;">
+    <label for="field-bounding_box">Bounding Box</label>
+    <input type="text" class="form-control" id="field-bounding_box" name="bounding_box" value="{{data['bounding_box']}}" placeholder="Min Latitude, Min Longitude, Max Latitude, Max Longitude">
+    {% if errors['bounding_box'] %}
+        {% for error in errors['bounding_box'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+        Min Latitude, Min Longitude, Max Latitude, Max Longitude (Lat: -90.0 to 90.0, Lon: -180.0 to 180.0).
+    </div>
+</div>
+
+<div style="display: flex; justify-content: space-between;">
+    <div class="form-group" id="point_longitude_container" style="flex: 1; padding-right: 10px; display: none;">
+        <label for="field-point_longitude">Longitude </label>
+        <input type="text" class="form-control" id="field-point_longitude" name="point_longitude"  value="{{data['point_longitude']}}">
+        {% if errors['point_longitude'] %}
+            {% for error in errors['point_longitude'] %}
+                <span class="error-block">{{ error }}</span>
+            {% endfor %}
+        {% endif %}
+        <div class="info-block ">
+            <i class="fa fa-info-circle"></i>
+            Longitude is a decimal number between -180.0 and 180.0
+        </div>
+    </div>
+
+    <div class="form-group" id="point_latitude_container" style="flex: 1; padding-left: 10px; display: none;">
+        <label for="field-point_latitude">Latitude</label>
+        <input type="text" class="form-control" id="field-point_latitude" name="point_latitude" value="{{data['point_latitude']}}">
+        {% if errors['point_latitude'] %}
+            {% for error in errors['point_latitude'] %}
+                <span class="error-block">{{ error }}</span>
+            {% endfor %}
+        {% endif %}  
+        <div class="info-block ">
+            <i class="fa fa-info-circle"></i>
+            Latitude is a decimal number between -90.0 and 90.0
+        </div>
+    </div>
+</div>
