@@ -330,18 +330,18 @@ dataset_fields:
 
 - field_name: point_latitude
   label: Point Latitude
-  form_snippet: custom_point_latitude_snippet.html
+  form_snippet: null
   validators: location_validator
 
 - field_name: point_longitude
   label: Point Longitude
-  form_snippet: custom_point_longitude_snippet.html
+  form_snippet: null
   validators: location_validator
 
 - field_name: bounding_box
   label: Bounding Box
   help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
-  form_snippet: custom_bounding_box_snippet.html
+  form_snippet: null
   validators: location_validator
 
 - field_name: supplementation_information

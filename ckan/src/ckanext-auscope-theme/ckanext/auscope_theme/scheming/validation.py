@@ -1,17 +1,4 @@
-from ckan.plugins import toolkit
-from ckan.plugins.toolkit import Invalid
-import logging
-from ckantoolkit import (
-    get_validator,
-    UnknownValidator,
-    missing,
-    Invalid,
-    StopOnError,
-    _,
-    unicode_safe,
-)
-
-logger = logging.getLogger(__name__)
+from ckantoolkit import _
 
 
 # A dictionary to store your validators
@@ -44,17 +31,32 @@ def location_validator(field, schema):
         point_longitude = data.get(('point_longitude',), [])
         bounding_box = data.get(('bounding_box',), [])
 
+        missing_error = _("Missing value")
+        invalid_error = _("Invalid value")
+
+        def add_error(field_name, error_message):
+            if error_message not in errors[(field_name,)]:
+                errors[(field_name,)].append(error_message)
+
         if location_choice == 'point':
-            if not point_latitude or not is_valid_latitude(point_latitude):
-                errors[('point_latitude',)].append(_("Point latitude is required and must be valid."))
-            if not point_longitude or not is_valid_longitude(point_longitude):
-                errors[('point_longitude',)].append(_("Point longitude is required and must be valid."))
+            # Check for missing or invalid latitude
+            if not point_latitude:
+                add_error('point_latitude', missing_error)
+            elif not is_valid_latitude(point_latitude):
+                add_error('point_latitude', invalid_error)
+
+            # Check for missing or invalid longitude
+            if not point_longitude:
+                add_error('point_longitude', missing_error)
+            elif not is_valid_longitude(point_longitude):
+                add_error('point_longitude', invalid_error)
         
         elif location_choice == 'area':
+            # Check for missing or invalid bounding box
             if not bounding_box:
-                errors[('bounding_box',)].append(_("Bounding box is required."))
+                add_error('bounding_box', missing_error)
             elif not is_valid_bounding_box(bounding_box):
-                errors[('bounding_box',)].append(_("Bounding box coordinates are invalid."))
+                add_error('bounding_box', invalid_error)
 
     return validator
 
@@ -90,5 +92,4 @@ def is_valid_bounding_box(bbox):
                all(-180 <= lng <= 180 for lng in [min_lng, max_lng]) and \
                min_lat < max_lat and min_lng < max_lng
     except (ValueError, TypeError):
-        logger.exception("Error in validating bounding box")
         return False

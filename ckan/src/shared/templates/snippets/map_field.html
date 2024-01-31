@@ -19,7 +19,8 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        var marker = L.marker([-31.9505, 115.8605], {draggable: true});
+        var marker = null;
+        var rectangleDrawer;
         var drawnItems = new L.FeatureGroup();
         map.addLayer(drawnItems);
         var drawControl = new L.Control.Draw({
@@ -77,7 +78,10 @@
             map.removeLayer(drawnItems);
             map.off('click');
             map.removeControl(drawControl);
-            map.removeLayer(marker);
+            if(marker){
+                map.removeLayer(marker);
+                marker = null;
+            }
 
             $('#point_latitude_container').hide();
             $('#point_longitude_container').hide();
@@ -93,13 +97,27 @@
         function initializeDrawControl() {
             map.addLayer(drawnItems);
             map.addControl(drawControl);
-            new L.Draw.Rectangle(map, drawControl.options.draw.rectangle).enable();
+            if (!rectangleDrawer) {
+                rectangleDrawer = new L.Draw.Rectangle(map, drawControl.options.draw.rectangle);
+            }            
+            rectangleDrawer.enable();
         }
 
         function reinitializeMarker() {
-            if (!map.hasLayer(marker)) {
-                marker = L.marker(map.getCenter(), { draggable: true }).addTo(map);
+            if (rectangleDrawer) {
+                rectangleDrawer.disable();
             }
+        }
+
+        function addMarker(){
+            map.on('click', function(e) {
+                if (!marker) {
+                    marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+                } else {
+                    marker.setLatLng(e.latlng);
+                }
+                updateLatLngFields(e.latlng.lat, e.latlng.lng); 
+            });
         }
         function updateMarkerPosition(checkValidity=true) {
             var lat = parseFloat($('#field-point_latitude').val());
@@ -153,10 +171,7 @@
             $('#bounding_box_coordinates').show();
         }else{
             reinitializeMarker();
-            map.on('click', function(e) {
-                marker.setLatLng(e.latlng);
-                updateLatLngFields(e.latlng.lat, e.latlng.lng);
-            });
+            addMarker();
             updateMarkerPosition(false);
             $('#point_latitude_container').show();
             $('#point_longitude_container').show();
@@ -179,10 +194,7 @@
                     reinitializeMarker();
                     $('#point_latitude_container').show();
                     $('#point_longitude_container').show();
-                    map.on('click', function(e) {
-                        marker.setLatLng(e.latlng);
-                        updateLatLngFields(e.latlng.lat, e.latlng.lng);
-                    });
+                    addMarker()
                     break;
             }
         });
