@@ -11,10 +11,8 @@ igsn_theme-css:
   contents:
     - css/igsn_theme.css
   output: ckanext-igsn_theme/%(version)s-igsn_theme.css
-  filters: cssrewrite
 
 shared_style-css:
   contents:
     - /shared/public/shared_style.css
   output: ckanext-igsn_theme/%(version)s-shared_style.css
-  filters: cssrewrite  

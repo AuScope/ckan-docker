@@ -1,5 +1,10 @@
 {% ckan_extends  %}
 
+<a class="btn btn-primary" data-module="modal-contact" data-module-template="" href="" title="">
+    <i class="fas fa-envelope"></i>
+</a>
+
+{% asset 'ckanext-contact/main' %}
 
 {% block header_logo %}
   <a class="logo" href="{{ h.url_for('home.index') }}">

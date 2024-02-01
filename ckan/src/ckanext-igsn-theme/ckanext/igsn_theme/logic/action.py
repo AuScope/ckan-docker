@@ -21,5 +21,5 @@ def igsn_theme_get_sum(context, data_dict):
 
 def get_actions():
     return {
-        'igsn_theme_get_sum': auscope_theme_get_sum,
+        'igsn_theme_get_sum': igsn_theme_get_sum,
     }
