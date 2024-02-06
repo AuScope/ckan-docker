@@ -1,6 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckanext.auscope_theme.scheming.validation import location_validator
+from ckanext.auscope_theme.logic import schema
 
 
 
@@ -14,6 +15,7 @@ from ckanext.auscope_theme.scheming.validation import location_validator
 
 class AuscopeThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IPackageController, inherit=True)
     
     # plugins.implements(plugins.IAuthFunctions)
     # plugins.implements(plugins.IActions)
@@ -32,7 +34,13 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "auscope_theme")
 
-    
+
+    # IPackageController
+
+    def after_dataset_show(self, *args, **kwargs):
+        return schema.after_dataset_show(*args, **kwargs)
+
+
     # IAuthFunctions
 
     # def get_auth_functions(self):

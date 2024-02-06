@@ -453,14 +453,11 @@ dataset_fields:
       required: true
       help_text: Description of the relationship from the dataset being published to the related resource
 
-# XXX This will be auto-generated after DOI minting, see metadata document
-# Currently disabled on form and display
+# This will be auto-generated for display and not actually stored, see metadata document
 - field_name: citation
   label: Citation
   required: false
-  #form_snippet: textarea.html
   form_snippet: null
-  display_snippet: null
   help_text: The full bibliographic citation of the dataset
 
 - field_name: owner_org
