@@ -16,9 +16,9 @@ then
 fi
 
 ### AUTH Settings ###
-ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
+#ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
 ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = False"
-ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
+#ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
 ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = False"
 
 # This seems to be necessary as the envvar equivlents are not resolved

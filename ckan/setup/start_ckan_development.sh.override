@@ -74,9 +74,9 @@ ckan config-tool $SRC_DIR/ckan/test-core.ini \
     "ckan.redis.url = $TEST_CKAN_REDIS_URL"
 
 ### AUTH Settings ###
-ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
+#ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
 ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = False"
-ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
+#ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
 ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = False"
 
 ### Scheming Settings ###
@@ -116,6 +116,8 @@ ckan -c $CKAN_INI doi initdb
 
 # Start supervisord
 supervisord --configuration /etc/supervisord.conf &
+
+chown -R ckan:ckan /var/lib/ckan/storage
 
 echo "Starting CKAN"
 
