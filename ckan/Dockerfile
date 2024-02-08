@@ -50,6 +50,8 @@ COPY src/shared /shared
 COPY src/shared/public /shared/public
 COPY src/shared/templates /shared/templates
 
+COPY setup/create_auscope_org.sql ${APP_DIR}/create_auscope_org.sql
+
 # # Install the extension(s) you wrote for your own project
 RUN pip install $APP_DIR/src_extensions/ckanext-oidc-pkce && \
   pip install -e $APP_DIR/src_extensions/ckanext-auscope-theme && \

@@ -114,6 +114,11 @@ fi
 # Delay initializing DB for DOI
 ckan -c $CKAN_INI doi initdb
 
+# Add AuScope organization
+export PGPASSWORD=$CKAN_DB_PASSWORD
+psql -h db -p 5432 -f create_auscope_org.sql -U ckandbuser ckandb
+
+
 # Start supervisord
 supervisord --configuration /etc/supervisord.conf &
 

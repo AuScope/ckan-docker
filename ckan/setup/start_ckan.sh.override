@@ -55,6 +55,10 @@ fi
 # Delay initializing DB so DOI tables exist
 ckan -c $CKAN_INI doi initdb
 
+# Add AuScope organization
+export PGPASSWORD=$CKAN_DB_PASSWORD
+psql -h db -p 5432 -f create_auscope_org.sql -U ckandbuser ckandb
+
 # Set the common uwsgi options
 UWSGI_OPTS="--plugins http,python \
             --socket /tmp/uwsgi.sock \
