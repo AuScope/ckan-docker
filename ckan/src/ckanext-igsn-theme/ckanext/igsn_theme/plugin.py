@@ -1,5 +1,6 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from . import validation
 
 
 # import ckanext.igsn_theme.cli as cli
@@ -18,7 +19,7 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     # plugins.implements(plugins.IBlueprint)
     # plugins.implements(plugins.IClick)
     # plugins.implements(plugins.ITemplateHelpers)
-    # plugins.implements(plugins.IValidators)
+    plugins.implements(plugins.IValidators)
     
 
     # IConfigurer
@@ -58,6 +59,6 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
 
     # IValidators
 
-    # def get_validators(self):
-    #     return validators.get_validators()
+    def get_validators(self):
+        return {"location_validator": validation.location_validator}
     
