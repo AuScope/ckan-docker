@@ -1,4 +1,4 @@
-from ckantoolkit import _
+from ckantoolkit import (get_validator, _)
 
 
 # A dictionary to store your validators
@@ -11,6 +11,8 @@ def register_validator(fn):
     all_validators[fn.__name__] = fn
     return fn
 
+ignore_missing = get_validator('ignore_missing')
+not_empty = get_validator('not_empty')
 
 def scheming_validator(fn):
     """
@@ -21,6 +23,30 @@ def scheming_validator(fn):
     """
     fn.is_a_scheming_validator = True
     return fn
+
+@scheming_validator
+@register_validator
+def conditional_required_validator(value, context):
+    def validator(key, data, errors, context):
+        # Hypothetical function to determine if the condition for requiring the field is met
+        if should_field_be_required(context):
+            return not_empty(key, data, errors, context)
+        else:
+            return ignore_missing(key, data, errors, context)
+
+    return validator
+
+def should_field_be_required(context):
+
+    # Pseudocode: Check if the package is in draft or what the current form page is
+    # This part needs customization based on your application's logic and state management
+    draft_status = context.get('draft_status', False)
+    current_page = context.get('form_page', None)
+
+    # Logic to determine if the field should be required
+    if draft_status or (current_page and current_page == 'specific_page'):
+        return True
+    return False
 
 @scheming_validator
 @register_validator
@@ -86,7 +112,7 @@ def is_valid_bounding_box(bbox):
             return False
 
         # Split the string and convert each part to float
-        min_lat, min_lng, max_lat, max_lng = map(float, bbox.split(','))
+        min_lng , min_lat, max_lng , max_lat = map(float, bbox.split(','))
 
         return all(-90 <= lat <= 90 for lat in [min_lat, max_lat]) and \
                all(-180 <= lng <= 180 for lng in [min_lng, max_lng]) and \

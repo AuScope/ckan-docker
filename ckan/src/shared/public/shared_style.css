@@ -571,3 +571,103 @@ body {
     margin-bottom: 0;
     line-height: 30px;
 }
+
+.composite-content {
+    display: none; 
+}
+
+.composite-content.active {
+    display: block; 
+}
+
+.composite-panel-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: var(--bs-gray-200);
+    color: var(--color-aus-royal-blue);
+    cursor: pointer;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.composite-content {
+    display: none; 
+    border: 1px solid var(--bs-gray-300);
+    border-top: none; 
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    padding: 10px;
+}
+
+.composite-content.active {
+    display: block; 
+}
+.collapse-button {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 1.25em;
+    margin-right: 10px;
+}
+
+.toggle-indicator {
+  padding-right: 10px;
+  padding-left: 5px;
+}
+
+.composite-content .form-control,
+.composite-content .medinput {
+    width: 100%;
+    box-sizing: border-box;
+}
+.composite-content .controls {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* Style the tab links */
+.tablinks {
+  background-color: #f1f1f1;
+  color: black;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  text-align: center;
+  transition: background-color 0.3s;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  margin-right: 2px;
+  display: inline-block;
+}
+
+/* Change background color of tabs on hover */
+.tablinks:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tablinks.active {
+  background-color: #fff;
+  color: #000;
+  border-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+
+/* Display the first tab by default */
+.tabcontent:first-of-type {
+  display: block;
+}

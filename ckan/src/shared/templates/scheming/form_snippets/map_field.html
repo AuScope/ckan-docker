@@ -1,8 +1,10 @@
-{% snippet "snippets/map_field.html" %}
+<div class="dataset-map" data-module="map-module">
+    <div id="map-container" style="height: 400px; display: none;"></div>
+</div>
 
 <div class="form-group" id="bounding_box_coordinates" style="display: none;">
     <label for="field-bounding_box">Bounding Box</label>
-    <input type="text" class="form-control" id="field-bounding_box" name="bounding_box" value="{{data['bounding_box']}}" placeholder="Min Latitude, Min Longitude, Max Latitude, Max Longitude">
+    <input type="text" class="form-control" id="field-bounding_box" name="bounding_box" value="{{data['bounding_box']}}" placeholder="Min Longitude, Min Latitude, Max Longitude, Max Latitude ">
     {% if errors['bounding_box'] %}
         {% for error in errors['bounding_box'] %}
             <span class="error-block">{{ error }}</span>
@@ -10,7 +12,7 @@
     {% endif %}
     <div class="info-block ">
         <i class="fa fa-info-circle"></i>
-        Min Latitude, Min Longitude, Max Latitude, Max Longitude (Lat: -90.0 to 90.0, Lon: -180.0 to 180.0).
+         Min Longitude, Min Latitude, Max Longitude, Max Latitude (Lon: -180.0 to 180.0 , Lat: -90.0 to 90.0).
     </div>
 </div>
 
