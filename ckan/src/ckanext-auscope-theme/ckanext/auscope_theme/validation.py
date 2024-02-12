@@ -86,7 +86,7 @@ def is_valid_bounding_box(bbox):
             return False
 
         # Split the string and convert each part to float
-        min_lat, min_lng, max_lat, max_lng = map(float, bbox.split(','))
+        min_lng , min_lat, max_lng , max_lat = map(float, bbox.split(','))
 
         return all(-90 <= lat <= 90 for lat in [min_lat, max_lat]) and \
                all(-180 <= lng <= 180 for lng in [min_lng, max_lng]) and \

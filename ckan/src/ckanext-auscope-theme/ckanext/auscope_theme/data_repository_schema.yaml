@@ -41,6 +41,7 @@ dataset_fields:
 - field_name: author
   label: Authors
   preset: composite_repeating
+  form_snippet: composite_repeating_field.html
   #required: true
   #form_blanks: 3
   subfields:
@@ -388,6 +389,7 @@ dataset_fields:
 - field_name: funder
   label: Funder
   preset: composite_repeating
+  form_snippet: composite_repeating_field.html
   form_blanks: 1
   subfields:
     - field_name: funder_name
@@ -425,6 +427,7 @@ dataset_fields:
 - field_name: related_resource
   label: Related Resource
   preset: composite_repeating
+  form_snippet: composite_repeating_field.html
   required: false
   form_blanks: 0
   subfields:
