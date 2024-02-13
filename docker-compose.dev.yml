@@ -60,6 +60,8 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+    ports:
+      - "5432:5432"
 
   solr:
     container_name: ${SOLR_CONTAINER_NAME}
