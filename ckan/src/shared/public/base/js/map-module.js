@@ -1,7 +1,6 @@
 ckan.module('map-module', function ($, _) {
     return {
         initialize: function () {
-            console.log("Map module initialized!");
             this.el.ready($.proxy(this.setupMap, this));
         },
 
@@ -44,6 +43,8 @@ ckan.module('map-module', function ($, _) {
                 $('#point_latitude_container').show();
                 $('#point_longitude_container').show();
             }
+
+            $('html,body').scrollTop(0); // Reset scroll position to the top of the page
 
             $('input[type=radio][name=location_choice]').change(function () {
                 self.resetMap();
