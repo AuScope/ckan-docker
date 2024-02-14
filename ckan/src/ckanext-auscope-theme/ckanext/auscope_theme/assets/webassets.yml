@@ -10,6 +10,7 @@ shared_script-js:
   output: ckanext-auscope_theme/%(version)s-shared_script.js
   contents:
     - /shared/public/base/js/map-module.js
+    - /shared/public/base/js/display-map-module.js
     - /shared/public/base/js/composite-repeating-module.js
 
 auscope_theme-css:
