@@ -92,12 +92,15 @@
       <div class="card">
         <div class="card-header" id="heading{{ loop.index }}">
           <h4 class="mb-0">
-            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ loop.index }}" aria-expanded="true" aria-controls="collapse{{ loop.index }}">
+            <button class="btn btn-link" type="button" data-toggle="collapse" 
+                    data-target="#collapse{{ loop.index }}" 
+                    aria-expanded="{{ 'true' if loop.first else 'false' }}" 
+                    aria-controls="collapse{{ loop.index }}">
               {{ group }}
             </button>
           </h4>
         </div>
-        <div id="collapse{{ loop.index }}" class="collapse show" aria-labelledby="heading{{ loop.index }}">
+        <div id="collapse{{ loop.index }}" class="collapse {{ 'show' if loop.first else '' }}" aria-labelledby="heading{{ loop.index }}">
           <div class="card-body">
             {%- for field in group_fields %}
               {%- if field.form_snippet is not none -%}

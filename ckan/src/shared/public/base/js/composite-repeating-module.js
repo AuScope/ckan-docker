@@ -12,7 +12,64 @@ ckan.module('composite-repeating-module', function ($, _) {
           self.updateCollapsiblePanels();
         }, 100);
       });
+
+      // Set up the event listener for the author affiliation input
+      this.setupAffiliationListener();
     },
+
+
+    setupAffiliationListener: function () {
+      var self = this;
+      $(document).on('input', 'input[id*="author-"][id*="-author_affiliation"]', function () {
+        var affiliationName = $(this).val();
+        if (affiliationName.length === 0) {
+          // Clear the dependent fields immediately if the affiliation name is cleared
+          self.clearDependentFields($(this));
+        } else if (affiliationName.length > 3) { // Continue with the API call if there's sufficient input
+          self.fetchAffiliationData(affiliationName, $(this));
+        }
+      });
+    },
+    clearDependentFields: function ($inputField) {
+      // Construct the IDs for the dependent fields based on the input field's ID
+      var identifierFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier');
+      var identifierTypeFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier_type');
+
+      // Clear the values of the dependent fields
+      $('#' + identifierFieldId).val('');
+      $('#' + identifierTypeFieldId).val('');
+    },
+
+    fetchAffiliationData: function (affiliationName, $inputField) {
+      var self = this;
+      $.ajax({
+        url: `https://api.ror.org/organizations?query=${encodeURIComponent(affiliationName)}`,
+        type: 'GET',
+        success: function (data) {
+          if (data && data.items.length > 0) {
+            const firstResult = data.items[0];
+            // Construct the identifier field's id based on the affiliation name field's id
+            var identifierFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier');
+            // Update the identifier field with the ROR ID
+            $('#' + identifierFieldId).val(firstResult.id);
+
+            // Update the identifier type field to 'ror'
+            var identifierTypeFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier_type');
+            $('#' + identifierTypeFieldId).val('ror');
+          } else {
+            // No match found, clear the dependent fields
+            self.clearDependentFields($inputField);
+          }
+        },
+        error: function (xhr, status, error) {
+          // Handle error or no response scenario by clearing the fields
+          self.clearDependentFields($inputField);
+          console.error('Error fetching ROR data:', error);
+        }
+      });
+    },
+
+
 
     makeCollapsible: function (title, groups) {
       var self = this;
