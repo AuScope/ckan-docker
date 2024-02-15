@@ -1,0 +1,28 @@
+<div class="form-group" id="fields_of_reserch">
+    <label for="field-fields_of_reserch">Fields of Research</label>
+    <select data-module="for-fields-handler-module" class="form-control" id="field-fields_of_reserch" name="fields_of_reserch" multiple >
+    </select>
+    {% if errors['fields_of_reserch'] %}
+        {% for error in errors['fields_of_reserch'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+            The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
+    </div>
+</div>
+
+<div class="form-group" id="fields_of_research_code" >
+    <label for="field-fields_of_research_code">Fields of Research Code</label>
+    <input type="text" class="form-control" id="field-fields_of_research_code" name="fields_of_research_code" value="{{data['fields_of_research_code']}}" >
+    {% if errors['fields_of_research_code'] %}
+        {% for error in errors['fields_of_research_code'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+         The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
+    </div>
+</div>

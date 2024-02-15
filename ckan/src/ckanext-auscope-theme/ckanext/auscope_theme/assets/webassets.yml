@@ -12,6 +12,7 @@ shared_script-js:
     - /shared/public/base/js/map-module.js
     - /shared/public/base/js/display-map-module.js
     - /shared/public/base/js/composite-repeating-module.js
+    - /shared/public/base/js/for-fields-handler-module.js
 
 auscope_theme-css:
   contents:
