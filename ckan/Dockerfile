@@ -72,7 +72,8 @@ RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=
 # to get them mounted in this image at runtime
 
 COPY setup/prerun.py.override ${APP_DIR}/prerun.py
-COPY setup/start_ckan_development.sh.override ${APP_DIR}/start_ckan_development.sh
+# COPY setup/start_ckan_development.sh.override ${APP_DIR}/start_ckan_development.sh
+COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
 
@@ -98,7 +99,8 @@ RUN pip install $APP_DIR/src_extensions/ckanext-oidc-pkce && \
   pip install $APP_DIR/src_extensions/ckanext-auscope-theme && \
   pip install $APP_DIR/src_extensions/ckanext-igsn-theme
 
-RUN chmod +x ${APP_DIR}/start_ckan_development.sh
+RUN chmod +x ${APP_DIR}/start_ckan.sh
+# RUN chmod +x ${APP_DIR}/start_ckan_development.sh
 
 
 
