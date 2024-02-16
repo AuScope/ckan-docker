@@ -1,5 +1,5 @@
 
-def auscope_theme_hello():
+def igsn_theme_hello():
     return "Hello, igsn_theme!"
 
 

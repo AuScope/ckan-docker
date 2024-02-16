@@ -1,18 +1,18 @@
 scheming_version: 2
 dataset_type: dataset
-about: AuScope Data Repository schema
+about: AuScope Sample Repository schema
 about_url: https://github.com/AuScope/ckan-docker
 
 dataset_fields:
 
 - start_form_page:
-    title: About Dataset
+    title: About Sample
 
   field_name: title
   label: Title
   required: true
   preset: title
-  help_text: The title of the dataset should be informative, short and define technical terms and acronyms
+  help_text: The title of the physical sample should be informative, short and define technical terms and acronyms clearly
   groupBy: Citation
 
 - field_name: name
@@ -27,7 +27,7 @@ dataset_fields:
   form_placeholder: A DOI will be automatically minted when the dataset is published
   form_attrs:
     disabled: true
-  help_text: Persistent identifier (DOI) of the dataset
+  help_text: Persistent identifier (DOI) of the physical sample
   groupBy: Citation
 
 - field_name: author
@@ -41,7 +41,7 @@ dataset_fields:
       label: Author Name
       required: true
       display_property: dc:creator
-      help_text: The full name of the entity, e.g. a person or organization, that created the dataset
+      help_text: The full name of the entity, e.g. a person or organization, that collected or created the physical sample
 
     - field_name: author_name_type
       label: Author Name Type
@@ -64,13 +64,13 @@ dataset_fields:
       label: Author Affiliation Identifier
       required: true
       # form_attrs:
-      #   disabled: true
+      #   disabled: true      
       help_text: The persistent identifier of the affiliated entity
 
     - field_name: author_affiliation_identifier_type
       label: Author Affiliation Identifier Type
       # form_attrs:
-      #   disabled: true
+      #   disabled: true  
       required: true
       preset: select
       default: ror
@@ -122,9 +122,9 @@ dataset_fields:
   required: true
   preset: select
   choices:
-    - value: dataset
-      label: Dataset
-  default: dataset
+    - value: physicalobject
+      label: PhysicalObject
+  default: physicalobject
   help_text: The type of the resource to be published
   groupBy: Citation
 
@@ -133,63 +133,175 @@ dataset_fields:
   label: Description
   required: true
   preset: markdown
-  help_text: A summary describing the purpose, nature, and scope of the dataset. Provide contextual information important to the use of the resource are explained, e.g. formats, recommended tools, related resources, or limitations.
-  groupBy: About this Dataset
+  help_text: A summary describing the purpose, nature, and scope of the physical sample. Provide contextual information important to the use of the resource explained, e.g. formats, recommended tools, related resources, or limitations.
+  groupBy: About this Sample
 
 - field_name: lineage
   label: Lineage
   form_snippet: textarea.html
-  help_text: The Lineage should contain information about how the data was produced. Processes involved in the production of the data could be included here
-  groupBy: About this Dataset
+  help_text: The Lineage should contain information about how the sample was collected or produced, e.g. location of collection, method used to collect the sample and sample preparation.
+  groupBy: About this Sample
 
 - field_name: supplementation_information
   label: Supplemental Information
   form_snippet: textarea.html
-  help_text: Any other descriptive information about the dataset that can promote its reuse
-  groupBy: About this Dataset
+  help_text: Any other descriptive information about the physical sample that can promote its reuse
+  groupBy: About this Sample
 
 - field_name: user_keywords
   label: User Specified Keywords
   required: true
   preset: tag_string_autocomplete
-  help_text: Keywords help with the discovery of the collection. Enter one or more key terms that describe important aspect of the dataset separated by a comma ','
+  help_text: Keywords help with the discovery of the physical sample. Enter one or more key terms that describe important aspect of the dataset separated by a comma ','
   groupBy: Keywords
 
-- field_name: gcmd_keywords
-  label: GCMD Science Keywords
+# - field_name: gcmd_keywords
+#   label: GCMD Science Keywords
+#   required: true
+#   preset: select
+#   help_text: Global Change Master Directory (GCMD) science keywords
+#   groupBy: Keywords
+
+- field_name: sample_type
+  label: Sample Type
   required: true
-  help_text: Global Change Master Directory (GCMD) science keywords
+  preset: select
+  choices:
+    - value: automated
+      label: automated
+    - value: biota
+      label: biota
+    - value: core
+      label: core
+    - value: corehalfround
+      label: coreHalfRound
+    - value: corepiece
+      label: corePiece
+    - value: corequarterround
+      label: coreQuarterRound
+    - value: coresection
+      label: coreSection
+    - value: coresectionhalf
+      label: coreSectionHalf
+    - value: coresubpiece
+      label: coreSub-Piece
+    - value: corewholeround
+      label: coreWholeRound          
+    - value: cuttings
+      label: cuttings          
+    - value: dredge
+      label: dredge                              
+    - value: foliagedigestion
+      label: foliageDigestion          
+    - value: foliageleaching
+      label: foliageLeaching          
+    - value: forestfloordigestion
+      label: forestFloorDigestion 
+    - value: grab
+      label: grab          
+    - value: individualsample
+      label: individualSample          
+    - value: litterfalldigestion
+      label: litterFallDigestion    
+    - value: orientedcore
+      label: orientedCore          
+    - value: other
+      label: other          
+    - value: petridishdrydeposition
+      label: petriDishDryDeposition                              
+    - value: precipitationbulk
+      label: precipitationBulk          
+    - value: rockpowder
+      label: rockPowder          
+    - value: standardreferencespecimen
+      label: standardReferenceSpecimen 
+    - value: terrestrialsection
+      label: terrestrialSection          
+    - value: thespecimentypeisunknown
+      label: theSpecimenTypeIsUnknown          
+    - value: thinsection
+      label: thinSection                                        
+  help_text: A vocabulary for describing the type of a physical sample.
   groupBy: Keywords
 
-- field_name: fields_of_reserch
-  label: Fields of Research
+- field_name: material_type
+  label: Material Type
   required: true
-  form_snippet: fields_of_reserch_field.html
-  help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
+  preset: select
+  choices:
+    - value: air
+      label: air
+    - value: equipment
+      label: equipment
+    - value: gas
+      label: gas
+    - value: habitat
+      label: habitat
+    - value: ice
+      label: ice   
+    - value: liquidaqueous
+      label: liquidAqueous
+    - value: liquidorganic
+      label: liquidOrganic
+    - value: mineral
+      label: mineral
+    - value: notapplicable
+      label: notApplicable
+    - value: organism
+      label: organism
+    - value: other
+      label: other
+    - value: particulate
+      label: particulate
+    - value: regolith
+      label: regolith
+    - value: rock
+      label: rock
+    - value: sediment
+      label: sediment
+    - value: snow
+      label: snow
+    - value: soil
+      label: soil
+    - value: tissue
+      label: tissue
+    - value: unknown
+      label: unknown
+    - value: vegetation
+      label: vegetation                                       
+  help_text: A vocabulary for describing the physical medium of a specimen, reference material, or sampled environment.
   groupBy: Keywords
 
-- field_name: fields_of_research_code
-  label: Fields of Research Code
-  required: true
-  form_snippet: null
-  help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
-  groupBy: Keywords
+# - field_name: fields_of_reserch
+#   label: Fields of Research
+#   required: true
+#   preset: select
+#   help_text: The area(s) of study relevant to the physical sample based on the ANZSRC Fields of Research (FoR) 2020
+#   groupBy: Keywords
 
-- field_name: start_date
-  label: Start Date
-  preset: date
-  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
-  groupBy: Spatial & Temporal
+# - field_name: fields_of_research_code
+#   label: Fields of Research Code
+#   required: true
+#   preset: select
+#   help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
+#   groupBy: Keywords
 
-- field_name: end_date
-  label: End Date
-  preset: date
-  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
-  groupBy: Spatial & Temporal
+# - field_name: start_date
+#   label: Start Date
+#   preset: date
+#   help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
+#   groupBy: Spatial & Temporal
+
+# - field_name: end_date
+#   label: End Date
+#   preset: date
+#   help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
+#   groupBy: Spatial & Temporal
+
 
 - field_name: locality
   label: Locality
-  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
+  help_text: The locality or named place where the physical sample was collected
   groupBy: Spatial & Temporal
 
 - field_name: location_choice
@@ -200,7 +312,7 @@ dataset_fields:
     - value: area
       label: Area on Map
     - value: point
-      label: Single point on Map
+      label: Single point on Map   
   display_snippet: map_field.html
   help_text: Choose how to specify the location.
   groupBy: Spatial & Temporal
@@ -236,25 +348,24 @@ dataset_fields:
 
 - field_name: epsg_code
   label: Geographic Coordinate System
-  help_text: The measurement of height above mean sea level in meters
+  help_text: "A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and longitude. Latitude and longitude measure angles"
   groupBy: Spatial & Temporal
 
-- field_name: elevation
-  label: Elevation (m)
-  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
-  groupBy: Spatial & Temporal
-
-- field_name: vertical_datum
-  label: Vertical Datum
-  preset: select
-  choices:
-    - value: "5111"
-      label: 5111
-    - value: "1292"
-      label: 1292
-  help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level.
-  groupBy: Spatial & Temporal
-
+# - field_name: elevation
+#   label: Elevation (m)
+#   help_text: The measurement of height above mean sea level in meters
+#   groupBy: Spatial & Temporal
+  
+# - field_name: vertical_datum
+#   label: Vertical Datum
+#   preset: select
+#   choices:
+#     - value: "5111"
+#       label: 5111
+#     - value: "1292"
+#       label: 1292    
+#   help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level.  
+#   groupBy: Spatial & Temporal
 
 - field_name: funder
   label: Funding Reference
@@ -262,12 +373,12 @@ dataset_fields:
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
   form_blanks: 1
-  groupBy: Funding & Acknowledgement
+  groupBy: Funding & Acknowledgement    
   subfields:
     - field_name: funder_name
       label: Funder Name
       required: true
-      help_text: Information about financial support for the dataset. Provide the full (official) name of the funding provider, e.g., Australian Research Council (ARC)
+      help_text: Information about financial support for the physical sample. Provide the full (official) name of the funding provider, e.g., Australian Research Council (ARC)  
 
     - field_name: funder_identifier
       label: Funder Identifier
@@ -288,20 +399,20 @@ dataset_fields:
         - value: wikidata
           label: Wikidata
         - value: other
-          label: Other
+          label: Other          
       help_text: The type of the funder identifier
-
+    
     - field_name: funding_program
       label: Funding Program Name
       help_text: The name of the funding program through which the the project grant was awarded
 
     - field_name: project_grant_identifier
       label: Project Grant Identifier
-      help_text: The code assigned by the funder to a sponsored grant or project of the dataset
+      help_text: The code assigned by the funder to a sponsored grant or project of the physical sample
 
     - field_name: project_grant_name
       label: Project Grant Name
-      help_text: The full name of project grant of the dataset
+      help_text: The full name of project grant of the physical sample
 
     - field_name: project_grant_identifier_type
       label: Project Grant Identifier Type
@@ -312,14 +423,14 @@ dataset_fields:
         - value: cordis grant agreement id
           label: CORDIS Grant Agreement ID
         - value: grantconnect id
-          label: GrantConnect ID
+          label: GrantConnect ID  
       help_text: The type of project identifier
 
 - field_name: credit
   label: Credit
   form_snippet: textarea.html
   help_text: The Credit field is where you acknolwedge people or organisations who contributed to the collection
-  groupBy: Funding & Acknowledgement
+  groupBy: Funding & Acknowledgement    
 
 - field_name: publisher
   label: Publisher
@@ -329,7 +440,7 @@ dataset_fields:
     - value: auscope
       label: AuScope
   default: auscope
-  help_text: The entity that publishes the dataset
+  help_text: The entity that publishes the physical sample 
   groupBy: Publication
 
 - field_name: publisher_identifier
@@ -338,10 +449,10 @@ dataset_fields:
   preset: select
   choices:
     - value: "https://ror.org/04s1m4564"
-      label: https://ror.org/04s1m4564
-  default: https://ror.org/04s1m4564
+      label: https://ror.org/04s1m4564      
+  default: https://ror.org/04s1m4564 
   help_text: The persistent identifier of the data publisher
-  groupBy: Publication
+  groupBy: Publication   
 
 - field_name: publisher_identifier_type
   label: Publisher Identifier Type
@@ -350,9 +461,9 @@ dataset_fields:
   preset: select
   choices:
     - value: ror
-      label: ROR
+      label: ROR   
   help_text: The type of the persistent identifier represents the data publisher
-  groupBy: Publication
+  groupBy: Publication  
 
 - field_name: publication_date
   label: Publication Date
@@ -361,45 +472,38 @@ dataset_fields:
   help_text: The date the dataset is published through the repository
   groupBy: Publication
 
-- field_name: license
-  label: License
-  required: true
-  default: cc-by-4.0-international
-  help_text: License for the distribution and sharing of the dataset
-  groupBy: Publication
+# - field_name: license
+#   label: License
+#   required: true
+#   default: cc-by-4.0-international
+#   help_text: License for the distribution and sharing of the dataset
+#   groupBy: Publication
 
-# XXX This is to be hidden, but value entered in DB
-- field_name: primary_contact_name
-  label: Primary Contact Name
-  required: true
-  default: AuScope Data Repository
-  help_text: A primary contact can be approached by users requesting further information of the dataset
-  groupBy: Publication
+# # XXX This is to be hidden, but value entered in DB
+# - field_name: primary_contact_name
+#   label: Primary Contact Name
+#   required: true
+#   default: AuScope Data Repository
+#   help_text: A primary contact can be approached by users requesting further information of the dataset
+#   groupBy: Publication
 
-# XXX This is to be hidden, but value entered in DB
-- field_name: primary_contact_email
-  label: Primary Contact Email
-  required: true
-  default: auscope.doi@csiro.au
-  display_snippet: email.html
-  display_email_name_field: primary_contact_name
-  help_text: Email of the primary contact
-  groupBy: Publication
+# # XXX This is to be hidden, but value entered in DB
+# - field_name: primary_contact_email
+#   label: Primary Contact Email
+#   required: true
+#   preset: select
+#   default: auscope.doi@csiro.au
+#   display_snippet: email.html
+#   display_email_name_field: primary_contact_name
+#   help_text: Email of the primary contact
+#   groupBy: Publication
 
 # XXX This will be auto-generated after DOI minting, see metadata document
-
 - field_name: citation
   label: Citation
-  required: false
-  form_snippet: null
-  help_text: The full bibliographic citation of the dataset
-
-# - field_name: citation
-#   label: Citation
-#   form_attrs:
-#     disabled: true
-#   help_text: The full bibliographic citation of the dataset
-#   groupBy: Publication
+  form_attrs:
+    disabled: true
+  help_text: The full bibliographic citation of the physical sample
 
 - start_form_page:
     title: Related Resources
@@ -471,13 +575,13 @@ dataset_fields:
         - value: workflow
           label: Workflow
         - value: other
-          label: Other
+          label: Other                  
       help_text: Select the type of this related resource
 
     - field_name: related_resource_url
       label: Related Resource URL
       required: true
-      help_text: Associated resources (e.g. report, article, data) related to the dataset. Enter the complete URL address of the related link. Permanent links are preferred
+      help_text: Associated resources (e.g. report, article, data) related to the physical sample. Enter the complete URL address of the related link. Permanent links are preferred
 
     - field_name: related_resource_title
       label: Related Resource Title
@@ -554,8 +658,8 @@ dataset_fields:
         - value: isrequiredby
           label: IsRequiredBy
         - value: obsoletes
-          label: Obsoletes
-      help_text: Description of the relationship from the dataset being published to the related resource
+          label: Obsoletes                                                  
+      help_text: Description of the relationship from the physical sample being published to the related resource
 
 - field_name: owner_org
   label: Organization
@@ -579,4 +683,4 @@ resource_fields:
 - field_name: format
   label: Format
   preset: resource_format_autocomplete
-
+  
