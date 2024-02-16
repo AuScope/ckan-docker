@@ -1,33 +1,40 @@
 this.ckan.module('for-fields-handler-module', function ($, _) {
   return {
     initialize: function () {
-      this.selectElement = $('#field-fields_of_research');
+      this.selectElement = $('#field-fields_of_reserch'); 
       this.codeElement = $('#field-fields_of_research_code');
       this.fetchAndPopulateTerms();
       this.selectElement.change(this.updateCodesField.bind(this));
     },
-
-    fetchAndPopulateTerms: function() {
+    fetchAndPopulateTerms: function () {
       var self = this;
-      // Fix ORS (Cross-Origin Resource Sharing) policy error  
-      fetch('https://vocabs.ardc.edu.au/viewById/316')
-        .then(response => response.json())
-        .then(data => {
-          data.forEach(term => {
-            const option = new Option(term.label, term.code);
-            self.selectElement.append(option);
-          });
-        })
-        .catch(error => console.error('Error loading FoR terms:', error));
+      // Use the proxy endpoint
+      var proxyUrl = '/api/proxy/fetch_terms';
+
+      $.ajax({
+        url: proxyUrl,
+        method: 'GET',
+        success: function (data) {
+          self.populateDropdown(data.result.items);
+          
+        },
+        error: function (xhr, status, error) {
+          console.error('Error fetching FoR terms via proxy:', error);
+        }
+      });
     },
 
-    updateCodesField: function() {
-      var selectedOptions = this.selectElement.find('option:selected');
-      var codes = $.map(selectedOptions, function(option) {
-        return option.value;
+    populateDropdown: function (items) {
+      var self = this;
+      $.each(items, function (index, item) {
+        var option = new Option(item.prefLabel._value, item.notation);
+        self.selectElement.append(option);
       });
+    },
 
-      this.codeElement.val(codes.join(', '));
+    updateCodesField: function () {
+      var selectedOptions = this.selectElement.val() || [];
+      this.codeElement.val(selectedOptions.join(', '));
     }
   };
 });
