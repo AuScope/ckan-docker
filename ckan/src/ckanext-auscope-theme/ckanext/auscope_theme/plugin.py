@@ -1,7 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from ckanext.auscope_theme.logic import schema
+from . import schema
 from . import validation
 
 # import ckanext.auscope_theme.cli as cli
