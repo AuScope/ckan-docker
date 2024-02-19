@@ -46,13 +46,13 @@ dataset_fields:
     - field_name: author_name_type
       label: Author Name Type
       required: true
-      preset: radio
-      default: personal
+      preset: select
       choices:
         - value: organizational
           label: Organizational
         - value: personal
           label: Personal
+      default: Personal
       help_text: The type of name, e.g. Organizational or Personal
 
     - field_name: author_affiliation
@@ -73,12 +73,12 @@ dataset_fields:
       #   disabled: true  
       required: true
       preset: select
-      default: ror
       choices:
         - value: ror
           label: ROR
         - value: other
           label: Other
+      default: ror
       help_text: The persistent identifier type of the affiliated entity
     
     - field_name: author_identifier_type
@@ -175,87 +175,6 @@ dataset_fields:
   help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
   groupBy: Keywords
 
-- field_name: start_date
-  label: Start Date
-  preset: date
-  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
-  groupBy: Spatial & Temporal
-
-- field_name: end_date
-  label: End Date
-  preset: date
-  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
-  groupBy: Spatial & Temporal
-
-- field_name: locality
-  label: Locality
-  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
-  groupBy: Spatial & Temporal
-
-- field_name: location_choice
-  label: Location Details
-  preset: radio
-  default: area
-  choices:
-    - value: area
-      label: Area on Map
-    - value: point
-      label: Single point on Map   
-  display_snippet: map_field.html
-  help_text: Choose how to specify the location.
-  groupBy: Spatial & Temporal
-
-- field_name: map_display
-  label: Map Display
-  form_snippet: map_field.html
-  display_snippet: null
-  help_text: Interactive map for selecting coordinates.
-  groupBy: Spatial & Temporal
-
-- field_name: point_latitude
-  label: Point Latitude
-  form_snippet: null
-  display_snippet: null
-  validators: location_validator
-  groupBy: Spatial & Temporal
-
-- field_name: point_longitude
-  label: Point Longitude
-  form_snippet: null
-  display_snippet: null
-  validators: location_validator
-  groupBy: Spatial & Temporal
-
-- field_name: bounding_box
-  label: Bounding Box
-  help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
-  form_snippet: null
-  display_snippet: null
-  validators: location_validator
-  groupBy: Spatial & Temporal
-
-- field_name: epsg_code
-  label: Geographic Coordinate System
-  help_text: The measurement of height above mean sea level in meters
-  groupBy: Spatial & Temporal
-
-- field_name: elevation
-  label: Elevation (m)
-  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
-  groupBy: Spatial & Temporal
-
-- field_name: vertical_datum
-  label: Vertical Datum
-  preset: select
-  choices:
-    - value: "5111"
-      label: 5111
-    - value: "1292"
-      label: 1292  
-  help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level. 
-  groupBy: Spatial & Temporal    
-
-
 - field_name: funder
   label: Funding Reference
   required: true
@@ -346,11 +265,11 @@ dataset_fields:
 - field_name: publisher_identifier_type
   label: Publisher Identifier Type
   required: true
-  default: ror
   preset: select
   choices:
     - value: ror
       label: ROR    
+  default: ror
   help_text: The type of the persistent identifier represents the data publisher
   groupBy: Publication   
 
@@ -393,6 +312,92 @@ dataset_fields:
     disabled: true
   help_text: The full bibliographic citation of the dataset
   groupBy: Publication   
+
+- start_form_page:
+    title: Spatial & Temporal
+
+  field_name: start_date
+  label: Start Date
+  preset: date
+  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
+  groupBy: Spatial & Temporal
+
+- field_name: end_date
+  label: End Date
+  preset: date
+  help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
+  groupBy: Spatial & Temporal
+
+- field_name: locality
+  label: Locality
+  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
+  groupBy: Spatial & Temporal
+
+- field_name: location_choice
+  label: Location Details
+  preset: radio
+  choices:
+    - value: noLocation
+      label: "No"   
+    - value: area
+      label: Area on Map
+    - value: point
+      label: Single point on Map   
+  default: noLocation
+  display_snippet: map_field.html
+  help_text: Choose how to specify the location.
+  # validators: location_validator
+  groupBy: Spatial & Temporal
+
+- field_name: map_display
+  label: Map Display
+  form_snippet: map_field.html
+  display_snippet: null
+  help_text: Interactive map for selecting coordinates.
+  groupBy: Spatial & Temporal
+
+- field_name: point_latitude
+  label: Point Latitude
+  form_snippet: null
+  display_snippet: null
+  # validators: location_validator
+  groupBy: Spatial & Temporal
+
+- field_name: point_longitude
+  label: Point Longitude
+  form_snippet: null
+  display_snippet: null
+  # validators: location_validator
+  groupBy: Spatial & Temporal
+
+- field_name: bounding_box
+  label: Bounding Box
+  help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
+  form_snippet: null
+  display_snippet: null
+  # validators: location_validator
+  groupBy: Spatial & Temporal
+
+- field_name: epsg_code
+  label: Geographic Coordinate System
+  help_text: The measurement of height above mean sea level in meters
+  groupBy: Spatial & Temporal
+
+- field_name: elevation
+  label: Elevation (m)
+  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
+  groupBy: Spatial & Temporal
+
+- field_name: vertical_datum
+  label: Vertical Datum
+  preset: select
+  choices:
+    - value: "5111"
+      label: 5111
+    - value: "1292"
+      label: 1292  
+  help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level. 
+  groupBy: Spatial & Temporal    
 
 - start_form_page:
     title: Related Resources

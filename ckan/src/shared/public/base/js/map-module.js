@@ -24,19 +24,16 @@ ckan.module('map-module', function ($, _) {
 
             this.resetMap();
             this.showMapAndInvalidate();
+
             var selected = $('input[type=radio][name=location_choice]:checked').val();
-            if (selected == 'area') {
+            if (selected == 'noLocation') {
+                this.resetMap();
+            }
+            else if (selected == 'area') {
                 this.initializeDrawControl();
-                this.map.on(L.Draw.Event.CREATED, function (event) {
-                    var layer = event.layer;
-                    self.drawnItems.clearLayers();
-                    self.drawnItems.addLayer(layer);
-                    var bounds = layer.getBounds();
-                    self.updateBboxField(bounds.toBBoxString());
-                });
                 this.updateRectangleBounds(false);
                 $('#bounding_box_coordinates').show();
-            } else {
+            } else if (selected == 'point') {
                 this.reinitializeMarker();
                 this.addMarker();
                 this.updateMarkerPosition(false);
@@ -52,7 +49,10 @@ ckan.module('map-module', function ($, _) {
                 self.updateBboxField('');
 
                 var choice = $(this).val();
-                if (choice == 'area') {
+                if (choice == 'noLocation') {
+                    // this.resetMap();
+                }
+                else if (choice == 'area') {
                     self.showMapAndInvalidate();
                     self.initializeDrawControl();
                     $('#bounding_box_coordinates').show();
@@ -101,6 +101,8 @@ ckan.module('map-module', function ($, _) {
         },
 
         updateBboxField: function (bboxString) {
+            console.log('updateBboxField', bboxString);
+            console.log(bboxString);
             $('#field-bounding_box').val(bboxString);
         },
 
@@ -161,8 +163,13 @@ ckan.module('map-module', function ($, _) {
             var self = this;
             this.map.on(L.Draw.Event.CREATED, function (event) {
                 var layer = event.layer;
+                self.drawnItems.clearLayers();
                 self.drawnItems.addLayer(layer);
+                var bounds = layer.getBounds();
+                self.updateBboxField(bounds.toBBoxString());
             });
+
+
         },
 
         reinitializeMarker: function () {
