@@ -19,7 +19,16 @@ def fetch_terms():
         return Response(response.content, content_type=response.headers['Content-Type'], status=response.status_code)
     else:
         return {"error": "Failed to fetch terms"}, 502
-    
+
+@auscope_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
+def fetch_epsg():
+    external_url = 'https://apps.epsg.org/api/v1/CoordSystem'  
+    response = requests.get(external_url)
+    if response.ok:
+        return Response(response.content, content_type=response.headers['Content-Type'], status=response.status_code)
+    else:
+        return {"error": "Failed to fetch EPSG codes"}, 502
+        
 auscope_theme.add_url_rule(
     "/auscope_theme/page", view_func=page)
 

@@ -166,10 +166,10 @@ dataset_fields:
   help_text: Global Change Master Directory (GCMD) science keywords
   groupBy: Keywords
 
-- field_name: fields_of_reserch
+- field_name: fields_of_research
   label: Fields of Research
   required: true
-  form_snippet: fields_of_reserch_field.html
+  form_snippet: fields_of_research_field.html
   help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
   groupBy: Keywords
 
@@ -375,6 +375,13 @@ dataset_fields:
   # validators: location_validator
   groupBy: Spatial & Temporal
 
+- field_name: elevation
+  label: Elevation (m)
+  help_text: The measurement of height above or below mean sea level in meters
+  form_snippet: null
+  # display_snippet: null
+  groupBy: Spatial & Temporal
+
 - field_name: bounding_box
   label: Bounding Box
   help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
@@ -386,23 +393,20 @@ dataset_fields:
 - field_name: epsg_code
   label: Geographic Coordinate System
   help_text: The measurement of height above mean sea level in meters
+  form_snippet: null
+  # display_snippet: null
   groupBy: Spatial & Temporal
 
-- field_name: elevation
-  label: Elevation (m)
-  help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
-  groupBy: Spatial & Temporal
-
-- field_name: vertical_datum
-  label: Vertical Datum
-  preset: select
-  choices:
-    - value: "5111"
-      label: 5111
-    - value: "1292"
-      label: 1292  
-  help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level. 
-  groupBy: Spatial & Temporal    
+# - field_name: vertical_datum
+#   label: Vertical Datum
+#   preset: select
+#   choices:
+#     - value: "5111"
+#       label: 5111
+#     - value: "1292"
+#       label: 1292  
+#   help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level. 
+#   groupBy: Spatial & Temporal    
 
 - start_form_page:
     title: Related Resources
