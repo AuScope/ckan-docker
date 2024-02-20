@@ -1,9 +1,9 @@
-<div class="form-group" id="fields_of_reserch">
-    <label for="field-fields_of_reserch">Fields of Research</label>
-    <select data-module="for-fields-handler-module" class="form-control" id="field-fields_of_reserch" name="fields_of_reserch" multiple >
+<div class="form-group" id="fields_of_research">
+    <label class="form-label" for="field-fields_of_research"><span title="This field is required" class="control-required">*</span> Fields of Research</label>
+    <select data-module="for-fields-handler-module" data-module-selected-values="{{data['fields_of_research']}}" value="{{data['fields_of_research']}}" class="form-control" id="field-fields_of_research" name="fields_of_research" multiple >
     </select>
-    {% if errors['fields_of_reserch'] %}
-        {% for error in errors['fields_of_reserch'] %}
+    {% if errors['fields_of_research'] %}
+        {% for error in errors['fields_of_research'] %}
             <span class="error-block">{{ error }}</span>
         {% endfor %}
     {% endif %}
@@ -14,7 +14,7 @@
 </div>
 
 <div class="form-group" id="fields_of_research_code"  style="display: none;">
-    <label for="field-fields_of_research_code">Fields of Research Code</label>
+    <label class="form-label" for="field-fields_of_research_code"><span title="This field is required" class="control-required">*</span> Fields of Research Code</label>
     <input type="text" class="form-control" id="field-fields_of_research_code" name="fields_of_research_code" value="{{data['fields_of_research_code']}}" >
     {% if errors['fields_of_research_code'] %}
         {% for error in errors['fields_of_research_code'] %}
