@@ -5,22 +5,6 @@ about_url: https://github.com/AuScope/ckan-docker
 
 dataset_fields:
 
-- start_form_page:
-    title: About Dataset
-
-  field_name: title
-  label: Title
-  required: true
-  preset: title
-  help_text: The title of the dataset should be informative, short and define technical terms and acronyms
-  groupBy: Citation
-
-- field_name: name
-  label: URL
-  preset: dataset_slug
-  form_placeholder: eg. my-dataset
-  groupBy: Citation
-
 # field_name conflicts with documentation (identifier)
 - field_name: doi
   label: Identifier
@@ -28,14 +12,27 @@ dataset_fields:
   form_attrs:
     disabled: true
   help_text: Persistent identifier (DOI) of the dataset
-  groupBy: Citation
+  groupBy: About Dataset
+
+- field_name: title
+  label: Title
+  required: true
+  preset: title
+  help_text: The title of the dataset should be informative, short and define technical terms and acronyms
+  groupBy: About Dataset
+
+- field_name: name
+  label: URL
+  preset: dataset_slug
+  form_placeholder: eg. my-dataset
+  groupBy: About Dataset
 
 - field_name: author
   label: Authors
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
   required: true
-  groupBy: Citation
+  groupBy: About Dataset
   subfields:
     - field_name: author_name
       label: Author Name
@@ -131,7 +128,7 @@ dataset_fields:
       label: Dataset
   default: dataset
   help_text: The type of the resource to be published
-  groupBy: Citation
+  groupBy: About Dataset
 
 # XXX This conflicts with resource description, changed to notes to match original schema
 - field_name: notes
@@ -139,190 +136,37 @@ dataset_fields:
   required: true
   preset: markdown
   help_text: A summary describing the purpose, nature, and scope of the dataset. Provide contextual information important to the use of the resource are explained, e.g. formats, recommended tools, related resources, or limitations.
-  groupBy: About this Dataset
-
-- field_name: lineage
-  label: Lineage
-  form_snippet: textarea.html
-  help_text: The Lineage should contain information about how the data was produced. Processes involved in the production of the data could be included here
-  groupBy: About this Dataset
-
-- field_name: supplementation_information
-  label: Supplemental Information
-  form_snippet: textarea.html
-  help_text: Any other descriptive information about the dataset that can promote its reuse
-  groupBy: About this Dataset
+  groupBy: About Dataset
 
 - field_name: user_keywords
   label: User Specified Keywords
   required: true
   preset: tag_string_autocomplete
   help_text: Keywords help with the discovery of the collection. Enter one or more key terms that describe important aspect of the dataset separated by a comma ','
-  groupBy: Keywords
+  groupBy: About Dataset
 
 - field_name: gcmd_keywords
   label: GCMD Science Keywords
   required: true
   form_snippet: gcmd_field.html
   help_text: Global Change Master Directory (GCMD) science keywords
-  groupBy: Keywords
+  groupBy: About Dataset
 
 - field_name: fields_of_research
   label: Fields of Research
   required: true
   form_snippet: fields_of_research_field.html
   help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
-  groupBy: Keywords
+  groupBy: About Dataset
 
 - field_name: fields_of_research_code
   label: Fields of Research Code
   required: true
   form_snippet: null
   help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
-  groupBy: Keywords
+  groupBy: About Dataset
 
-- field_name: funder
-  label: Funding Reference
-  required: true
-  preset: composite_repeating
-  form_snippet: composite_repeating_field.html
-  form_blanks: 1
-  groupBy: Funding & Acknowledgement    
-  subfields:
-    - field_name: funder_name
-      label: Funder Name
-      required: true
-      help_text: Information about financial support for the dataset. Provide the full (official) name of the funding provider, e.g., Australian Research Council (ARC) 
-
-    - field_name: funder_identifier
-      label: Funder Identifier
-      help_text: Unique identifier of the funding entity
-
-    - field_name: funder_identifier_type
-      label: Funder Identifier Scheme
-      preset: select
-      choices:
-        - value: crossref_funder_id
-          label: Crossref Funder ID
-        - value: grid
-          label: GRID
-        - value: isni
-          label: ISNI
-        - value: ror
-          label: ROR
-        - value: wikidata
-          label: Wikidata
-        - value: other
-          label: Other          
-      help_text: The type of the funder identifier
-    
-    - field_name: funding_program
-      label: Funding Program Name
-      help_text: The name of the funding program through which the the project grant was awarded
-
-    - field_name: project_grant_identifier
-      label: Project Grant Identifier
-      help_text: The code assigned by the funder to a sponsored grant or project of the dataset
-
-    - field_name: project_grant_name
-      label: Project Grant Name
-      help_text: The full name of project grant of the dataset
-
-    - field_name: project_grant_identifier_type
-      label: Project Grant Identifier Type
-      preset: select
-      choices:
-        - value: raid
-          label: RAiD
-        - value: cordis grant agreement id
-          label: CORDIS Grant Agreement ID
-        - value: grantconnect id
-          label: GrantConnect ID  
-      help_text: The type of project identifier
-
-- field_name: credit
-  label: Credit
-  form_snippet: textarea.html
-  help_text: The Credit field is where you acknolwedge people or organisations who contributed to the collection
-  groupBy: Funding & Acknowledgement    
-
-- field_name: publisher
-  label: Publisher
-  required: true
-  preset: select
-  choices:
-    - value: auscope
-      label: AuScope      
-  default: auscope  
-  help_text: The entity that publishes the dataset 
-  groupBy: Publication   
-
-- field_name: publisher_identifier
-  label: Publisher Identifier
-  required: true
-  preset: select
-  choices:
-    - value: "https://ror.org/04s1m4564"
-      label: https://ror.org/04s1m4564      
-  default: https://ror.org/04s1m4564  
-  help_text: The persistent identifier of the data publisher
-  groupBy: Publication   
-
-- field_name: publisher_identifier_type
-  label: Publisher Identifier Type
-  required: true
-  preset: select
-  choices:
-    - value: ror
-      label: ROR    
-  default: ror
-  help_text: The type of the persistent identifier represents the data publisher
-  groupBy: Publication   
-
-- field_name: publication_date
-  label: Publication Date
-  required: true
-  preset: date
-  help_text: The date the dataset is published through the repository
-  groupBy: Publication   
-
-- field_name: license
-  label: License
-  required: true
-  default: cc-by-4.0-international
-  help_text: License for the distribution and sharing of the dataset
-  groupBy: Publication   
-
-# XXX This is to be hidden, but value entered in DB
-- field_name: primary_contact_name
-  label: Primary Contact Name
-  required: true
-  default: AuScope Data Repository
-  help_text: A primary contact can be approached by users requesting further information of the dataset
-  groupBy: Publication   
-
-# XXX This is to be hidden, but value entered in DB
-- field_name: primary_contact_email
-  label: Primary Contact Email
-  required: true
-  default: auscope.doi@csiro.au
-  display_snippet: email.html
-  display_email_name_field: primary_contact_name
-  help_text: Email of the primary contact
-  groupBy: Publication   
-
-# XXX This will be auto-generated after DOI minting, see metadata document
-- field_name: citation
-  label: Citation
-  form_attrs:
-    disabled: true
-  help_text: The full bibliographic citation of the dataset
-  groupBy: Publication   
-
-- start_form_page:
-    title: Spatial & Temporal
-
-  field_name: start_date
+- field_name: start_date
   label: Start Date
   preset: date
   help_text: The start date and end date indicate the when, i.e. the time period that the data relates to
@@ -353,7 +197,7 @@ dataset_fields:
   default: noLocation
   display_snippet: map_field.html
   help_text: Choose how to specify the location.
-  # validators: location_validator
+  validators: location_validator
   groupBy: Spatial & Temporal
 
 - field_name: map_display
@@ -367,36 +211,18 @@ dataset_fields:
   label: Point Latitude
   form_snippet: null
   display_snippet: null
-  # validators: location_validator
   groupBy: Spatial & Temporal
 
 - field_name: point_longitude
   label: Point Longitude
   form_snippet: null
   display_snippet: null
-  # validators: location_validator
   groupBy: Spatial & Temporal
 
 - field_name: elevation
   label: Elevation (m)
   help_text: The measurement of height above or below mean sea level in meters
   form_snippet: null
-  # display_snippet: null
-  groupBy: Spatial & Temporal
-
-- field_name: bounding_box
-  label: Bounding Box
-  help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
-  form_snippet: null
-  display_snippet: null
-  # validators: location_validator
-  groupBy: Spatial & Temporal
-
-- field_name: epsg_code
-  label: Geographic Coordinate System
-  help_text: The measurement of height above mean sea level in meters
-  form_snippet: null
-  # display_snippet: null
   groupBy: Spatial & Temporal
 
 # - field_name: vertical_datum
@@ -408,17 +234,40 @@ dataset_fields:
 #     - value: "1292"
 #       label: 1292  
 #   help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level. 
-#   groupBy: Spatial & Temporal    
+#   groupBy: Spatial & Temporal   
 
-- start_form_page:
-    title: Related Resources
+- field_name: bounding_box
+  label: Bounding Box
+  help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
+  form_snippet: null
+  display_snippet: null
+  groupBy: Spatial & Temporal
 
-  field_name: related_resource
+- field_name: epsg_code
+  label: Geographic Coordinate System
+  help_text: The measurement of height above mean sea level in meters
+  form_snippet: null
+  # display_snippet: null
+  groupBy: Spatial & Temporal
+
+- field_name: lineage
+  label: Lineage
+  form_snippet: textarea.html
+  help_text: The Lineage should contain information about how the data was produced. Processes involved in the production of the data could be included here
+  groupBy: Supporting Metadata
+
+- field_name: supplementation_information
+  label: Supplemental Information
+  form_snippet: textarea.html
+  help_text: Any other descriptive information about the dataset that can promote its reuse
+  groupBy: Supporting Metadata
+
+- field_name: related_resource
   label: Related Resource
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
   form_blanks: 0
-  groupBy: Related Resources
+  groupBy: Supporting Metadata
   subfields:
     - field_name: related_resource_type
       label: Related Resource Type
@@ -565,6 +414,145 @@ dataset_fields:
         - value: obsoletes
           label: Obsoletes                                                  
       help_text: Description of the relationship from the dataset being published to the related resource
+
+- field_name: funder
+  label: Funding Reference
+  required: true
+  preset: composite_repeating
+  form_snippet: composite_repeating_field.html
+  form_blanks: 1
+  groupBy: Supporting Metadata    
+  subfields:
+    - field_name: funder_name
+      label: Funder Name
+      required: true
+      help_text: Information about financial support for the dataset. Provide the full (official) name of the funding provider, e.g., Australian Research Council (ARC) 
+
+    - field_name: funder_identifier
+      label: Funder Identifier
+      help_text: Unique identifier of the funding entity
+
+    - field_name: funder_identifier_type
+      label: Funder Identifier Scheme
+      preset: select
+      choices:
+        - value: crossref_funder_id
+          label: Crossref Funder ID
+        - value: grid
+          label: GRID
+        - value: isni
+          label: ISNI
+        - value: ror
+          label: ROR
+        - value: wikidata
+          label: Wikidata
+        - value: other
+          label: Other          
+      help_text: The type of the funder identifier
+    
+    - field_name: funding_program
+      label: Funding Program Name
+      help_text: The name of the funding program through which the the project grant was awarded
+
+    - field_name: project_grant_identifier
+      label: Project Grant Identifier
+      help_text: The code assigned by the funder to a sponsored grant or project of the dataset
+
+    - field_name: project_grant_name
+      label: Project Grant Name
+      help_text: The full name of project grant of the dataset
+
+    - field_name: project_grant_identifier_type
+      label: Project Grant Identifier Type
+      preset: select
+      choices:
+        - value: raid
+          label: RAiD
+        - value: cordis grant agreement id
+          label: CORDIS Grant Agreement ID
+        - value: grantconnect id
+          label: GrantConnect ID  
+      help_text: The type of project identifier
+
+
+- field_name: publisher
+  label: Publisher
+  required: true
+  preset: select
+  choices:
+    - value: auscope
+      label: AuScope      
+  default: auscope  
+  help_text: The entity that publishes the dataset 
+  groupBy: Supporting Metadata   
+
+- field_name: publisher_identifier
+  label: Publisher Identifier
+  required: true
+  preset: select
+  choices:
+    - value: "https://ror.org/04s1m4564"
+      label: https://ror.org/04s1m4564      
+  default: https://ror.org/04s1m4564  
+  help_text: The persistent identifier of the data publisher
+  groupBy: Supporting Metadata   
+
+- field_name: publisher_identifier_type
+  label: Publisher Identifier Type
+  required: true
+  preset: select
+  choices:
+    - value: ror
+      label: ROR    
+  default: ror
+  help_text: The type of the persistent identifier represents the data publisher
+  groupBy: Supporting Metadata   
+
+- field_name: publication_date
+  label: Publication Date
+  required: true
+  preset: date
+  help_text: The date the dataset is published through the repository
+  groupBy: Supporting Metadata   
+
+- field_name: license
+  label: License
+  required: true
+  default: cc-by-4.0-international
+  help_text: License for the distribution and sharing of the dataset
+  groupBy: Supporting Metadata   
+
+- field_name: credit
+  label: Credit
+  form_snippet: textarea.html
+  help_text: The Credit field is where you acknolwedge people or organisations who contributed to the collection
+  groupBy: Supporting Metadata    
+
+# XXX This is to be hidden, but value entered in DB
+- field_name: primary_contact_name
+  label: Primary Contact Name
+  required: true
+  default: AuScope Data Repository
+  help_text: A primary contact can be approached by users requesting further information of the dataset
+  groupBy: Supporting Metadata   
+
+# XXX This is to be hidden, but value entered in DB
+- field_name: primary_contact_email
+  label: Primary Contact Email
+  required: true
+  default: auscope.doi@csiro.au
+  display_snippet: email.html
+  display_email_name_field: primary_contact_name
+  help_text: Email of the primary contact
+  groupBy: Supporting Metadata   
+
+# XXX This will be auto-generated after DOI minting, see metadata document
+- field_name: citation
+  label: Citation
+  form_attrs:
+    disabled: true
+  help_text: The full bibliographic citation of the dataset
+  groupBy: Supporting Metadata   
 
 - field_name: owner_org
   label: Organization
