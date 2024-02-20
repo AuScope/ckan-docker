@@ -3,7 +3,6 @@ ckan.module('composite-repeating-module', function ($, _) {
     initialize: function () {
       this.updateCollapsiblePanels();
       this.updateIndexes();
-
       var self = this;
 
       $(document).on('click', '.composite-btn.btn-success, .composite-btn.btn-danger', function () {
@@ -13,17 +12,52 @@ ckan.module('composite-repeating-module', function ($, _) {
         }, 100);
       });
 
-      // Set up the event listener for the author affiliation input
+      // this.setupAffiliationAutocomplete();
       this.setupAffiliationListener();
     },
 
+    setupAffiliationAutocomplete: function() {
+          var self = this;
+          $('input[id*="author-"][id*="-author_affiliation"]').autocomplete({
+            source: function(request, response) {
+              $.ajax({
+                url: `https://api.ror.org/organizations?query=${encodeURIComponent(request.term)}`,
+                type: 'GET',
+                success: function(data) {
+                  response($.map(data.items, function(item) {
+                    return {
+                      label: item.name, // Label for displaying in the suggestions
+                      value: item.name, // Value to be inserted in the input field
+                      id: item.id // ROR ID to use for the affiliation identifier
+                    };
+                  }));
+                },
+                error: function() {
+                  response([]);
+                }
+              });
+            },
+            minLength: 3, 
+            select: function(event, ui) {
+              var $inputField = $(this);
 
+              var identifierFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier');
+              $('#' + identifierFieldId).val(ui.item.id);
+
+              // Update the identifier type field to 'ror'
+              var identifierTypeFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier_type');
+              $('#' + identifierTypeFieldId).val('ror');
+
+              self.manageFieldsReadonly(true);
+            }
+          });
+    
+    },
     setupAffiliationListener: function () {
       var self = this;
       $(document).on('input', 'input[id*="author-"][id*="-author_affiliation"]', function () {
         var affiliationName = $(this).val();
         if (affiliationName.length === 0) {
-          // Clear the dependent fields immediately if the affiliation name is cleared
           self.clearDependentFields($(this));
         } else if (affiliationName.length > 3) { // Continue with the API call if there's sufficient input
           self.fetchAffiliationData(affiliationName, $(this));
@@ -38,6 +72,8 @@ ckan.module('composite-repeating-module', function ($, _) {
       // Clear the values of the dependent fields
       $('#' + identifierFieldId).val('');
       $('#' + identifierTypeFieldId).val('');
+
+      this.manageFieldsReadonly(false);
     },
 
     fetchAffiliationData: function (affiliationName, $inputField) {
@@ -48,28 +84,50 @@ ckan.module('composite-repeating-module', function ($, _) {
         success: function (data) {
           if (data && data.items.length > 0) {
             const firstResult = data.items[0];
-            // Construct the identifier field's id based on the affiliation name field's id
             var identifierFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier');
-            // Update the identifier field with the ROR ID
             $('#' + identifierFieldId).val(firstResult.id);
 
-            // Update the identifier type field to 'ror'
             var identifierTypeFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier_type');
             $('#' + identifierTypeFieldId).val('ror');
+            self.manageFieldsReadonly(true);
           } else {
-            // No match found, clear the dependent fields
             self.clearDependentFields($inputField);
           }
         },
         error: function (xhr, status, error) {
-          // Handle error or no response scenario by clearing the fields
           self.clearDependentFields($inputField);
           console.error('Error fetching ROR data:', error);
         }
       });
     },
 
+    hideDependentFields: function () {
+      $('input[id*="author-"][id*="-author_affiliation"]:not([id*="identifier"])').each(function () {
+        var $inputField = $(this);
 
+        var identifierFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier');
+        var $identifierFieldGroup = $('#' + identifierFieldId).closest('.form-group');
+        $identifierFieldGroup.hide();
+
+        var identifierTypeFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier_type');
+        var $identifierTypeFieldGroup = $('#' + identifierTypeFieldId).closest('.form-group');
+        $identifierTypeFieldGroup.hide();
+      });
+    },
+
+    manageFieldsReadonly: function (readonly) {
+      $('input[id*="author-"][id*="-author_affiliation"]:not([id*="identifier"])').each(function () {
+        var $inputField = $(this);
+
+        // Construct the IDs for the dependent fields based on the input field's ID
+        var identifierFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier');
+        var identifierTypeFieldId = $inputField.attr('id').replace('affiliation', 'affiliation_identifier_type');
+
+        // Make the dependent fields readonly instead of hiding them
+        $('#' + identifierFieldId).prop('readonly', readonly).closest('.form-group').show(); // Show the group and make field readonly
+        $('#' + identifierTypeFieldId).prop('readonly', readonly).closest('.form-group').show(); // Show the group and make field readonly
+      });
+    },
 
     makeCollapsible: function (title, groups) {
       var self = this;

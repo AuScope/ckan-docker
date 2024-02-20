@@ -57,8 +57,13 @@ dataset_fields:
 
     - field_name: author_affiliation
       label: Author Affiliation
+      # preset: tag_string_autocomplete
       required: true
       help_text: The name of the entity affiliated with the author, e.g. an organization's name (if applicable)
+      # form_attrs: 
+      #   data-module: autocomplete
+      #   data-module-source: "https://api.ror.org/organizations?"
+              
 
     - field_name: author_affiliation_identifier
       label: Author Affiliation Identifier
