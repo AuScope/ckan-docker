@@ -7,36 +7,23 @@
     {{ self.flash() }}
   </div>
   {% block primary_content %}
-  <div role="main">
     <div class="main hero">
       <div class="container">
-        <div class="row">
-          <div class="col-md-6">
-            {% block promoted %}
-            {% snippet 'home/snippets/promoted_auscope.html' %}
-            {% endblock %}
-          </div>
-          <div class="col-md-6">
+        <div class="module module-search module-narrow module-shallow box">
             {% block search %}
             {% snippet 'home/snippets/search.html', search_facets=search_facets %}
             {% endblock %}
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="main module-feeds">
+    <div class="main ">
       <div class="container">
-        <div class="row">
+        <div class="row row2">
           <div class="col-md-6">
-            {# Note: this featured_group block is used as an example in the theming
-            tutorial in the docs! If you change this code, be sure to check
-            whether you need to update the docs. #}
-            {# Start template block example. #}
-            {% block featured_group %}
-            {% snippet 'home/snippets/featured_group.html' %}
+            {% block promoted %}
+            {% snippet 'home/snippets/promoted_auscope.html' %}
             {% endblock %}
-            {# End template block example. #}
           </div>
           <div class="col-md-6">
             {% block featured_organization %}
