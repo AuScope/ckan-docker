@@ -163,6 +163,7 @@ dataset_fields:
 - field_name: gcmd_keywords
   label: GCMD Science Keywords
   required: true
+  form_snippet: gcmd_field.html
   help_text: Global Change Master Directory (GCMD) science keywords
   groupBy: Keywords
 
@@ -335,6 +336,7 @@ dataset_fields:
 
 - field_name: locality
   label: Locality
+  form_snippet: locality_field.html
   help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
   groupBy: Spatial & Temporal
 

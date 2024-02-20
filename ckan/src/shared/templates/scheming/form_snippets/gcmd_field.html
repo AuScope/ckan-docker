@@ -1,0 +1,14 @@
+<div class="form-group" id="gcmd_keywords">
+    <label class="form-label" for="field-gcmd_keywords"><span title="This field is required" class="control-required">*</span> GCMD Science Keywords</label>
+    <select data-module="gcmd-fields-handler-module" data-module-selected-values="{{data['gcmd_keywords']}}" value="{{data['gcmd_keywords']}}" class="form-control" id="field-gcmd_keywords" name="gcmd_keywords" multiple >
+    </select>
+    {% if errors['gcmd_keywords'] %}
+        {% for error in errors['gcmd_keywords'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+            Global Change Master Directory (GCMD) science keywords
+    </div>
+</div>
