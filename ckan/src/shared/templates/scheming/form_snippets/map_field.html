@@ -1,4 +1,4 @@
-<div class="dataset-map" data-module="map-module">
+<div class="dataset-map" data-module="map-module" data-module-selected-values="{{data['epsg_code']}}">
     <div id="map-container" style="height: 400px; display: none;"></div>
 </div>
 
@@ -43,5 +43,34 @@
             <i class="fa fa-info-circle"></i>
             Latitude is a decimal number between -90.0 and 90.0
         </div>
+    </div>
+</div>
+
+<div class="form-group" id="elevation_container" style="display: none;">
+    <label for="field-elevation">Elevation</label>
+    <input type="text" class="form-control" id="field-elevation" name="elevation" value="{{data['elevation']}}" >
+    {% if errors['elevation'] %}
+        {% for error in errors['elevation'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+         The measurement of height above or below mean sea level in meters
+    </div>
+</div>
+
+<div class="form-group" id="epsg_code_container" style="display: none;">
+    <label for="field-epsg_code">Geographic Coordinate System</label>
+    <select class="form-control" id="field-epsg_code" name="epsg_code"  value="{{data['epsg_code']}}" >
+    </select>
+    {% if errors['epsg_code'] %}
+        {% for error in errors['epsg_code'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+         A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and longitude. Latitude and longitude measure angles
     </div>
 </div>

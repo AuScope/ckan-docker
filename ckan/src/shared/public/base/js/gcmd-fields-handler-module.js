@@ -1,15 +1,13 @@
-this.ckan.module('for-fields-handler-module', function ($, _) {
+this.ckan.module('gcmd-fields-handler-module', function ($, _) {
   return {
     initialize: function () {
-      this.selectElement = $('#field-fields_of_research');
-      this.codeElement = $('#field-fields_of_research_code');
+      this.selectElement = $('#field-gcmd_keywords');
       this.fetchAndPopulateTerms();
-      this.selectElement.change(this.updateCodesField.bind(this));
     },
 
     fetchAndPopulateTerms: function () {
       var self = this;
-      var proxyUrl = '/api/proxy/fetch_terms';
+      var proxyUrl = '/api/proxy/fetch_gcmd';
       $.ajax({
         url: proxyUrl,
         method: 'GET',
@@ -18,7 +16,7 @@ this.ckan.module('for-fields-handler-module', function ($, _) {
 
         },
         error: function (xhr, status, error) {
-          console.error('Error fetching FoR terms via proxy:', error);
+          console.error('Error fetching gcmd terms via proxy:', error);
         }
       });
     },
@@ -37,18 +35,13 @@ this.ckan.module('for-fields-handler-module', function ($, _) {
       });
 
       $.each(items, function (index, item) {
-        var option = new Option(item.prefLabel._value, item.notation);
-        if (selectedValues.includes(item.notation.toString())) {
+        var option = new Option(item.prefLabel._value, item._about);
+        if (selectedValues.includes(item._about)) {
           option.selected = true;
         }
         self.selectElement.append(option);
       });
     },
 
-
-    updateCodesField: function () {
-      var selectedOptions = this.selectElement.val() || [];
-      this.codeElement.val(selectedOptions.join(', '));
-    }
   };
 });

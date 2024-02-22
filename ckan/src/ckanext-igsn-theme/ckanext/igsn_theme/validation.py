@@ -52,37 +52,53 @@ def should_field_be_required(context):
 @register_validator
 def location_validator(field, schema):
     def validator(key, data, errors, context):
-        location_choice = data.get(('location_choice',), [])
-        point_latitude = data.get(('point_latitude',), [])
-        point_longitude = data.get(('point_longitude',), [])
-        bounding_box = data.get(('bounding_box',), [])
+        location_choice_key = ('location_choice',)
+        point_latitude_key = ('point_latitude',)
+        point_longitude_key = ('point_longitude',)
+        bounding_box_key = ('bounding_box',)
+
+        location_choice = data.get(location_choice_key, missing)
+        point_latitude = data.get(point_latitude_key, missing)
+        point_longitude = data.get(point_longitude_key, missing)
+        bounding_box = data.get(bounding_box_key, missing)
 
         missing_error = _("Missing value")
         invalid_error = _("Invalid value")
 
-        def add_error(field_name, error_message):
-            if error_message not in errors[(field_name,)]:
-                errors[(field_name,)].append(error_message)
+        def add_error(key, error_message):
+            errors[key] = errors.get(key, [])
+            errors[key].append(error_message)
+
+        # Exit the validation for noLocation choice
+        if location_choice == 'noLocation':
+            # Ensure noLocation related fields are not processed further
+            for key in [point_latitude_key, point_longitude_key, bounding_box_key]:
+                data[key] = None
+            return ignore_missing(key, data, errors, context)
 
         if location_choice == 'point':
-            # Check for missing or invalid latitude
-            if not point_latitude:
-                add_error('point_latitude', missing_error)
+            # Validate latitude
+            if point_latitude is missing:
+                add_error(point_latitude_key, missing_error)
             elif not is_valid_latitude(point_latitude):
-                add_error('point_latitude', invalid_error)
+                add_error(point_latitude_key, invalid_error)
 
-            # Check for missing or invalid longitude
-            if not point_longitude:
-                add_error('point_longitude', missing_error)
+            # Validate longitude
+            if point_longitude is missing:
+                add_error(point_longitude_key, missing_error)
             elif not is_valid_longitude(point_longitude):
-                add_error('point_longitude', invalid_error)
-        
+                add_error(point_longitude_key, invalid_error)
+
         elif location_choice == 'area':
-            # Check for missing or invalid bounding box
-            if not bounding_box:
-                add_error('bounding_box', missing_error)
+            # Validate bounding box
+            if bounding_box is missing:
+                add_error(bounding_box_key, missing_error)
             elif not is_valid_bounding_box(bounding_box):
-                add_error('bounding_box', invalid_error)
+                add_error(bounding_box_key, invalid_error)
+
+        # Handle missing location choice
+        if location_choice is missing and field.get('required', False):
+            add_error(location_choice_key, missing_error)
 
     return validator
 

@@ -6,6 +6,7 @@ ckan.module('map-module', function ($, _) {
 
         setupMap: function () {
             var self = this;
+            this.populateEPSG();
             this.map = L.map('map-container').setView([-31.9505, 115.8605], 3);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -24,24 +25,22 @@ ckan.module('map-module', function ($, _) {
 
             this.resetMap();
             this.showMapAndInvalidate();
+
             var selected = $('input[type=radio][name=location_choice]:checked').val();
-            if (selected == 'area') {
+            if (selected == 'noLocation') {
+                this.resetMap();
+            }
+            else if (selected == 'area') {
                 this.initializeDrawControl();
-                this.map.on(L.Draw.Event.CREATED, function (event) {
-                    var layer = event.layer;
-                    self.drawnItems.clearLayers();
-                    self.drawnItems.addLayer(layer);
-                    var bounds = layer.getBounds();
-                    self.updateBboxField(bounds.toBBoxString());
-                });
                 this.updateRectangleBounds(false);
                 $('#bounding_box_coordinates').show();
-            } else {
+            } else if (selected == 'point') {
                 this.reinitializeMarker();
                 this.addMarker();
                 this.updateMarkerPosition(false);
                 $('#point_latitude_container').show();
                 $('#point_longitude_container').show();
+                $('#elevation_container').show();
             }
 
             $('html,body').scrollTop(0); // Reset scroll position to the top of the page
@@ -52,7 +51,10 @@ ckan.module('map-module', function ($, _) {
                 self.updateBboxField('');
 
                 var choice = $(this).val();
-                if (choice == 'area') {
+                if (choice == 'noLocation') {
+                    // this.resetMap();
+                }
+                else if (choice == 'area') {
                     self.showMapAndInvalidate();
                     self.initializeDrawControl();
                     $('#bounding_box_coordinates').show();
@@ -61,6 +63,7 @@ ckan.module('map-module', function ($, _) {
                     self.reinitializeMarker();
                     $('#point_latitude_container').show();
                     $('#point_longitude_container').show();
+                    $('#elevation_container').show();
                     self.addMarker();
                 }
             });
@@ -77,7 +80,6 @@ ckan.module('map-module', function ($, _) {
                 }, wait);
             };
         },
-
 
         validatePointCoordinates: function (lat, lng) {
             return !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
@@ -117,13 +119,15 @@ ckan.module('map-module', function ($, _) {
             }
             $('#point_latitude_container').hide();
             $('#point_longitude_container').hide();
+            $('#elevation_container').hide();
             $('#bounding_box_coordinates').hide();
             $('#map-container').hide();
+            $('#epsg_code_container').hide();
         },
 
         showMapAndInvalidate: function () {
             $('#map-container').show();
-
+            $('#epsg_code_container').show();
             var self = this;
             setTimeout(function () {
 
@@ -161,8 +165,13 @@ ckan.module('map-module', function ($, _) {
             var self = this;
             this.map.on(L.Draw.Event.CREATED, function (event) {
                 var layer = event.layer;
+                self.drawnItems.clearLayers();
                 self.drawnItems.addLayer(layer);
+                var bounds = layer.getBounds();
+                self.updateBboxField(bounds.toBBoxString());
             });
+
+
         },
 
         reinitializeMarker: function () {
@@ -225,6 +234,87 @@ ckan.module('map-module', function ($, _) {
             }
         },
 
+        populateEPSG: function () {
+            var self = this;
+            var selectedValues = this.options.selectedValues;
+            var selectedValues = this.options.selectedValues;
+            if (typeof selectedValues === 'string') {
+                selectedValues = selectedValues.replace(/^\{|\}$/g, '').split(',');
+            } else if (typeof selectedValues === 'number') {
+                selectedValues = [selectedValues.toString()];
+            } else {
+                selectedValues = [];
+            }
+            selectedValues = selectedValues.map(function (value) {
+                return value.trim();
+            });
+            var apiUrl = '/api/proxy/fetch_epsg';
+            $.getJSON(apiUrl, function (data) {
+                var selectBox = $('#field-epsg_code');
+                $.each(data.Results, function (index, item) {
+                    selectBox.append($('<option>', {
+                        value: item.Code,
+                        text: item.Code + ' : ' + item.Name,
+                        selected: selectedValues.includes(item.Code.toString())
+                    }));
+                });
+            }).fail(function () {
+                console.error("Failed to fetch EPSG codes");
+            });
 
+
+            // $('#field-epsg_code').change(function () {
+            //     var epsgCode = $(this).val();
+            //     // var proj4String = ...; // Logic to fetch the Proj4 string for the selected EPSG code
+
+            //     // Check if the Proj4 definition already exists
+            //     if (typeof proj4.defs['EPSG:' + epsgCode] === 'undefined') {
+            //         // Add the Proj4 definition
+            //         proj4.defs('EPSG:' + epsgCode, proj4String);
+            //     }
+            //     self.updateMapProjection(epsgCode);
+            //     self.transformAndUpdateCoordinates(epsgCode);
+
+            // });
+        },
+
+        updateMapProjection: function (epsgCode) {
+            var currentLatLng = this.map.getCenter();
+            var sourceProj = 'EPSG:4326';
+            var targetProj = 'EPSG:' + epsgCode;
+
+            if (proj4.defs[targetProj] === undefined) {
+                console.error('Proj4 definition for ' + targetProj + ' not found.');
+                return;
+            }
+
+            var transformedCoords = proj4(proj4.defs[sourceProj], proj4.defs[targetProj], [currentLatLng.lng, currentLatLng.lat]);
+            console.log('Transformed Coordinates:', transformedCoords);
+        },
+
+        transformAndUpdateCoordinates: function (epsgCode) {
+            // Fetch the current lat, lng from your map or inputs
+            var currentLat = parseFloat($('#field-point_latitude').val()) || 0;
+            var currentLng = parseFloat($('#field-point_longitude').val()) || 0;
+
+            var bbox = { southWest: { lat: -32, lng: 115 }, northEast: { lat: -31, lng: 116 } };
+
+            var sourceProj = 'EPSG:4326'; // Assuming original coordinates are in WGS84
+            var targetProj = 'EPSG:' + epsgCode;
+
+            if (!proj4.defs[sourceProj] || !proj4.defs[targetProj]) {
+                console.error('Missing proj4 definition for source or target projection.');
+                return;
+            }
+
+            var transformedPoint = proj4(sourceProj, targetProj, [currentLng, currentLat]);
+            this.updateLatLngFields(transformedPoint[1], transformedPoint[0]);
+
+            var transformedSW = proj4(sourceProj, targetProj, [bbox.southWest.lng, bbox.southWest.lat]);
+            var transformedNE = proj4(sourceProj, targetProj, [bbox.northEast.lng, bbox.northEast.lat]);
+
+            var bboxString = transformedSW.join(',') + ',' + transformedNE.join(',');
+            this.updateBboxField(bboxString);
+        },
     };
 });
