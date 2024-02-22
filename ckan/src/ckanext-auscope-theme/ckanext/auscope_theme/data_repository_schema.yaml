@@ -45,34 +45,28 @@ dataset_fields:
       required: true
       preset: select
       choices:
+        - value: personal
+          label: Personal      
         - value: organizational
           label: Organizational
-        - value: personal
-          label: Personal
-      default: Personal
+      default: personal
+      form_include_blank_choice: false      
       help_text: The type of name, e.g. Organizational or Personal
 
     - field_name: author_affiliation
       label: Author Affiliation
-      # preset: tag_string_autocomplete
       required: true
       help_text: The name of the entity affiliated with the author, e.g. an organization's name (if applicable)
-      # form_attrs: 
-      #   data-module: autocomplete
-      #   data-module-source: "https://api.ror.org/organizations?"
+
               
 
     - field_name: author_affiliation_identifier
       label: Author Affiliation Identifier
-      required: true
-      # form_attrs:
-      #   disabled: true      
+      required: true    
       help_text: The persistent identifier of the affiliated entity
 
     - field_name: author_affiliation_identifier_type
       label: Author Affiliation Identifier Type
-      # form_attrs:
-      #   disabled: true  
       required: true
       preset: select
       choices:
@@ -81,6 +75,7 @@ dataset_fields:
         - value: other
           label: Other
       default: ror
+      form_include_blank_choice: false      
       help_text: The persistent identifier type of the affiliated entity
     
     - field_name: author_identifier_type
@@ -106,6 +101,7 @@ dataset_fields:
           label: ScopusID
         - value: other
           label: Other
+      form_include_blank_choice: false      
       help_text: The type of identifier that uniquely identifies the author (e.g. ORCID, ISNI).
 
     - field_name: author_identifier
@@ -127,6 +123,7 @@ dataset_fields:
     - value: dataset
       label: Dataset
   default: dataset
+  form_include_blank_choice: false      
   help_text: The type of the resource to be published
   groupBy: About Dataset
 
@@ -330,6 +327,7 @@ dataset_fields:
           label: Workflow
         - value: other
           label: Other                  
+      form_include_blank_choice: false           
       help_text: Select the type of this related resource
 
     - field_name: related_resource_url
@@ -413,6 +411,7 @@ dataset_fields:
           label: IsRequiredBy
         - value: obsoletes
           label: Obsoletes                                                  
+      form_include_blank_choice: false           
       help_text: Description of the relationship from the dataset being published to the related resource
 
 - field_name: funder
@@ -482,7 +481,8 @@ dataset_fields:
   choices:
     - value: auscope
       label: AuScope      
-  default: auscope  
+  default: auscope
+  form_include_blank_choice: false      
   help_text: The entity that publishes the dataset 
   groupBy: Supporting Metadata   
 
@@ -495,6 +495,7 @@ dataset_fields:
       label: https://ror.org/04s1m4564      
   default: https://ror.org/04s1m4564  
   help_text: The persistent identifier of the data publisher
+  form_include_blank_choice: false      
   groupBy: Supporting Metadata   
 
 - field_name: publisher_identifier_type
@@ -505,6 +506,7 @@ dataset_fields:
     - value: ror
       label: ROR    
   default: ror
+  form_include_blank_choice: false      
   help_text: The type of the persistent identifier represents the data publisher
   groupBy: Supporting Metadata   
 
