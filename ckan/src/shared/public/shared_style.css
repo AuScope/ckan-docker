@@ -683,3 +683,8 @@ body {
 }
 
 
+.module-heading {
+  background-color: var(--bs-body-bg);
+  border-top: none; 
+  border-bottom: none;
+}
