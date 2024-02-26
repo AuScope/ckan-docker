@@ -55,6 +55,6 @@ jobs:
         with:
           context: ./ckan
           file: ./ckan/Dockerfile.dev
-          tags: benmotevalli/ckan-auscope-dev:${{ steps.timestamp.outputs.timestamp }}
+          tags: benmotevalli/ckan-auscope-dev:latest-${{ steps.timestamp.outputs.timestamp }}
           push: true
 
