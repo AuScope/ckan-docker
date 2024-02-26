@@ -683,10 +683,16 @@ body {
 }
 
 
-.module-heading {
+.module-heading-org {
+  margin: 0;
+  padding: 0.5rem 25px;
+  font-size: 0.875rem;
+  line-height: 1.3;
   background-color: var(--bs-body-bg);
   border-top: none; 
   border-bottom: none;
+  padding-left: 15px;
+  padding-right: 15px;  
 }
 
 .form-group.mediunput.composite-select.control-select .controls select:first-of-type {
