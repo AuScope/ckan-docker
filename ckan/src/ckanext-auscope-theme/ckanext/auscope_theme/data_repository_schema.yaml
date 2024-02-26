@@ -177,7 +177,7 @@ dataset_fields:
 
 - field_name: locality
   label: Locality
-  form_snippet: locality_field.html
+  # form_snippet: locality_field.html
   help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
   groupBy: Spatial & Temporal
 
@@ -247,24 +247,71 @@ dataset_fields:
   # display_snippet: null
   groupBy: Spatial & Temporal
 
-- field_name: lineage
-  label: Lineage
-  form_snippet: textarea.html
-  help_text: The Lineage should contain information about how the data was produced. Processes involved in the production of the data could be included here
-  groupBy: Supporting Metadata
+- field_name: funder
+  label: Funding Reference
+  required: true
+  preset: composite_repeating
+  form_snippet: composite_repeating_field.html
+  form_blanks: 1
+  groupBy: Funder Identifier    
+  subfields:
+    - field_name: funder_name
+      label: Funder Name
+      required: true
+      help_text: Information about financial support for the dataset. Provide the full (official) name of the funding provider, e.g., Australian Research Council (ARC) 
 
-- field_name: supplementation_information
-  label: Supplemental Information
-  form_snippet: textarea.html
-  help_text: Any other descriptive information about the dataset that can promote its reuse
-  groupBy: Supporting Metadata
+    - field_name: funder_identifier
+      label: Funder Identifier
+      help_text: Unique identifier of the funding entity
+
+    - field_name: funder_identifier_type
+      label: Funder Identifier Scheme
+      preset: select
+      choices:
+        - value: crossref_funder_id
+          label: Crossref Funder ID
+        - value: grid
+          label: GRID
+        - value: isni
+          label: ISNI
+        - value: ror
+          label: ROR
+        - value: wikidata
+          label: Wikidata
+        - value: other
+          label: Other          
+      help_text: The type of the funder identifier
+    
+    - field_name: funding_program
+      label: Funding Program Name
+      help_text: The name of the funding program through which the the project grant was awarded
+
+    - field_name: project_grant_identifier
+      label: Project Grant Identifier
+      help_text: The code assigned by the funder to a sponsored grant or project of the dataset
+
+    - field_name: project_grant_name
+      label: Project Grant Name
+      help_text: The full name of project grant of the dataset
+
+    - field_name: project_grant_identifier_type
+      label: Project Grant Identifier Type
+      preset: select
+      choices:
+        - value: raid
+          label: RAiD
+        - value: cordis grant agreement id
+          label: CORDIS Grant Agreement ID
+        - value: grantconnect id
+          label: GrantConnect ID  
+      help_text: The type of project identifier
 
 - field_name: related_resource
   label: Related Resource
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
   form_blanks: 0
-  groupBy: Supporting Metadata
+  groupBy: Related Resource
   subfields:
     - field_name: related_resource_type
       label: Related Resource Type
@@ -414,65 +461,17 @@ dataset_fields:
       form_include_blank_choice: false           
       help_text: Description of the relationship from the dataset being published to the related resource
 
-- field_name: funder
-  label: Funding Reference
-  required: true
-  preset: composite_repeating
-  form_snippet: composite_repeating_field.html
-  form_blanks: 1
-  groupBy: Supporting Metadata    
-  subfields:
-    - field_name: funder_name
-      label: Funder Name
-      required: true
-      help_text: Information about financial support for the dataset. Provide the full (official) name of the funding provider, e.g., Australian Research Council (ARC) 
+- field_name: lineage
+  label: Lineage
+  form_snippet: textarea.html
+  help_text: The Lineage should contain information about how the data was produced. Processes involved in the production of the data could be included here
+  groupBy: Supporting Metadata
 
-    - field_name: funder_identifier
-      label: Funder Identifier
-      help_text: Unique identifier of the funding entity
-
-    - field_name: funder_identifier_type
-      label: Funder Identifier Scheme
-      preset: select
-      choices:
-        - value: crossref_funder_id
-          label: Crossref Funder ID
-        - value: grid
-          label: GRID
-        - value: isni
-          label: ISNI
-        - value: ror
-          label: ROR
-        - value: wikidata
-          label: Wikidata
-        - value: other
-          label: Other          
-      help_text: The type of the funder identifier
-    
-    - field_name: funding_program
-      label: Funding Program Name
-      help_text: The name of the funding program through which the the project grant was awarded
-
-    - field_name: project_grant_identifier
-      label: Project Grant Identifier
-      help_text: The code assigned by the funder to a sponsored grant or project of the dataset
-
-    - field_name: project_grant_name
-      label: Project Grant Name
-      help_text: The full name of project grant of the dataset
-
-    - field_name: project_grant_identifier_type
-      label: Project Grant Identifier Type
-      preset: select
-      choices:
-        - value: raid
-          label: RAiD
-        - value: cordis grant agreement id
-          label: CORDIS Grant Agreement ID
-        - value: grantconnect id
-          label: GrantConnect ID  
-      help_text: The type of project identifier
-
+- field_name: supplementation_information
+  label: Supplemental Information
+  form_snippet: textarea.html
+  help_text: Any other descriptive information about the dataset that can promote its reuse
+  groupBy: Supporting Metadata
 
 - field_name: publisher
   label: Publisher
