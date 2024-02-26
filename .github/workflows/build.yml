@@ -26,7 +26,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./ckan
-          file: ./Dockerfile
+          file: ./ckan/Dockerfile
           tags: benmotevalli/ckan-auscope:latest
           push: true
 
@@ -54,7 +54,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./ckan
-          file: ./Dockerfile.dev
+          file: ./ckan/Dockerfile.dev
           tags: benmotevalli/ckan-auscope-dev:${{ steps.timestamp.outputs.timestamp }}
           push: true
 

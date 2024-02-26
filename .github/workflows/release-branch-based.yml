@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./ckan
-          file: ./Dockerfile
+          file: ./ckan/Dockerfile
           push: true
           tags: benmotevalli/ckan-auscope:latest
 
