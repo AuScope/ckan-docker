@@ -40,7 +40,7 @@ def fetch_locality():
     
 @auscope_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
 def fetch_epsg():
-    external_url = 'https://apps.epsg.org/api/v1/CoordSystem'  
+    external_url = 'https://apps.epsg.org/api/v1/CoordRefSystem'  
     response = requests.get(external_url)
     if response.ok:
         return Response(response.content, content_type=response.headers['Content-Type'], status=response.status_code)

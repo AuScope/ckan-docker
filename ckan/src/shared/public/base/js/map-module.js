@@ -248,15 +248,20 @@ ckan.module('map-module', function ($, _) {
             selectedValues = selectedValues.map(function (value) {
                 return value.trim();
             });
+
             var apiUrl = '/api/proxy/fetch_epsg';
+            // Fetch EPSG codes from the API
             $.getJSON(apiUrl, function (data) {
                 var selectBox = $('#field-epsg_code');
                 $.each(data.Results, function (index, item) {
-                    selectBox.append($('<option>', {
-                        value: item.Code,
-                        text: item.Code + ' : ' + item.Name,
-                        selected: selectedValues.includes(item.Code.toString())
-                    }));
+                    if (item.Type === 'geographic 2D' || item.Type === 'compound') {
+                        var optionText = item.Code + ' - ' + item.Name;
+                        selectBox.append($('<option>', {
+                            value: item.Code,
+                            text: optionText,
+                            selected: selectedValues.includes(item.Code.toString())
+                        }));
+                    }
                 });
             }).fail(function () {
                 console.error("Failed to fetch EPSG codes");
