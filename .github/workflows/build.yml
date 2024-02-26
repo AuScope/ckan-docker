@@ -1,13 +1,12 @@
-name: Build Docker Image
+name: Build - Dev and Prod Images
 
 on:
   push:
     branches:
       - master
-      - dev
-      - test-pipeline
+
 jobs:
-  build-and-push:
+  build-and-push-prod:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,69 +22,39 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Extract branch name
-        id: extract_branch
-        run: echo ::set-output name=branch::${GITHUB_REF#refs/heads/}
-
-      - name: Extract commit SHA
-        id: extract_sha
-        run: echo ::set-output name=sha::${GITHUB_SHA::8}
-
-      - name: Determine Docker Image Tag
-        id: tag
-        run: |
-          if [[ "${{ steps.extract_branch.outputs.branch }}" == "master" ]]; then
-            echo "::set-output name=image_tag::latest"
-            echo "::set-output name=image_repo::benmotevalli/ckan-auscope"
-          elif [[ "${{ steps.extract_branch.outputs.branch }}" == "dev" ]]; then
-            echo "::set-output name=image_tag::latest-$(date +'%Y%m%d%H%M%S')"
-            echo "::set-output name=image_repo::benmotevalli/ckan-auscope-dev"
-          else
-            echo "::set-output name=image_tag::test"
-            echo "::set-output name=image_repo::benmotevalli/ckan-auscope-dev"
-          fi
-
-      - name: Build and Push Docker image
+      - name: Build and Push Docker image (Prod)
         uses: docker/build-push-action@v2
         with:
           context: ./ckan
-          file: ${{ github.ref == 'refs/heads/master' && './ckan/Dockerfile' || './ckan/Dockerfile.dev' }}
+          file: ./Dockerfile
+          tags: benmotevalli/ckan-auscope:latest
           push: true
-          tags: ${{ steps.tag.outputs.image_repo }}:${{ steps.tag.outputs.image_tag }}
 
+  build-and-push-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-# name: Build Docker Image
+      - name: Extract timestamp
+        id: timestamp
+        run: echo "::set-output name=timestamp::$(date +'%Y%m%d%H%M%S')"
 
-# on:
-#   push:
-#     branches:
-#       - master
-#       - dev
-#       - test-pipeline
-# jobs:
-#   build-and-push:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v2
-#         with:
-#           submodules: true
+      - name: Build and Push Docker image (Dev)
+        uses: docker/build-push-action@v2
+        with:
+          context: ./ckan
+          file: ./Dockerfile.dev
+          tags: benmotevalli/ckan-auscope-dev:${{ steps.timestamp.outputs.timestamp }}
+          push: true
 
-#       - name: Set up Docker Buildx
-#         uses: docker/setup-buildx-action@v1
-
-#       - name: Log in to Docker Hub
-#         uses: docker/login-action@v1
-#         with:
-#           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-#           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-#       - name: Build and Push Docker image
-#         uses: docker/build-push-action@v2
-#         with:
-#           context: ./ckan
-#           file: ./ckan/Dockerfile
-#           push: true
-#           tags: |
-#             benmotevalli/ckan-auscope:${{ github.ref == 'refs/heads/master' && 'latest' || 'dev' }}
