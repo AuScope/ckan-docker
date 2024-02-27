@@ -26,7 +26,7 @@ def after_dataset_show(context, pkg_dict):
         citation += author_list[i]['author_name']
         if i != len(author_list) - 1:
             citation += ', '
-        else:
+        elif 'publication_date' in pkg_dict:
             # May want to reduce to year
             citation += ' (' + pkg_dict['publication_date'] + '): '
     citation += pkg_dict['title']
@@ -35,7 +35,8 @@ def after_dataset_show(context, pkg_dict):
         citation += '.'
     citation += ' '
 
-    citation += pkg_dict['publisher'] + ' (' + pkg_dict['resource_type'] +') '
+    if 'publisher' in pkg_dict:
+        citation += pkg_dict['publisher'] + ' (' + pkg_dict['resource_type'] +') '
     if 'doi' in pkg_dict:
         citation += pkg_dict['doi']
 
