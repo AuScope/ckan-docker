@@ -1,8 +1,8 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 
-from . import schema
-from . import validation
+from ckanext.auscope_theme.logic import schema
+from ckanext.auscope_theme.logic import validation
 
 # import ckanext.auscope_theme.cli as cli
 # import ckanext.auscope_theme.helpers as helpers
@@ -22,23 +22,19 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
     # plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IValidators)
 
-
-
     # IConfigurer
 
     def update_config(self, config_):
-        toolkit.add_template_directory(config_, '/shared/templates')
+        toolkit.add_template_directory(config_, "/shared/templates")
         toolkit.add_template_directory(config_, "templates")
-        toolkit.add_public_directory(config_, '/shared/public')
+        toolkit.add_public_directory(config_, "/shared/public")
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "auscope_theme")
-
 
     # IPackageController
 
     def after_dataset_show(self, *args, **kwargs):
         return schema.after_dataset_show(*args, **kwargs)
-
 
     # IAuthFunctions
 
