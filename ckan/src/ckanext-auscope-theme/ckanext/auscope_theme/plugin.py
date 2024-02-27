@@ -3,10 +3,10 @@ import ckan.plugins.toolkit as toolkit
 
 from ckanext.auscope_theme.logic import schema
 from ckanext.auscope_theme.logic import validation
+from ckanext.auscope_theme import views
+from ckanext.auscope_theme import helpers
 
 # import ckanext.auscope_theme.cli as cli
-# import ckanext.auscope_theme.helpers as helpers
-# import ckanext.auscope_theme.views as views
 # from ckanext.auscope_theme.logic import (
 #     action, auth, validators
 # )
@@ -17,9 +17,9 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IPackageController, inherit=True)
     # plugins.implements(plugins.IAuthFunctions)
     # plugins.implements(plugins.IActions)
-    # plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.IBlueprint)
     # plugins.implements(plugins.IClick)
-    # plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IValidators)
 
     # IConfigurer
@@ -48,8 +48,8 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
 
     # IBlueprint
 
-    # def get_blueprint(self):
-    #     return views.get_blueprints()
+    def get_blueprint(self):
+        return views.get_blueprints()
 
     # IClick
 
@@ -58,8 +58,8 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
 
     # ITemplateHelpers
 
-    # def get_helpers(self):
-    #     return helpers.get_helpers()
+    def get_helpers(self):
+        return helpers.get_helpers()
 
     # IValidators
 

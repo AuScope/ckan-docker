@@ -272,7 +272,7 @@ dataset_fields:
   help_text: A vocabulary for describing the physical medium of a specimen, reference material, or sampled environment.
   groupBy: Keywords
 
-# - field_name: fields_of_reserch
+# - field_name: fields_of_research
 #   label: Fields of Research
 #   required: true
 #   preset: select
