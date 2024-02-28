@@ -81,8 +81,8 @@ jobs:
       - name: Bump version
         id: bump_version
         run: |
-          bump2version ${{ github.event.inputs.releaseType }} --config-file ./setup.cfg
-          NEW_VERSION=$(grep 'current_version = ' ./setup.cfg | sed -r 's/current_version = //')
+          bump2version ${{ github.event.inputs.releaseType }} --config-file ./ckan/setup.cfg
+          NEW_VERSION=$(grep 'current_version = ' ./ckan/setup.cfg | sed -r 's/current_version = //')
           echo "::set-output name=version::$NEW_VERSION"
 
       - name: Push the tags and changes
