@@ -72,8 +72,8 @@ RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=
 # to get them mounted in this image at runtime
 
 COPY setup/prerun.py.override ${APP_DIR}/prerun.py
-# COPY setup/start_ckan_development.sh.override ${APP_DIR}/start_ckan_development.sh
 COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
+COPY setup/create_auscope_org.sql ${APP_DIR}/create_auscope_org.sql
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
 

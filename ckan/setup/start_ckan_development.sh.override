@@ -114,6 +114,13 @@ fi
 # Delay initializing DB for DOI
 ckan -c $CKAN_INI doi initdb
 
+# Add AuScope organization (will throw constraint error if org exists but won't break anything)
+echo "Adding AuScope organization to DB"
+export PGPASSWORD=$CKAN_DB_PASSWORD
+export PGUSER=$CKAN_DB_USER
+export PGDATABASE=$CKAN_DB
+psql -h db -p 5432 -f create_auscope_org.sql
+
 # Start supervisord
 supervisord --configuration /etc/supervisord.conf &
 
