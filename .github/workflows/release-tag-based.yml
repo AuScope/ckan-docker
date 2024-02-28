@@ -12,10 +12,6 @@ on:
       - release/*
 
 jobs:
-
-  # =================================================================
-  # Uncomment below, when moved to PRODUCTION.
-
   # sanity-check:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -30,7 +26,6 @@ jobs:
   #           exit 1
   #         fi
 
-  # Remove below dummy check when moved to PRODUCTION
   sanity-check:
     runs-on: ubuntu-latest
     steps:
@@ -39,19 +34,18 @@ jobs:
         run: |
           echo "Valid branch for patch release."
 
-  # ================================================================
-
   build-docker-image:
     needs: sanity-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Log in to Docker Hub
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          registry: ghcr.io
+          username: ${{ vars.USERNAME }}
+          password: ${{ secrets.TOKEN }}
 
       - name: Build Docker image with 'latest' tag
         uses: docker/build-push-action@v2
@@ -59,7 +53,7 @@ jobs:
           context: ./ckan
           file: ./ckan/Dockerfile
           push: true
-          tags: benmotevalli/ckan-auscope:latest
+          tags: ghcr.io/${{ vars.USERNAME }}/auscope-ckan:latest
 
   prepare-release:
     needs: build-docker-image
@@ -98,17 +92,18 @@ jobs:
     needs: prepare-release
     runs-on: ubuntu-latest
     steps:
-      - name: Log in to Docker Hub
+      - name: Log in to GitHub Container Registry
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          registry: ghcr.io
+          username: ${{ vars.USERNAME }}
+          password: ${{ secrets.TOKEN }}
 
       - name: Pull 'latest' Docker image
-        run: docker pull benmotevalli/ckan-auscope:latest
+        run: docker pull ghcr.io/${{ vars.USERNAME }}/auscope-ckan:latest
 
       - name: Tag Docker image with new version
-        run: docker tag benmotevalli/ckan-auscope:latest benmotevalli/ckan-auscope:${{ needs.prepare-release.outputs.new-version }}
+        run: docker tag ghcr.io/${{ vars.USERNAME }}/auscope-ckan:latest ghcr.io/${{ vars.USERNAME }}/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
 
       - name: Push Docker image with new version
-        run: docker push benmotevalli/ckan-auscope:${{ needs.prepare-release.outputs.new-version }}
+        run: docker push ghcr.io/${{ vars.USERNAME }}/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
