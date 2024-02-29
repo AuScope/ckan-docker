@@ -11,14 +11,19 @@
 {% endmacro %}
 
   <div data-module="dataset-visibility">
-  {% snippet "scheming/form_snippets/_organization_select.html",
+  {# snippet "scheming/form_snippets/_organization_select.html",
     field=field,
     data=data,
     errors=errors,
     organizations_available=h.organizations_available('create_dataset'),
     org_required=not h.check_config_permission('create_unowned_dataset')
       or h.scheming_field_required(field),
-    organization_option_tag=organization_option_tag %}
+    organization_option_tag=organization_option_tag #}
+
+    <select id="field-organizations" name="owner_org" style="display:none;">
+	{# Need to get this from config  #}
+        <option value="12345678-1234-1234-1234-123456789012"></option>
+    </select>
 
     {% block package_metadata_fields_visibility %}
     {# if the user is an editor they will see the visibility field #}
