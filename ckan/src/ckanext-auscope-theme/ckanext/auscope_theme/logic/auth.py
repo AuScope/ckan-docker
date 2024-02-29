@@ -1,6 +1,6 @@
 import ckan.plugins.toolkit as tk
 import ckan.authz as authz
-from ckan.logic.auth import get_package_object
+from ckan.logic.auth import get_package_object, get_resource_object
 from ckan.logic.auth.create import package_create as ckan_package_create
 from ckan.logic.auth.update import package_update as ckan_package_update
 
@@ -110,6 +110,64 @@ def package_update(next_auth, context, data_dict):
 
 
 @tk.chained_auth_function
+def resource_update(next_auth, context, data_dict):
+    '''
+    :param next_auth:
+    :param context:
+    :param data_dict:
+
+    '''
+    user = context['auth_user_obj']
+    resource = get_resource_object(context, data_dict)
+    package = resource.packageA
+
+
+    if package.owner_org:
+        user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
+        if user_role in ['editor', 'admin']:
+            return {'success': True}
+        elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
+            return {'success': True}
+    """
+    if user_owns_package_as_member(user, package):
+        return {'success': True}
+    elif user_is_member_of_package_org(user, package):
+        return {'success': False}
+    """
+
+    return next_auth(context, data_dict)
+
+
+@tk.chained_auth_function
+def resource_view_update(next_auth, context, data_dict):
+    '''
+    :param next_auth:
+    :param context:
+    :param data_dict:
+
+    '''
+    user = context['auth_user_obj']
+    resource_view = get_resource_view_object(context, data_dict)
+    resource = get_resource_object(context, {'id': resource_view.resource_id})
+
+
+    if package.owner_org:
+        user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
+        if user_role in ['editor', 'admin']:
+            return {'success': True}
+        elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
+            return {'success': True}
+    """
+    if user_owns_package_as_member(user, resource.package):
+        return {'success': True}
+    elif user_is_member_of_package_org(user, resource.package):
+        return {'success': False}
+    """
+
+    return next_auth(context, data_dict)
+
+
+@tk.chained_auth_function
 def package_delete(next_auth, context, data_dict):
     user = context.get('user')
     user_id = authz.get_user_id_for_username(user)
@@ -124,6 +182,52 @@ def package_delete(next_auth, context, data_dict):
         return {'success': True}
     else:
         return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
+
+    return next_auth(context, data_dict)
+
+
+@tk.chained_auth_function
+def resource_delete(next_auth, context, data_dict):
+    user = context['auth_user_obj']
+    resource = get_resource_object(context, data_dict)
+    package = resource.package
+
+    user_role = authz.users_role_for_group_or_org(package.owner_org, user)
+    if user_role == 'admin' or user_role == 'editor':
+        return {'success': True}
+    if user_role == 'member' and package.creator_user_id and user_id == package.creator_user_id:
+        return {'success': True}
+    else:
+        return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
+    """
+    if user_owns_package_as_member(user, package):
+        return {'success': True}
+    elif user_is_member_of_package_org(user, package):
+        return {'success': False}
+    """
+
+    return next_auth(context, data_dict)
+
+
+@tk.chained_auth_function
+def resource_view_delete(next_auth, context, data_dict):
+    user = context['auth_user_obj']
+    resource_view = get_resource_view_object(context, data_dict)
+    resource = get_resource_object(context, {'id': resource_view.resource_id})
+
+    user_role = authz.users_role_for_group_or_org(package.owner_org, user)
+    if user_role == 'admin' or user_role == 'editor':
+        return {'success': True}
+    if user_role == 'member' and package.creator_user_id and user_id == package.creator_user_id:
+        return {'success': True}
+    else:
+        return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
+    """
+    if user_owns_package_as_member(user, resource.package):
+        return {'success': True}
+    elif user_is_member_of_package_org(user, resource.package):
+        return {'success': False}
+    """
 
     return next_auth(context, data_dict)
 
