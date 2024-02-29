@@ -1,22 +1,17 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-
-from ckanext.auscope_theme.logic import schema
-from ckanext.auscope_theme.logic import validation
 from ckanext.auscope_theme import views
 from ckanext.auscope_theme import helpers
-
-# import ckanext.auscope_theme.cli as cli
-# from ckanext.auscope_theme.logic import (
-#     action, auth, validators
-# )
+from ckanext.auscope_theme.logic import (
+    action, auth, schema, validation
+)
 
 
 class AuscopeThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IPackageController, inherit=True)
-    # plugins.implements(plugins.IAuthFunctions)
-    # plugins.implements(plugins.IActions)
+    plugins.implements(plugins.IAuthFunctions)
+    plugins.implements(plugins.IActions)
     plugins.implements(plugins.IBlueprint)
     # plugins.implements(plugins.IClick)
     plugins.implements(plugins.ITemplateHelpers)
@@ -38,13 +33,13 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
 
     # IAuthFunctions
 
-    # def get_auth_functions(self):
-    #     return auth.get_auth_functions()
+    def get_auth_functions(self):
+        return auth.get_auth_functions()
 
     # IActions
 
-    # def get_actions(self):
-    #     return action.get_actions()
+    def get_actions(self):
+        return action.get_actions()
 
     # IBlueprint
 
@@ -64,4 +59,8 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
     # IValidators
 
     def get_validators(self):
-        return {"location_validator": validation.location_validator}
+        return {
+            "location_validator": validation.location_validator,
+            "visibility_validator": validation.visibility_validator,
+        }
+

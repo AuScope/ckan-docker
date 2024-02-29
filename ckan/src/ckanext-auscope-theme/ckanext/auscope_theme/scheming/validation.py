@@ -1,14 +1,22 @@
+#from ckantoolkit import _
+
+
+from typing import Any
 import ckan.lib.navl.dictization_functions as df
 import ckan.logic as logic
 import ckan.authz as authz
-import ckan.model as model
-from ckantoolkit import ( _, missing )
+
 from ckan.types import (
-    FlattenDataDict, FlattenKey, Context, FlattenErrorDict)
+    FlattenDataDict, FlattenKey, Context, FlattenErrorDict
+)
+
 from collections import OrderedDict
-from logging import getLogger
+import ckan.model as model
 from typing import Any, Optional
 
+from logging import getLogger
+
+log = getLogger(__name__)
 
 Invalid = df.Invalid
 StopOnError = df.StopOnError
@@ -27,10 +35,6 @@ UPDATED_ROLE_PERMISSIONS: dict[str, list[str]] = OrderedDict([
 def has_user_permission_for_group_or_org(group_id: Optional[str],
                                          user_name: Optional[str],
                                          permission: str) -> bool:
-    ''' Check if the user has the given permissions for the group, allowing for
-    sysadmin rights and permission cascading down a group hierarchy.
-
-    '''
     if not group_id:
         return False
     group = model.Group.get(group_id)
@@ -115,8 +119,12 @@ def scheming_validator(fn):
 def visibility_validator(field, schema):
     def validator(key: FlattenKey, data: FlattenDataDict,
                   errors: FlattenErrorDict, context: Context) -> Any:
-        """
-        Validate that the user has sufficient privilege (admin or editor) to make a dataset public
+        """Validate organization for the dataset.
+
+        Depending on the settings and user's permissions, this validator checks
+        whether organization is optional and ensures that specified organization
+        can be set as an owner of dataset.
+
         """
         value = data.get(key)
 
@@ -160,99 +168,15 @@ def visibility_validator(field, schema):
             # This is a new dataset or we are changing the organization
             if not context.get(u'ignore_auth', False) and (not user or not(
                     user.sysadmin or has_user_permission_for_group_or_org(
+                        #group_id, user.name, 'create_package'))):
                         group_id, user.name, 'create_dataset'))):
                 raise Invalid(_('You cannot add a dataset to this organization'))
+
         user_role = authz.users_role_for_group_or_org('auscope', user.name)
+
         if user_role != 'editor' and (package and package.private == False):
             raise Invalid(_('Only editors can make a dataset public after it has been reviewed'))
 
         data[key] = group_id
     return validator
-
-
-@scheming_validator
-@register_validator
-def location_validator(field, schema):
-    def validator(key, data, errors, context):
-        location_choice_key = ('location_choice',)
-        point_latitude_key = ('point_latitude',)
-        point_longitude_key = ('point_longitude',)
-        bounding_box_key = ('bounding_box',)
-
-        location_choice = data.get(location_choice_key, missing)
-        point_latitude = data.get(point_latitude_key, missing)
-        point_longitude = data.get(point_longitude_key, missing)
-        bounding_box = data.get(bounding_box_key, missing)
-
-        missing_error = _("Missing value")
-        invalid_error = _("Invalid value")
-
-        def add_error(key, error_message):
-            errors[key] = errors.get(key, [])
-            errors[key].append(error_message)
-
-        # Exit the validation for noLocation choice
-        if location_choice == 'noLocation':
-            for key in [point_latitude_key, point_longitude_key, bounding_box_key]:
-                data[key] = None
-            return
-
-        if location_choice == 'point':
-            # Validate latitude
-            if point_latitude is missing:
-                add_error(point_latitude_key, missing_error)
-            elif not is_valid_latitude(point_latitude):
-                add_error(point_latitude_key, invalid_error)
-
-            # Validate longitude
-            if point_longitude is missing:
-                add_error(point_longitude_key, missing_error)
-            elif not is_valid_longitude(point_longitude):
-                add_error(point_longitude_key, invalid_error)
-
-        elif location_choice == 'area':
-            # Validate bounding box
-            if bounding_box is missing:
-                add_error(bounding_box_key, missing_error)
-            elif not is_valid_bounding_box(bounding_box):
-                add_error(bounding_box_key, invalid_error)
-
-        # Handle missing location choice
-        if location_choice is missing and field.get('required', False):
-            add_error(location_choice_key, missing_error)
-
-    return validator
-
-def is_valid_latitude(lat):
-    try:
-        lat = float(lat)
-        return -90 <= lat <= 90
-    except (ValueError, TypeError):
-        return False
-
-def is_valid_longitude(lng):
-    try:
-        lng = float(lng)
-        return -180 <= lng <= 180
-    except (ValueError, TypeError):
-        return False
-    
-def is_valid_bounding_box(bbox):
-    try:
-        # If bbox is a list with one element, extract the string
-        if isinstance(bbox, list) and len(bbox) == 1:
-            bbox = bbox[0]
-
-        # Check if bbox is a string in the correct format
-        if not isinstance(bbox, str) or len(bbox.split(',')) != 4:
-            return False
-
-        # Split the string and convert each part to float
-        min_lng , min_lat, max_lng , max_lat = map(float, bbox.split(','))
-
-        return all(-90 <= lat <= 90 for lat in [min_lat, max_lat]) and \
-               all(-180 <= lng <= 180 for lng in [min_lng, max_lng]) and \
-               min_lat < max_lat and min_lng < max_lng
-    except (ValueError, TypeError):
-        return False
 

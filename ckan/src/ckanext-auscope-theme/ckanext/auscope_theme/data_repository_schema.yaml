@@ -556,7 +556,10 @@ dataset_fields:
 
 - field_name: owner_org
   label: Organization
-  preset: dataset_organization
+  form_snippet: org_visibility.html
+  validators: visibility_validator
+  groupBy: About Dataset
+
 
 resource_fields:
 
