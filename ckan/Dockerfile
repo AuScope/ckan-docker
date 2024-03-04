@@ -48,10 +48,10 @@ COPY spatial-reqs.txt /tmp/spatial-reqs.txt
 RUN pip install -r /tmp/spatial-reqs.txt
 
 ### DOI extension ###
-RUN pip install ckanext-doi
+RUN pip install -e "git+https://github.com/AuScope/ckanext-doi.git@auscope_customise#egg=ckanext-doi"
 
 ### Contact extension ###
-RUN pip install -e "git+https://github.com/AuScope/ckanext-contact.git#egg=ckanext-contact"
+RUN pip install ckanext-contact
 
 ### S3 Filestore extension ###
 RUN pip install -e "git+https://github.com/keitaroinc/ckanext-s3filestore.git#egg=ckanext-s3filestore"
