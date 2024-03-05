@@ -45,11 +45,11 @@ dataset_fields:
       required: true
       preset: select
       choices:
-        - value: personal
+        - value: Personal
           label: Personal      
-        - value: organizational
+        - value: Organizational
           label: Organizational
-      default: personal
+      default: Personal
       form_include_blank_choice: false      
       help_text: The type of name, e.g. Organizational or Personal
 
@@ -57,8 +57,6 @@ dataset_fields:
       label: Author Affiliation
       required: true
       help_text: The name of the entity affiliated with the author, e.g. an organization's name (if applicable)
-
-              
 
     - field_name: author_affiliation_identifier
       label: Author Affiliation Identifier
@@ -70,9 +68,9 @@ dataset_fields:
       required: true
       preset: select
       choices:
-        - value: ror
+        - value: ROR
           label: ROR
-        - value: other
+        - value: Other
           label: Other
       default: ror
       form_include_blank_choice: false      
@@ -83,23 +81,23 @@ dataset_fields:
       required: true
       preset: select
       choices:
-        - value: orcid
+        - value: ORCID
           label: ORCID
-        - value: isni
+        - value: ISNI
           label: ISNI
-        - value: lcna
+        - value: LCNA
           label: LCNA
-        - value: viaf
+        - value: VIAF
           label: VIAF
-        - value: gnd
+        - value: GND
           label: GND
-        - value: dai
+        - value: DAI
           label: DAI
-        - value: researcherid
+        - value: ResearcherID
           label: ResearcherID
-        - value: scopusid
+        - value: ScopusID
           label: ScopusID
-        - value: other
+        - value: Other
           label: Other
       form_include_blank_choice: false      
       help_text: The type of identifier that uniquely identifies the author (e.g. ORCID, ISNI).
@@ -268,17 +266,17 @@ dataset_fields:
       label: Funder Identifier Scheme
       preset: select
       choices:
-        - value: crossref_funder_id
+        - value: Crossref Funder ID
           label: Crossref Funder ID
-        - value: grid
+        - value: GRID
           label: GRID
-        - value: isni
+        - value: ISNI
           label: ISNI
-        - value: ror
+        - value: ROR
           label: ROR
-        - value: wikidata
+        - value: Wikidata
           label: Wikidata
-        - value: other
+        - value: Other
           label: Other          
       help_text: The type of the funder identifier
     
@@ -392,71 +390,71 @@ dataset_fields:
       required: true
       preset: select
       choices:
-        - value: iscitedby
+        - value: IsCitedBy
           label: IsCitedBy
-        - value: issupplementto
+        - value: IsSupplementTo
           label: IsSupplementTo
-        - value: iscontinuedby
+        - value: IsContinuedBy
           label: IsContinuedBy
-        - value: isdescribedby
+        - value: IsDescribedBy
           label: IsDescribedBy
-        - value: hasmetadata
+        - value: HasMetadata
           label: HasMetadata
-        - value: hasversion
+        - value: HasVersion
           label: HasVersion
-        - value: isnewversionof
+        - value: IsNewVersionOf
           label: IsNewVersionOf
-        - value: ispartof
+        - value: IsPartOf
           label: IsPartOf
-        - value: isreferencedby
+        - value: IsReferencedBy
           label: IsReferencedBy
-        - value: isdocumentedby
+        - value: IsDocumentedBy
           label: IsDocumentedBy
-        - value: iscompiledby
+        - value: IsCompiledBy
           label: IsCompiledBy
-        - value: isvariantformof
+        - value: IsVariantFormOf
           label: IsVariantFormOf
-        - value: isidenticalto
+        - value: IsIdenticalTo
           label: IsIdenticalTo
-        - value: isreviewedby
+        - value: IsReviewedBy
           label: IsReviewedBy
-        - value: isderivedfrom
+        - value: IsDerivedFrom
           label: IsDerivedFrom
-        - value: requires
+        - value: Requires
           label: Requires
-        - value: isobsoletedby
+        - value: IsObsoletedBy
           label: IsObsoletedBy
-        - value: cites
+        - value: Cites
           label: Cites
-        - value: issupplementedby
+        - value: IsSupplementedBy
           label: IsSupplementedBy
-        - value: continues
+        - value: Continues
           label: Continues
-        - value: describes
+        - value: Describes
           label: Describes
-        - value: ismetadatafor
+        - value: IsMetadataFor
           label: IsMetadataFor
-        - value: isversionof
+        - value: IsVersionOf
           label: IsVersionOf
-        - value: previousversionof
+        - value: PreviousVersionOf
           label: PreviousVersionOf
-        - value: haspart
+        - value: HasPart
           label: HasPart
-        - value: references
+        - value: References
           label: References
-        - value: documents
+        - value: Documents
           label: Documents
-        - value: compiles
+        - value: Compiles
           label: Compiles
-        - value: isoriginalformof
+        - value: IsOriginalFormOf
           label: IsOriginalFormOf
-        - value: reviews
+        - value: Reviews
           label: Reviews
-        - value: issourceof
+        - value: IsSourceOf
           label: IsSourceOf
-        - value: isrequiredby
+        - value: IsRequiredBy
           label: IsRequiredBy
-        - value: obsoletes
+        - value: Obsoletes
           label: Obsoletes                                                  
       form_include_blank_choice: false           
       help_text: Description of the relationship from the dataset being published to the related resource
@@ -478,9 +476,9 @@ dataset_fields:
   required: true
   preset: select
   choices:
-    - value: auscope
+    - value: AuScope
       label: AuScope      
-  default: auscope
+  default: AuScope
   form_include_blank_choice: false      
   help_text: The entity that publishes the dataset 
   groupBy: Supporting Metadata   

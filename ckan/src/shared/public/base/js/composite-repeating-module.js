@@ -134,7 +134,7 @@ ckan.module('composite-repeating-module', function ($, _) {
       }
       var $identifierTypeField = $('#' + identifierTypeFieldId);
       if ($identifierTypeField.length) {
-        $identifierTypeField.val('ror'); // Assuming ROR is the identifier type
+        $identifierTypeField.val('ROR'); // Assuming ROR is the identifier type
       } else {
         console.error('Identifier type field not found:', identifierTypeFieldId);
       }
