@@ -30,6 +30,7 @@ dataset_fields:
 - field_name: author
   label: Authors
   preset: composite_repeating
+  validators: composite_repeating_validator
   form_snippet: composite_repeating_field.html
   required: true
   groupBy: About Sample
@@ -80,7 +81,6 @@ dataset_fields:
 
     - field_name: author_identifier_type
       label: Author Identifier Type
-      required: true
       preset: select
       choices:
         - value: orcid
@@ -101,7 +101,7 @@ dataset_fields:
           label: ScopusID
         - value: other
           label: Other
-      form_include_blank_choice: false      
+      # form_include_blank_choice: false      
       help_text: The type of identifier that uniquely identifies the author (e.g. ORCID, ISNI).
 
     - field_name: author_identifier
@@ -376,6 +376,7 @@ dataset_fields:
   required: true
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
+  validators: composite_repeating_validator
   form_blanks: 1
   groupBy: Funder Identifier    
   subfields:
