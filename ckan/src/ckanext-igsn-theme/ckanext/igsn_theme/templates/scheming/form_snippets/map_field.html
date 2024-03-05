@@ -1,0 +1,81 @@
+<div class="dataset-map" data-module="map-module" data-module-selected-values="{{data['epsg_code']}}">
+    <div id="map-container" style="height: 400px; display: none;"></div>
+</div>
+
+<div class="form-group" id="bounding_box_coordinates" style="display: none;">
+    <label for="field-bounding_box">Bounding Box</label>
+    <input type="text" class="form-control" id="field-bounding_box" name="bounding_box" value="{{data['bounding_box']}}"
+        placeholder="Min Longitude, Min Latitude, Max Longitude, Max Latitude ">
+    {% if errors['bounding_box'] %}
+    {% for error in errors['bounding_box'] %}
+    <span class="error-block">{{ error }}</span>
+    {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+        Min Longitude, Min Latitude, Max Longitude, Max Latitude (Lon: -180.0 to 180.0 , Lat: -90.0 to 90.0).
+    </div>
+</div>
+
+<div style="display: flex; justify-content: space-between;">
+    <div class="form-group" id="point_longitude_container" style="flex: 1; padding-right: 10px; display: none;">
+        <label for="field-point_longitude">Longitude </label>
+        <input type="text" class="form-control" id="field-point_longitude" name="point_longitude"
+            value="{{data['point_longitude']}}">
+        {% if errors['point_longitude'] %}
+        {% for error in errors['point_longitude'] %}
+        <span class="error-block">{{ error }}</span>
+        {% endfor %}
+        {% endif %}
+        <div class="info-block ">
+            <i class="fa fa-info-circle"></i>
+            Longitude is a decimal number between -180.0 and 180.0
+        </div>
+    </div>
+
+    <div class="form-group" id="point_latitude_container" style="flex: 1; padding-left: 10px; display: none;">
+        <label for="field-point_latitude">Latitude</label>
+        <input type="text" class="form-control" id="field-point_latitude" name="point_latitude"
+            value="{{data['point_latitude']}}">
+        {% if errors['point_latitude'] %}
+        {% for error in errors['point_latitude'] %}
+        <span class="error-block">{{ error }}</span>
+        {% endfor %}
+        {% endif %}
+        <div class="info-block ">
+            <i class="fa fa-info-circle"></i>
+            Latitude is a decimal number between -90.0 and 90.0
+        </div>
+    </div>
+</div>
+
+<!-- <div class="form-group" id="elevation_container" style="display: none;">
+    <label for="field-elevation">Elevation</label>
+    <input type="text" class="form-control" id="field-elevation" name="elevation" value="{{data['elevation']}}" >
+    {% if errors['elevation'] %}
+        {% for error in errors['elevation'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+         The measurement of height above or below mean sea level in meters
+    </div>
+</div> -->
+
+<div class="form-group" id="epsg_code_container" style="display: none;">
+    <label for="field-epsg_code">Geographic Coordinate System</label>
+    <select class="form-control" id="field-epsg_code" name="epsg_code" value="{{data['epsg_code']}}">
+    </select>
+    {% if errors['epsg_code'] %}
+    {% for error in errors['epsg_code'] %}
+    <span class="error-block">{{ error }}</span>
+    {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+        A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's
+        surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and
+        longitude. Latitude and longitude measure angles
+    </div>
+</div>
