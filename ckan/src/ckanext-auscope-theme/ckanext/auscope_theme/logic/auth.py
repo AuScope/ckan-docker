@@ -5,6 +5,7 @@ from ckan.logic.auth.create import package_create as ckan_package_create
 from ckan.logic.auth.update import package_update as ckan_package_update
 
 
+
 @tk.auth_allow_anonymous_access
 def auscope_theme_get_sum(context, data_dict):
     return {"success": True}
@@ -46,7 +47,6 @@ def user_owns_package_as_member(user, package):
 @tk.chained_auth_function
 def package_create(next_auth, context, data_dict):
     user = context.get('auth_user_obj')
-
     if data_dict and 'owner_org' in data_dict:
         user_role = authz.users_role_for_group_or_org(data_dict['owner_org'], user.name)
         # userdatasets only checks for 'member' here
@@ -236,9 +236,13 @@ def get_auth_functions():
     return {
         "auscope_theme_get_sum": auscope_theme_get_sum,
         "package_create": package_create,
-        "package_update": package_update,
-        "package_delete": package_delete,
         "resource_create": resource_create,
         "resource_view_create": resource_view_create,
+        "package_update": package_update,
+        "resource_update": resource_update,
+        "resource_view_update": resource_view_update,
+        "package_delete": package_delete,
+        "resource_delete": resource_delete,
+        "resource_view_delete": resource_view_delete,
     }
 
