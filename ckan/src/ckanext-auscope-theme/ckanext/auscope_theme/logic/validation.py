@@ -163,7 +163,7 @@ def visibility_validator(field, schema):
                         group_id, user.name, 'create_dataset'))):
                 raise Invalid(_('You cannot add a dataset to this organization'))
         user_role = authz.users_role_for_group_or_org('auscope', user.name)
-        if user_role != 'editor' and (package and package.private == False):
+        if not (user_role == 'editor' or user_role == 'admin') and (package and package.private == False):
             raise Invalid(_('Only editors can make a dataset public after it has been reviewed'))
 
         data[key] = group_id
