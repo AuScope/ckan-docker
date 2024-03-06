@@ -119,7 +119,7 @@ echo "Adding AuScope organization to DB"
 export PGPASSWORD=$CKAN_DB_PASSWORD
 export PGUSER=$CKAN_DB_USER
 export PGDATABASE=$CKAN_DB
-DB_HOST = `$CKAN_SQLALCHEMY_URL | cut -d '@' -f2 | cut -d':' -f1`
+DB_HOST = $(echo $CKAN_SQLALCHEMY_URL | cut -d '@' -f2 | cut -d':' -f1)
 psql -h $DB_HOST -p 5432 -f create_auscope_org.sql
 # psql -h db -p 5432 -f create_auscope_org.sql
 
