@@ -514,7 +514,7 @@ dataset_fields:
 - field_name: license
   label: License
   required: true
-  default: cc-by-4.0-international
+  default: CC BY 4.0 International
   help_text: License for the distribution and sharing of the dataset
   groupBy: Supporting Metadata   
 
