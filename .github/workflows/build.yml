@@ -29,7 +29,7 @@ jobs:
         with:
           context: ./ckan
           file: ./ckan/Dockerfile
-          tags: ghcr.io/${{ vars.USERNAME }}/auscope-ckan:latest
+          tags: ghcr.io/auscope/auscope-ckan:latest
           push: true
 
   build-and-push-ghcr-dev:
@@ -58,5 +58,5 @@ jobs:
         with:
           context: ./ckan
           file: ./ckan/Dockerfile # Consider using a separate Dockerfile for dev if needed
-          tags: ghcr.io/${{ vars.USERNAME }}/auscope-ckan-dev:latest-${{ steps.timestamp.outputs.timestamp }}
+          tags: ghcr.io/auscope/auscope-ckan-dev:latest-${{ steps.timestamp.outputs.timestamp }}
           push: true

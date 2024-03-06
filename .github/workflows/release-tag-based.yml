@@ -55,7 +55,7 @@ jobs:
           context: ./ckan
           file: ./ckan/Dockerfile
           push: true
-          tags: ghcr.io/${{ vars.USERNAME }}/auscope-ckan:latest
+          tags: ghcr.io/auscope/auscope-ckan:latest
 
   prepare-release:
     needs: build-docker-image
@@ -102,10 +102,10 @@ jobs:
           password: ${{ secrets.TOKEN }}
 
       - name: Pull 'latest' Docker image
-        run: docker pull ghcr.io/${{ vars.USERNAME }}/auscope-ckan:latest
+        run: docker pull ghcr.io/auscope/auscope-ckan:latest
 
       - name: Tag Docker image with new version
-        run: docker tag ghcr.io/${{ vars.USERNAME }}/auscope-ckan:latest ghcr.io/${{ vars.USERNAME }}/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
+        run: docker tag ghcr.io/auscope/auscope-ckan:latest ghcr.io/auscope/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
 
       - name: Push Docker image with new version
-        run: docker push ghcr.io/${{ vars.USERNAME }}/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
+        run: docker push ghcr.io/auscope/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
