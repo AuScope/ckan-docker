@@ -72,7 +72,7 @@ dataset_fields:
           label: ROR
         - value: Other
           label: Other
-      default: ror
+      default: ROR
       form_include_blank_choice: false      
       help_text: The persistent identifier type of the affiliated entity
 
@@ -156,7 +156,6 @@ dataset_fields:
 
 - field_name: fields_of_research_code
   label: Fields of Research Code
-  required: true
   form_snippet: null
   help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
   groupBy: About Dataset
@@ -247,7 +246,6 @@ dataset_fields:
 
 - field_name: funder
   label: Funding Reference
-  required: true
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
   form_blanks: 1
@@ -372,7 +370,6 @@ dataset_fields:
           label: Workflow
         - value: other
           label: Other                  
-      form_include_blank_choice: false           
       help_text: Select the type of this related resource
 
     - field_name: related_resource_url
@@ -456,7 +453,6 @@ dataset_fields:
           label: IsRequiredBy
         - value: Obsoletes
           label: Obsoletes                                                  
-      form_include_blank_choice: false           
       help_text: Description of the relationship from the dataset being published to the related resource
 
 - field_name: lineage
