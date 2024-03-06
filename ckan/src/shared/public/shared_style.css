@@ -353,7 +353,24 @@ hr {
   color: var(--color-aus-royal-blue);
 }
 
+.masthead .main-navbar .dropdown .dropdown-menu  li a {
+    font-size: 1rem;  
+    color: var(--color-aus-black);
+    display: block;
+    width: 100%; 
+    background-color: transparent;
+} 
 
+.masthead .main-navbar .dropdown .dropdown-menu  li:hover a,
+.masthead .main-navbar .dropdown .dropdown-menu  li:focus a,
+.masthead .main-navbar .dropdown .dropdown-menu  li.active a ,
+.masthead .main-navbar .dropdown .dropdown-menu  li a:active {
+  color: var( --bs-white); 
+  background-color: var(--color-aus-royal-blue);
+}
+.masthead .main-navbar .dropdown .dropdown-menu {
+  padding-right: 0px;
+}
 
 .logo-text {
   font-weight: bold;
