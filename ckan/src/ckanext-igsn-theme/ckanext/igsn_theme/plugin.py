@@ -1,11 +1,12 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from . import validation
+
+from ckanext.igsn_theme.logic import validators
+from ckanext.igsn_theme import views
+from ckanext.igsn_theme import helpers
 
 
 # import ckanext.igsn_theme.cli as cli
-# import ckanext.igsn_theme.helpers as helpers
-# import ckanext.igsn_theme.views as views
 # from ckanext.igsn_theme.logic import (
 #     action, auth, validators
 # )
@@ -16,9 +17,9 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     
     # plugins.implements(plugins.IAuthFunctions)
     # plugins.implements(plugins.IActions)
-    # plugins.implements(plugins.IBlueprint)
+    plugins.implements(plugins.IBlueprint)
     # plugins.implements(plugins.IClick)
-    # plugins.implements(plugins.ITemplateHelpers)
+    plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IValidators)
     
 
@@ -44,8 +45,8 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
 
     # IBlueprint
 
-    # def get_blueprint(self):
-    #     return views.get_blueprints()
+    def get_blueprint(self):
+        return views.get_blueprints()
 
     # IClick
 
@@ -54,11 +55,11 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
 
     # ITemplateHelpers
 
-    # def get_helpers(self):
-    #     return helpers.get_helpers()
+    def get_helpers(self):
+        return helpers.get_helpers()
 
     # IValidators
 
     def get_validators(self):
-        return {"location_validator": validation.location_validator}
+        return validators.get_validators()
     
