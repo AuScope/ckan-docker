@@ -160,11 +160,11 @@ dataset_fields:
   help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
   groupBy: About Dataset
 
-- field_name: publication_date
-  label: Publication Date
+- field_name: deposit_date
+  label: Deposit Date
   required: true
   preset: date
-  help_text: The date the dataset is published through the repository
+  help_text: The date the data was deposited into the repository 
   groupBy: About Dataset  
 
 - field_name: embargo_date
