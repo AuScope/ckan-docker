@@ -674,7 +674,8 @@ body {
     background-color: transparent;
     padding-left: 0; 
     font-weight: bold;
-
+    width: 100%;
+    text-align: left;
 }
 
 .card-header .btn-link:hover, .card-header .btn-link:focus {
@@ -687,6 +688,7 @@ body {
     box-shadow: none !important;
     border: none !important;
 }
+
 
 .card-body {
     padding: 1.25rem; 
