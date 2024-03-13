@@ -22,7 +22,8 @@
                 Don’t have an AAF account yet? Please contact us to set up an account.
             </div>
             <div class="modal-footer">
-                <a href="mailto:auscope.doi@csiro.au?subject=AuScope%20Data%20Repository%20-%20Request%20Account" class="btn btn-primary">Contact Us</a>
+                <a href="mailto:auscope.doi@csiro.au?subject=AuScope%20Data%20Repository%20-%20Request%20Account"
+                    class="btn btn-primary">Contact Us</a>
             </div>
         </div>
     </div>
@@ -30,9 +31,19 @@
 {% endblock %}
 
 {% block header_site_navigation_tabs %}
-    {{ h.build_nav_main(
-    (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ["dataset", "resource"]),
-    ('home.about', _('About')) ) }}
+{{ h.build_nav_main(
+(dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ["dataset",
+"resource"]),
+('home.about', _('About')) ) }}
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        {{ _('Help') }} <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="#">{{ _('User Manual') }}</a></li>
+        <li><a href="#">{{ _('Data Deposit Guidelines') }}</a></li>
+    </ul>
+</li>
 {% endblock %}
 
 <a class="btn btn-primary" data-module="modal-contact" data-module-template="" href="" title="">

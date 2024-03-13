@@ -31,6 +31,7 @@ dataset_fields:
   label: Authors
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
+  validators: composite_repeating_validator
   required: true
   groupBy: About Dataset
   subfields:
@@ -72,13 +73,12 @@ dataset_fields:
           label: ROR
         - value: Other
           label: Other
-      default: ror
+      default: ROR
       form_include_blank_choice: false      
       help_text: The persistent identifier type of the affiliated entity
 
     - field_name: author_identifier_type
       label: Author Identifier Type
-      required: true
       preset: select
       choices:
         - value: ORCID
@@ -156,10 +156,23 @@ dataset_fields:
 
 - field_name: fields_of_research_code
   label: Fields of Research Code
-  required: true
   form_snippet: null
   help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
   groupBy: About Dataset
+
+- field_name: deposit_date
+  label: Deposit Date
+  required: true
+  preset: date
+  help_text: The date the data was deposited into the repository 
+  groupBy: About Dataset  
+
+- field_name: embargo_date
+  label: Embargo Date
+  preset: date
+  help_text: A limited period after which your data will be publicly available, e.g. to allow the data creators sufficient time to continue to work with their datasets to support further publications.
+  validators: embargo_date_validator
+  groupBy: About Dataset  
 
 - field_name: start_date
   label: Start Date
@@ -247,9 +260,9 @@ dataset_fields:
 
 - field_name: funder
   label: Funding Reference
-  required: true
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
+  validators: composite_repeating_validator
   form_blanks: 1
   groupBy: Funder Identifier    
   subfields:
@@ -372,7 +385,6 @@ dataset_fields:
           label: Workflow
         - value: other
           label: Other                  
-      form_include_blank_choice: false           
       help_text: Select the type of this related resource
 
     - field_name: related_resource_url
@@ -456,7 +468,6 @@ dataset_fields:
           label: IsRequiredBy
         - value: Obsoletes
           label: Obsoletes                                                  
-      form_include_blank_choice: false           
       help_text: Description of the relationship from the dataset being published to the related resource
 
 - field_name: lineage
@@ -481,6 +492,7 @@ dataset_fields:
   default: AuScope
   form_include_blank_choice: false      
   help_text: The entity that publishes the dataset 
+  form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
 
 - field_name: publisher_identifier
@@ -493,6 +505,7 @@ dataset_fields:
   default: https://ror.org/04s1m4564  
   help_text: The persistent identifier of the data publisher
   form_include_blank_choice: false      
+  form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
 
 - field_name: publisher_identifier_type
@@ -505,19 +518,13 @@ dataset_fields:
   default: ror
   form_include_blank_choice: false      
   help_text: The type of the persistent identifier represents the data publisher
-  groupBy: Supporting Metadata   
-
-- field_name: publication_date
-  label: Publication Date
-  required: true
-  preset: date
-  help_text: The date the dataset is published through the repository
+  form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
 
 - field_name: license
   label: License
   required: true
-  default: cc-by-4.0-international
+  default: CC BY 4.0 International
   help_text: License for the distribution and sharing of the dataset
   groupBy: Supporting Metadata   
 

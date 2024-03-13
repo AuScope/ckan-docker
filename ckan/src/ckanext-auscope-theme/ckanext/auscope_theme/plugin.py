@@ -62,5 +62,7 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
         return {
             "location_validator": validation.location_validator,
             "visibility_validator": validation.visibility_validator,
+            "composite_repeating_validator" : validation.composite_repeating_validator,
+            "embargo_date_validator" : validation.embargo_date_validator
         }
 
