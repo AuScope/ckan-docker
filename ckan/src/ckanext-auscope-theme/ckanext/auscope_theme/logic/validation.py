@@ -13,6 +13,7 @@ import ckan.plugins.toolkit as tk
 import ckanext.scheming.helpers as sh
 from ckanext.scheming.validation import scheming_validator, register_validator
 import json
+from datetime import datetime
 
 
 Invalid = df.Invalid
@@ -375,4 +376,26 @@ def composite_repeating_validator(field, schema):
         if sh.scheming_field_required(field):
             not_empty(key, data, errors, context)
 
+    return validator
+
+@scheming_validator
+@register_validator
+def embargo_date_validator(field, schema):
+    """
+    A validator to ensure the embargo date is later than today's date.
+    """
+    def validator(key, data, errors, context):
+        embargo_date_str = data.get(key, missing)
+        if embargo_date_str is missing or not embargo_date_str.strip():
+            return
+
+        try:
+            embargo_date = datetime.strptime(embargo_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            errors[key].append(_('Invalid date format. Please use YYYY-MM-DD.'))
+            return
+
+        if embargo_date <= datetime.now().date():
+            errors[key].append(_("Embargo date must be later than today's date"))
+            return
     return validator

@@ -167,6 +167,13 @@ dataset_fields:
   help_text: The date the dataset is published through the repository
   groupBy: About Dataset  
 
+- field_name: embargo_date
+  label: Embargo Date
+  preset: date
+  help_text: A limited period after which your data will be publicly available, e.g. to allow the data creators sufficient time to continue to work with their datasets to support further publications.
+  validators: embargo_date_validator
+  groupBy: About Dataset  
+
 - field_name: start_date
   label: Start Date
   preset: date
