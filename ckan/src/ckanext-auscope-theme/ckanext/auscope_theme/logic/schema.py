@@ -1,5 +1,7 @@
+import ckan.authz as authz
 import ckan.plugins.toolkit as tk
 import json
+
 
 
 def auscope_theme_get_sum():
@@ -10,6 +12,7 @@ def auscope_theme_get_sum():
         "left": [not_empty, convert_int],
         "right": [not_empty, convert_int]
     }
+
 
 @tk.chained_action
 def after_dataset_show(context, pkg_dict):
@@ -41,4 +44,28 @@ def after_dataset_show(context, pkg_dict):
         citation += pkg_dict['doi']
 
     pkg_dict['citation'] = citation
+
+
+@tk.chained_action
+def after_dataset_search(search_results, search_params):
+    """
+    Filtered returned search results so that members do not see other user's private datasets.
+    Editors and admins will still see all datasets.
+    """
+    result_count = search_results['count']
+    if result_count > 0:
+        user = tk.g.userobj
+        if user:
+            filtered_results = search_results['results'].copy()
+            for package in search_results['results']:
+                # There's only one org so we could probably get away with only doing this once
+                user_role = authz.users_role_for_group_or_org(package['owner_org'], user.name)
+                # Filter out any private datasets that the user did not create themselves if they are only a member
+                if user_role == 'member' and package['private'] and user.id != package['creator_user_id']:
+                    filtered_results.remove(package)
+                    result_count -= 1
+            search_results['results'] = filtered_results
+            search_results['count'] = result_count
+
+    return search_results
 

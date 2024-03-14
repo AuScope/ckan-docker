@@ -5,6 +5,9 @@ from ckan.logic.auth.create import package_create as ckan_package_create
 from ckan.logic.auth.update import package_update as ckan_package_update
 
 
+from logging import getLogger
+log = getLogger(__name__)
+
 
 @tk.auth_allow_anonymous_access
 def auscope_theme_get_sum(context, data_dict):
@@ -169,16 +172,15 @@ def resource_view_update(next_auth, context, data_dict):
 
 @tk.chained_auth_function
 def package_delete(next_auth, context, data_dict):
-    user = context.get('user')
-    user_id = authz.get_user_id_for_username(user)
+    user = context['auth_user_obj']
     try:
         package = get_package_object(context, data_dict)
     except:
         return {'success': False, 'msg': 'Unable to retrieve package'}
-    user_role = authz.users_role_for_group_or_org(package.owner_org, user)
+    user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
     if user_role == 'admin' or user_role == 'editor':
         return {'success': True}
-    if user_role == 'member' and package.creator_user_id and user_id == package.creator_user_id:
+    if user_role == 'member' and package.creator_user_id and user.id == package.creator_user_id:
         return {'success': True}
     else:
         return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
@@ -192,10 +194,10 @@ def resource_delete(next_auth, context, data_dict):
     resource = get_resource_object(context, data_dict)
     package = resource.package
 
-    user_role = authz.users_role_for_group_or_org(package.owner_org, user)
+    user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
     if user_role == 'admin' or user_role == 'editor':
         return {'success': True}
-    if user_role == 'member' and package.creator_user_id and user_id == package.creator_user_id:
+    if user_role == 'member' and package.creator_user_id and user.id == package.creator_user_id:
         return {'success': True}
     else:
         return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
@@ -215,10 +217,10 @@ def resource_view_delete(next_auth, context, data_dict):
     resource_view = get_resource_view_object(context, data_dict)
     resource = get_resource_object(context, {'id': resource_view.resource_id})
 
-    user_role = authz.users_role_for_group_or_org(package.owner_org, user)
+    user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
     if user_role == 'admin' or user_role == 'editor':
         return {'success': True}
-    if user_role == 'member' and package.creator_user_id and user_id == package.creator_user_id:
+    if user_role == 'member' and package.creator_user_id and user.id == package.creator_user_id:
         return {'success': True}
     else:
         return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
@@ -228,6 +230,20 @@ def resource_view_delete(next_auth, context, data_dict):
     elif user_is_member_of_package_org(user, resource.package):
         return {'success': False}
     """
+
+    return next_auth(context, data_dict)
+
+
+@tk.chained_auth_function
+def package_show(next_auth, context, data_dict):
+    user = context.get('auth_user_obj')
+    package = get_package_object(context, data_dict)
+
+    if package and package.owner_org:
+        user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
+        log.debug('Users role in owner_org: ' + user_role)
+        if user_role == 'member' and package.private and package.creator_user_id != user.id:
+            return {'success': False, 'msg': 'This dataset is private.'}
 
     return next_auth(context, data_dict)
 
@@ -244,5 +260,6 @@ def get_auth_functions():
         "package_delete": package_delete,
         "resource_delete": resource_delete,
         "resource_view_delete": resource_view_delete,
+        "package_show": package_show,
     }
 
