@@ -14,7 +14,6 @@ shared_script-js:
     - /shared/public/base/js/composite-repeating-module.js
     - /shared/public/base/js/for-fields-handler-module.js
     - /shared/public/base/js/gcmd-fields-handler-module.js
-    - /shared/public/base/js/locality-fields-handler-module.js
 
 auscope_theme-css:
   contents:
