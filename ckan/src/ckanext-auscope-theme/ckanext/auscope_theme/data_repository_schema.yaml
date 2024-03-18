@@ -537,7 +537,12 @@ dataset_fields:
 - field_name: license
   label: License
   required: true
+  preset: select
+  choices:
+    - value: CC BY 4.0 International
+      label: CC BY 4.0 International    
   default: CC BY 4.0 International
+  form_include_blank_choice: false   
   help_text: License for the distribution and sharing of the dataset
   groupBy: Supporting Metadata   
 
