@@ -140,24 +140,32 @@ dataset_fields:
   help_text: Keywords help with the discovery of the collection. Enter one or more key terms that describe important aspect of the dataset separated by a comma ','
   groupBy: About Dataset
 
-- field_name: gcmd_keywords
+- field_name: gcmd_keywords_code
   label: GCMD Science Keywords
   required: true
   form_snippet: gcmd_field.html
+  display_snippet: null
   help_text: Global Change Master Directory (GCMD) science keywords
   groupBy: About Dataset
 
-- field_name: fields_of_research
-  label: Fields of Research
-  required: true
-  form_snippet: fields_of_research_field.html
-  help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
+- field_name: gcmd_keywords
+  label: GCMD Science Keywords 
+  form_snippet: hidden_field.html
+  help_text: Global Change Master Directory (GCMD) science keywords
   groupBy: About Dataset
 
 - field_name: fields_of_research_code
   label: Fields of Research Code
-  form_snippet: null
-  help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
+  required: true
+  form_snippet: fields_of_research_field.html
+  display_snippet: null
+  help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
+  groupBy: About Dataset
+
+- field_name: fields_of_research
+  label: Fields of Research
+  form_snippet: hidden_field.html
+  help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
   groupBy: About Dataset
 
 - field_name: deposit_date
@@ -255,7 +263,13 @@ dataset_fields:
   label: Geographic Coordinate System
   help_text: The measurement of height above mean sea level in meters
   form_snippet: null
-  # display_snippet: null
+  display_snippet: null
+  groupBy: Spatial & Temporal
+
+- field_name: epsg
+  label: Geographic Coordinate System
+  form_snippet: hidden_field.html
+  help_text: The measurement of height above mean sea level in meters
   groupBy: Spatial & Temporal
 
 - field_name: funder
