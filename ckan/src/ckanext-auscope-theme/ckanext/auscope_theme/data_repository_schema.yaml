@@ -196,7 +196,6 @@ dataset_fields:
 
 - field_name: locality
   label: Locality
-  # form_snippet: locality_field.html
   help_text: The locality or named place where a particular rock type, stratigraphic unit or mineral species is defined from
   groupBy: Spatial & Temporal
 
@@ -554,6 +553,7 @@ dataset_fields:
   required: true
   default: AuScope Data Repository
   help_text: A primary contact can be approached by users requesting further information of the dataset
+  form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
 
 # XXX This is to be hidden, but value entered in DB
@@ -564,6 +564,7 @@ dataset_fields:
   display_snippet: email.html
   display_email_name_field: primary_contact_name
   help_text: Email of the primary contact
+  form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
 
 # XXX This will be auto-generated after DOI minting, see metadata document
