@@ -6,6 +6,7 @@ from ckantoolkit import ( _, missing , get_validator )
 from ckan.types import (
     FlattenDataDict, FlattenKey, Context, FlattenErrorDict)
 from collections import OrderedDict
+from datetime import datetime
 from logging import getLogger
 from typing import Any, Optional
 
@@ -13,7 +14,7 @@ import ckan.plugins.toolkit as tk
 import ckanext.scheming.helpers as sh
 from ckanext.scheming.validation import scheming_validator, register_validator
 import json
-from datetime import datetime
+
 
 
 Invalid = df.Invalid
@@ -152,9 +153,22 @@ def visibility_validator(field, schema):
                     user.sysadmin or has_user_permission_for_group_or_org(
                         group_id, user.name, 'create_dataset'))):
                 raise Invalid(_('You cannot add a dataset to this organization'))
+
+        # Check user is editor or admin if they're tryin to make a dataset public (publish)
+        is_private = data.get(('private',))
         user_role = authz.users_role_for_group_or_org('auscope', user.name)
-        if not (user_role == 'editor' or user_role == 'admin') and (package and package.private == False):
+        #if not (user_role == 'editor' or user_role == 'admin') and (package and package.private == False):
+        if not (user_role == 'editor' or user_role == 'admin') and is_private == 'False':
             raise Invalid(_('Only editors can make a dataset public after it has been reviewed'))
+
+        # Check embargo period has ended if making public (publish)
+        embargo_date_str = data.get(('embargo_date',))
+        if embargo_date_str is not None and embargo_date_str != '' and is_private == 'False':
+            today = datetime.today()
+            date_format = '%Y-%m-%d'
+            embargo_date = datetime.strptime(embargo_date_str, date_format)
+            if today < embargo_date:
+                raise Invalid(_('This dataset cannot be made public until the embargo date (' + embargo_date.strftime(date_format)  + ').'))
 
         data[key] = group_id
     return validator
@@ -386,7 +400,7 @@ def embargo_date_validator(field, schema):
     """
     def validator(key, data, errors, context):
         embargo_date_str = data.get(key, missing)
-        if embargo_date_str is missing or not embargo_date_str.strip():
+        if embargo_date_str is missing or embargo_date_str is None or not embargo_date_str.strip():
             return
 
         try:
@@ -398,4 +412,8 @@ def embargo_date_validator(field, schema):
         if embargo_date <= datetime.now().date():
             errors[key].append(_("Embargo date must be later than today's date"))
             return
+
+        if not ((embargo_date - datetime.now().date()).days < 365):
+            errors[key].append(_("The embargo date must be less than a year"))
+
     return validator
