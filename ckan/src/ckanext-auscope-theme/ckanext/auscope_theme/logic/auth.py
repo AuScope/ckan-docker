@@ -5,9 +5,6 @@ from ckan.logic.auth.create import package_create as ckan_package_create
 from ckan.logic.auth.update import package_update as ckan_package_update
 
 
-from logging import getLogger
-log = getLogger(__name__)
-
 
 @tk.auth_allow_anonymous_access
 def auscope_theme_get_sum(context, data_dict):
@@ -241,7 +238,6 @@ def package_show(next_auth, context, data_dict):
 
     if package and package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        log.debug('Users role in owner_org: ' + user_role)
         if user_role == 'member' and package.private and package.creator_user_id != user.id:
             return {'success': False, 'msg': 'This dataset is private.'}
 
