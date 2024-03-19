@@ -1,54 +1,80 @@
 this.ckan.module('for-fields-handler-module', function ($, _) {
-  return {
-    initialize: function () {
-      this.selectElement = $('#field-fields_of_research');
-      this.codeElement = $('#field-fields_of_research_code');
-      this.fetchAndPopulateTerms();
-      this.selectElement.change(this.updateCodesField.bind(this));
-    },
+    return {
+        initialize: function () {
+            this.textInputElement = $('#field-fields_of_research');
+            this.inputElement = $('#field-fields_of_research_code');
 
-    fetchAndPopulateTerms: function () {
-      var self = this;
-      var proxyUrl = '/api/proxy/fetch_terms';
-      $.ajax({
-        url: proxyUrl,
-        method: 'GET',
-        success: function (data) {
-          self.populateDropdown(data.result.items);
+            this.initializeSelect2();
+            this.prepopulateSelect2();
 
         },
-        error: function (xhr, status, error) {
-          console.error('Error fetching FoR terms via proxy:', error);
-        }
-      });
-    },
-    populateDropdown: function (items) {
-      var self = this;
-      var selectedValues = this.options.selectedValues;
-      if (typeof selectedValues === 'string') {
-        selectedValues = selectedValues.replace(/^\{|\}$/g, '').split(',');
-      } else if (typeof selectedValues === 'number') {
-        selectedValues = [selectedValues.toString()];
-      } else {
-        selectedValues = [];
-      }
-      selectedValues = selectedValues.map(function (value) {
-        return value.trim();
-      });
 
-      $.each(items, function (index, item) {
-        var option = new Option(item.prefLabel._value, item.notation);
-        if (selectedValues.includes(item.notation.toString())) {
-          option.selected = true;
-        }
-        self.selectElement.append(option);
-      });
-    },
+        initializeSelect2: function () {
 
+            var self = this;
+            var nextPage = 0;
+            var lastSearchTerm = null;
 
-    updateCodesField: function () {
-      var selectedOptions = this.selectElement.val() || [];
-      this.codeElement.val(selectedOptions.join(', '));
-    }
-  };
+            this.inputElement.select2({
+                placeholder: "Select Fields of Research",
+                delay: 250,
+                minimumInputLength: 3,
+                tags: [],
+                tokenSeparators: [",", " "],
+                multiple: true,
+                cache: true,
+                query: function (query) {
+                    if (lastSearchTerm !== query.term) {
+                        nextPage = 0; 
+                        lastSearchTerm = query.term; 
+                    }
+                      
+                    var apiUrl = '/api/proxy/fetch_terms';
+                    var data = {
+                        page: nextPage, 
+                        keywords: query.term 
+                    };
+
+                    $.ajax({
+                        type: 'GET',
+                        url: apiUrl,
+                        data: data, 
+                        dataType: 'json',
+                        success: function (response) {
+                            nextUrl = response.result.next;
+                            var items = response.result.items.map(function (item) {
+                                return { id: item._about, text: item.prefLabel._value };
+                            });
+                            nextPage = response.result.page + 1;
+
+                            query.callback({ results: items, more: !!response.result.next });
+                        }
+                    });
+                }
+            }).on("change", function (e) {
+                self.updateDependentFields();
+            });
+        },
+        updateDependentFields: function () {
+            var self = this;
+            var selectedData = self.inputElement.select2('data');
+            var texts = selectedData.map(function (item) { return item.text; });
+            self.textInputElement.val(JSON.stringify(texts));
+        },
+
+        prepopulateSelect2: function () {
+            var self = this;
+            var existingIdsString = this.inputElement.val();
+            var existingIds = existingIdsString ? existingIdsString.split(',') : [];
+
+            var existingTextsString = this.textInputElement.val();
+            var existingTexts = existingTextsString ? JSON.parse(existingTextsString) : [];
+            if (existingIds.length > 0 && existingIds[0] !== "") {
+                var dataForSelect2 = existingIds.map(function (id, index) {
+                    return { id: id, text: existingTexts[index] };
+                });
+                self.inputElement.select2('data', dataForSelect2, true);
+            }
+        },
+    };
 });

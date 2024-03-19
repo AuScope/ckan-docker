@@ -62,8 +62,10 @@
 
 <div class="form-group" id="epsg_code_container" style="display: none;">
     <label for="field-epsg_code">Geographic Coordinate System</label>
-    <select class="form-control" id="field-epsg_code" name="epsg_code"  value="{{data['epsg_code']}}" >
-    </select>
+    <input class="form-control" id="field-epsg_code" name="epsg_code"  value="{{data['epsg_code']}}" >
+    </input>
+        <!-- <select class="form-control" id="field-epsg_code" name="epsg_code"  value="{{data['epsg_code']}}" >
+    </select> -->
     {% if errors['epsg_code'] %}
         {% for error in errors['epsg_code'] %}
             <span class="error-block">{{ error }}</span>

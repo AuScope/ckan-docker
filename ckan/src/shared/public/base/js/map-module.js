@@ -1,12 +1,15 @@
 ckan.module('map-module', function ($, _) {
     return {
         initialize: function () {
+            this.EPSGTextElement = $('#field-epsg');
+            this.EPSGCodeElement = $('#field-epsg_code');
             this.el.ready($.proxy(this.setupMap, this));
         },
 
         setupMap: function () {
             var self = this;
             this.populateEPSG();
+            this.prepopulateEPSG();
             this.map = L.map('map-container').setView([-31.9505, 115.8605], 3);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -236,90 +239,65 @@ ckan.module('map-module', function ($, _) {
 
         populateEPSG: function () {
             var self = this;
-            var selectedValues = this.options.selectedValues;
-            var selectedValues = this.options.selectedValues;
-            if (typeof selectedValues === 'string') {
-                selectedValues = selectedValues.replace(/^\{|\}$/g, '').split(',');
-            } else if (typeof selectedValues === 'number') {
-                selectedValues = [selectedValues.toString()];
-            } else {
-                selectedValues = [];
-            }
-            selectedValues = selectedValues.map(function (value) {
-                return value.trim();
-            });
+            var nextPage = 0;
+            var lastSearchTerm = null;
 
-            var apiUrl = '/api/proxy/fetch_epsg';
-            // Fetch EPSG codes from the API
-            $.getJSON(apiUrl, function (data) {
-                var selectBox = $('#field-epsg_code');
-                $.each(data.Results, function (index, item) {
-                    if (item.Type === 'geographic 2D' || item.Type === 'compound') {
-                        var optionText = item.Code + ' - ' + item.Name;
-                        selectBox.append($('<option>', {
-                            value: item.Code,
-                            text: optionText,
-                            selected: selectedValues.includes(item.Code.toString())
-                        }));
+            self.EPSGCodeElement.select2({
+                placeholder: 'Search for an EPSG code',
+                minimumInputLength: 0,
+                delay: 250,
+                cache: true,
+                query: function (query) {
+                    if (lastSearchTerm !== query.term) {
+                        nextPage = 0; 
+                        lastSearchTerm = query.term; 
                     }
-                });
-            }).fail(function () {
-                console.error("Failed to fetch EPSG codes");
+                    var apiUrl = '/api/proxy/fetch_epsg';
+                    var data = {
+                        page: nextPage, 
+                        keywords: query.term 
+                    };
+
+                    $.ajax({
+                        type: 'GET',
+                        url: apiUrl,
+                        data: data, 
+                        dataType: 'json',
+                        success: function (data) {
+                            var filteredItems = data.Results.filter(function (item) {
+                                return item.Type === 'geographic 2D' || item.Type === 'compound';
+                            }).map(function (item) {
+                                return { id: item.Code, text: item.Code + ' - ' + item.Name };
+                            });
+                            nextPage = data.Page + 1;
+                            query.callback({
+                                results: filteredItems,
+                                more: ((data.Page * data.PageSize) < data.TotalResults)
+                            });
+                        }
+                    });
+                }
+            }).on("change", function (e) {
+                self.updateDependentFields();
             });
 
-
-            // $('#field-epsg_code').change(function () {
-            //     var epsgCode = $(this).val();
-            //     // var proj4String = ...; // Logic to fetch the Proj4 string for the selected EPSG code
-
-            //     // Check if the Proj4 definition already exists
-            //     if (typeof proj4.defs['EPSG:' + epsgCode] === 'undefined') {
-            //         // Add the Proj4 definition
-            //         proj4.defs('EPSG:' + epsgCode, proj4String);
-            //     }
-            //     self.updateMapProjection(epsgCode);
-            //     self.transformAndUpdateCoordinates(epsgCode);
-
-            // });
         },
 
-        updateMapProjection: function (epsgCode) {
-            var currentLatLng = this.map.getCenter();
-            var sourceProj = 'EPSG:4326';
-            var targetProj = 'EPSG:' + epsgCode;
+        updateDependentFields: function () {
+            var self = this;
+            var selectedData = self.EPSGCodeElement.select2('data');
+            self.EPSGTextElement.val(selectedData.text);
+        },
 
-            if (proj4.defs[targetProj] === undefined) {
-                console.error('Proj4 definition for ' + targetProj + ' not found.');
-                return;
+        prepopulateEPSG: function () {
+            var self = this;
+            var existingId = this.EPSGCodeElement.val();
+            var existingText = this.EPSGTextElement.val();
+            if (existingId && existingId !=="" ) {
+                var dataForSelect2 =  { id: existingId, text: existingText };
+                self.EPSGCodeElement.select2('data', dataForSelect2, true);
             }
-
-            var transformedCoords = proj4(proj4.defs[sourceProj], proj4.defs[targetProj], [currentLatLng.lng, currentLatLng.lat]);
-            console.log('Transformed Coordinates:', transformedCoords);
         },
 
-        transformAndUpdateCoordinates: function (epsgCode) {
-            // Fetch the current lat, lng from your map or inputs
-            var currentLat = parseFloat($('#field-point_latitude').val()) || 0;
-            var currentLng = parseFloat($('#field-point_longitude').val()) || 0;
-
-            var bbox = { southWest: { lat: -32, lng: 115 }, northEast: { lat: -31, lng: 116 } };
-
-            var sourceProj = 'EPSG:4326'; // Assuming original coordinates are in WGS84
-            var targetProj = 'EPSG:' + epsgCode;
-
-            if (!proj4.defs[sourceProj] || !proj4.defs[targetProj]) {
-                console.error('Missing proj4 definition for source or target projection.');
-                return;
-            }
-
-            var transformedPoint = proj4(sourceProj, targetProj, [currentLng, currentLat]);
-            this.updateLatLngFields(transformedPoint[1], transformedPoint[0]);
-
-            var transformedSW = proj4(sourceProj, targetProj, [bbox.southWest.lng, bbox.southWest.lat]);
-            var transformedNE = proj4(sourceProj, targetProj, [bbox.northEast.lng, bbox.northEast.lat]);
-
-            var bboxString = transformedSW.join(',') + ',' + transformedNE.join(',');
-            this.updateBboxField(bboxString);
-        },
     };
 });
