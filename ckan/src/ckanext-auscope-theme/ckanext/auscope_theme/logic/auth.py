@@ -119,7 +119,7 @@ def resource_update(next_auth, context, data_dict):
     '''
     user = context['auth_user_obj']
     resource = get_resource_object(context, data_dict)
-    package = resource.packageA
+    package = resource.package
 
 
     if package.owner_org:
