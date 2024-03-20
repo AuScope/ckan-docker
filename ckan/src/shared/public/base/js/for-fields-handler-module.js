@@ -43,7 +43,7 @@ this.ckan.module('for-fields-handler-module', function ($, _) {
                         success: function (response) {
                             nextUrl = response.result.next;
                             var items = response.result.items.map(function (item) {
-                                return { id: item._about, text: item.prefLabel._value };
+                                return { id: item.notation, text: item.prefLabel._value };
                             });
                             nextPage = response.result.page + 1;
 

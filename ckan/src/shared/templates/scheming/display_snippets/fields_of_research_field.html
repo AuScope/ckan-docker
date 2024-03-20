@@ -1,0 +1,13 @@
+<style>
+    .no-bullets {
+        list-style-type: none; 
+        padding-left: 0; 
+    }
+</style>
+{%- set list_items = data[field.field_name].strip("[]").split('","') %}
+<ul class="no-bullets">
+  {%- for item in list_items %}
+    {%- set item_cleaned = item.strip('" ') %}
+    <li>{{ item_cleaned }}</li>
+  {%- endfor %}
+</ul>
