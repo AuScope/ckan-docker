@@ -7,11 +7,12 @@ import ckan.authz as authz
 def auscope_theme_hello():
     return "Hello, auscope_theme!"
 
-
-def is_creating_dataset():
-    """Determine if the user is creating or managing a dataset."""
+def is_creating_or_editing_dataset():
+    """Determine if the user is creating or editing a dataset."""
     current_path = toolkit.request.path
     if current_path.startswith('/dataset/new'):
+        return True
+    elif "/dataset/edit/" in current_path:
         return True
     return False
 
@@ -50,7 +51,7 @@ def get_helpers():
 def get_helpers():
     return {
         "auscope_theme_hello": auscope_theme_hello,
-        "is_creating_dataset" :is_creating_dataset,
+        "is_creating_or_editing_dataset" :is_creating_or_editing_dataset,
         "get_search_facets" : get_search_facets,
         'get_org_list': get_org_list,
         'users_role_in_org': users_role_in_org,
