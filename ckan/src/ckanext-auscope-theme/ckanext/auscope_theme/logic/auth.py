@@ -62,10 +62,19 @@ def package_create(next_auth, context, data_dict):
 def resource_create(next_auth, context, data_dict):
     user = context['auth_user_obj']
     package = get_package_object(context, {'id': data_dict['package_id']})
-    if user_owns_package_as_member(user, package):
-        return {'success': True}
-    elif user_is_member_of_package_org(user, package):
-        return {'success': False}
+
+    if package.owner_org:
+        user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
+        # Admins can always edit a resource
+        if user_role == 'admin':
+            return {'success': True}
+        # Can't edit a published resource unless admin
+        elif not package.private:
+            return {'success': False, 'msg': 'You are not authorised to add a resource to a published dataset'}
+        # Members and editors can only update their own resources IF the dataset has not been published (private)
+        elif (user_role == 'member' or user_role == 'editor') and package.creator_user_id and package.creator_user_id == user.id and package.private:
+            return {'success': True}
+
     return next_auth(context, data_dict)
 
 
@@ -105,6 +114,8 @@ def package_update(next_auth, context, data_dict):
             return {'success': True}
         elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
             return {'success': True}
+        else:
+            return {'success': False, 'msg': 'Unauthorized to update dataset'}
 
     return next_auth(context, data_dict)
 
@@ -121,19 +132,17 @@ def resource_update(next_auth, context, data_dict):
     resource = get_resource_object(context, data_dict)
     package = resource.package
 
-
     if package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        if user_role in ['editor', 'admin']:
+        # Admins can always edit a resource
+        if user_role == 'admin':
             return {'success': True}
-        elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
+        # Can't edit a published resource unless admin
+        elif not package.private:
+            return {'success': False, 'msg': 'You are not authorised to edit a resource of a published dataset'}
+        # Members and editors can only update their own resources IF the dataset has not been published (private)
+        elif (user_role == 'member' or user_role == 'editor') and package.creator_user_id and package.creator_user_id == user.id and package.private:
             return {'success': True}
-    """
-    if user_owns_package_as_member(user, package):
-        return {'success': True}
-    elif user_is_member_of_package_org(user, package):
-        return {'success': False}
-    """
 
     return next_auth(context, data_dict)
 
@@ -149,20 +158,19 @@ def resource_view_update(next_auth, context, data_dict):
     user = context['auth_user_obj']
     resource_view = get_resource_view_object(context, data_dict)
     resource = get_resource_object(context, {'id': resource_view.resource_id})
-
+    package = resource.package
 
     if package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        if user_role in ['editor', 'admin']:
+        # Admins can always edit a resource
+        if user_role == 'admin':
             return {'success': True}
-        elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
+        # Can't edit a published resource unless admin
+        elif not package.private:
+            return {'success': False, 'msg': 'You are not authorised to edit a resource view of a published dataset'}
+        # Members and editors can only update their own resources IF the dataset has not been published (private)
+        elif (user_role == 'member' or user_role == 'editor') and package.creator_user_id and package.creator_user_id == user.id and package.private:
             return {'success': True}
-    """
-    if user_owns_package_as_member(user, resource.package):
-        return {'success': True}
-    elif user_is_member_of_package_org(user, resource.package):
-        return {'success': False}
-    """
 
     return next_auth(context, data_dict)
 
@@ -175,12 +183,14 @@ def package_delete(next_auth, context, data_dict):
     except:
         return {'success': False, 'msg': 'Unable to retrieve package'}
     user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-    if user_role == 'admin' or user_role == 'editor':
+    if user_role == 'admin':
         return {'success': True}
-    if user_role == 'member' and package.creator_user_id and user.id == package.creator_user_id:
+    elif not package.private:
+        return {'success': False, 'msg': 'You are not authorised to delete a published dataset'}
+    elif (user_role == 'member' or user_role == 'editor') and package.creator_user_id and user.id == package.creator_user_id and package.private:
         return {'success': True}
     else:
-        return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
+        return {'success': False, 'msg': 'Unauthorized to delete dataset'}
 
     return next_auth(context, data_dict)
 
@@ -192,18 +202,14 @@ def resource_delete(next_auth, context, data_dict):
     package = resource.package
 
     user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-    if user_role == 'admin' or user_role == 'editor':
+    if user_role == 'admin':
         return {'success': True}
-    if user_role == 'member' and package.creator_user_id and user.id == package.creator_user_id:
+    elif package.private:
+            return {'success': False, 'msg': 'You are not authorised to delete a published resource'}
+    elif (user_role == 'member' or user_role == 'editor') and package.creator_user_id and user.id == package.creator_user_id:
         return {'success': True}
     else:
-        return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
-    """
-    if user_owns_package_as_member(user, package):
-        return {'success': True}
-    elif user_is_member_of_package_org(user, package):
-        return {'success': False}
-    """
+        return {'success': False, 'msg': 'Unauthorized to delete resource'}
 
     return next_auth(context, data_dict)
 
@@ -213,20 +219,17 @@ def resource_view_delete(next_auth, context, data_dict):
     user = context['auth_user_obj']
     resource_view = get_resource_view_object(context, data_dict)
     resource = get_resource_object(context, {'id': resource_view.resource_id})
+    package = resource.package
 
     user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-    if user_role == 'admin' or user_role == 'editor':
+    if user_role == 'admin':
         return {'success': True}
-    if user_role == 'member' and package.creator_user_id and user.id == package.creator_user_id:
+    elif package.private:
+            return {'success': False, 'msg': 'You are not authorised to delete a published resource view'}
+    elif (user_role == 'member' or user_role == 'editor') and package.creator_user_id and user.id == package.creator_user_id:
         return {'success': True}
     else:
-        return {'success': False, 'msg': 'Unauthorized to delete dataset.'}
-    """
-    if user_owns_package_as_member(user, resource.package):
-        return {'success': True}
-    elif user_is_member_of_package_org(user, resource.package):
-        return {'success': False}
-    """
+        return {'success': False, 'msg': 'Unauthorized to delete resource view'}
 
     return next_auth(context, data_dict)
 
