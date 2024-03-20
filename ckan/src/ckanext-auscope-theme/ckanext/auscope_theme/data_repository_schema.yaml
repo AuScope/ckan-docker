@@ -7,7 +7,7 @@ dataset_fields:
 
 # field_name conflicts with documentation (identifier)
 - field_name: doi
-  label: Identifier
+  label: DataCite DOI Identifier
   form_placeholder: A DOI will be automatically minted when the dataset is published
   form_attrs:
     disabled: true
@@ -62,7 +62,8 @@ dataset_fields:
     - field_name: author_affiliation_identifier
       label: Author Affiliation Identifier
       required: true    
-      help_text: The persistent identifier of the affiliated entity
+      display_snippet: None
+      help_text: The persistent identifier of the affiliated entity. Please specify the absolute URL, e.g. https://ror.org/03qn8fb07
 
     - field_name: author_affiliation_identifier_type
       label: Author Affiliation Identifier Type
@@ -74,7 +75,8 @@ dataset_fields:
         - value: Other
           label: Other
       default: ROR
-      form_include_blank_choice: false      
+      form_include_blank_choice: false     
+      display_snippet: None
       help_text: The persistent identifier type of the affiliated entity
 
     - field_name: author_identifier_type
@@ -104,7 +106,8 @@ dataset_fields:
 
     - field_name: author_identifier
       label: Author Identifier
-      help_text: Uniquely identifies an individual or legal entity, according to identifier schemes
+      display_snippet: URL
+      help_text: Uniquely identifies an individual or legal entity, according to identifier schemes. Please specify the absolute URL, e.g. https://orcid.org/0000-0003-0870-3192
 
     - field_name: author_email
       label: Author Email
@@ -144,7 +147,7 @@ dataset_fields:
   label: GCMD Science Keywords
   required: true
   form_snippet: gcmd_field.html
-  display_snippet: null
+  display_snippet: gcmd_field.html
   help_text: Global Change Master Directory (GCMD) science keywords
   groupBy: About Dataset
 
@@ -152,6 +155,7 @@ dataset_fields:
   label: GCMD Science Keywords 
   form_snippet: hidden_field.html
   help_text: Global Change Master Directory (GCMD) science keywords
+  display_snippet: null
   groupBy: About Dataset
 
 - field_name: fields_of_research_code
@@ -166,6 +170,7 @@ dataset_fields:
   label: Fields of Research
   form_snippet: hidden_field.html
   help_text: The area(s) of study relevant to the dataset based on the ANZSRC Fields of Research (FoR) 2020
+  display_snippet: fields_of_research_field.html
   groupBy: About Dataset
 
 - field_name: deposit_date
@@ -238,6 +243,7 @@ dataset_fields:
   label: Elevation (m)
   help_text: The measurement of height above or below mean sea level in meters
   form_snippet: null
+  display_snippet: null
   groupBy: Spatial & Temporal
 
 # - field_name: vertical_datum
@@ -269,6 +275,7 @@ dataset_fields:
   label: Geographic Coordinate System
   form_snippet: hidden_field.html
   help_text: The measurement of height above mean sea level in meters
+  display_snippet: null
   groupBy: Spatial & Temporal
 
 - field_name: funder
@@ -286,7 +293,8 @@ dataset_fields:
 
     - field_name: funder_identifier
       label: Funder Identifier
-      help_text: Unique identifier of the funding entity
+      display_snippet: URL
+      help_text: Unique identifier of the funding entity. Please specify the absolute URL, e.g. http://dx.doi.org/10.13039/501100000923
 
     - field_name: funder_identifier_type
       label: Funder Identifier Scheme
@@ -312,7 +320,8 @@ dataset_fields:
 
     - field_name: project_grant_identifier
       label: Project Grant Identifier
-      help_text: The code assigned by the funder to a sponsored grant or project of the dataset
+      display_snippet: URL
+      help_text: The code assigned by the funder to a sponsored grant or project of the dataset. Please specify the absolute URL, e.g. https://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/IM240100006
 
     - field_name: project_grant_name
       label: Project Grant Name
@@ -403,6 +412,7 @@ dataset_fields:
     - field_name: related_resource_url
       label: Related Resource URL
       required: true
+      display_snippet: URL
       help_text: Associated resources (e.g. report, article, data) related to the dataset. Enter the complete URL address of the related link. Permanent links are preferred
 
     - field_name: related_resource_title
@@ -506,6 +516,7 @@ dataset_fields:
   form_include_blank_choice: false      
   help_text: The entity that publishes the dataset 
   form_snippet: hidden_field.html
+  display_snippet: publisher_field.html
   groupBy: Supporting Metadata   
 
 - field_name: publisher_identifier
@@ -519,6 +530,7 @@ dataset_fields:
   help_text: The persistent identifier of the data publisher
   form_include_blank_choice: false      
   form_snippet: hidden_field.html
+  display_snippet: null
   groupBy: Supporting Metadata   
 
 - field_name: publisher_identifier_type
@@ -532,6 +544,7 @@ dataset_fields:
   form_include_blank_choice: false      
   help_text: The type of the persistent identifier represents the data publisher
   form_snippet: hidden_field.html
+  display_snippet: null
   groupBy: Supporting Metadata   
 
 - field_name: license
@@ -567,7 +580,7 @@ dataset_fields:
   required: true
   default: auscope.doi@csiro.au
   display_snippet: email.html
-  display_email_name_field: primary_contact_name
+  # display_email_name_field: primary_contact_name
   help_text: Email of the primary contact
   form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
@@ -576,6 +589,7 @@ dataset_fields:
 - field_name: citation
   label: Citation
   form_snippet: null
+  display_snippet: null
   help_text: The full bibliographic citation of the dataset
   groupBy: Supporting Metadata   
 
