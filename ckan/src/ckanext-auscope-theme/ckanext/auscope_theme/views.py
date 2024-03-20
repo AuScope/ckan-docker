@@ -39,7 +39,7 @@ def fetch_gcmd():
 def fetch_epsg():
     page = request.args.get('page', 0)
     keywords = request.args.get('keywords', '')
-    external_url = f'https://apps.epsg.org/api/v1/CoordRefSystem/?includeDeprecated=false&pageSize=20&page={page}&keywords={keywords}'
+    external_url = f'https://apps.epsg.org/api/v1/CoordRefSystem/?includeDeprecated=false&pageSize=50&page={page}&keywords={keywords}'
 
     response = requests.get(external_url)
     if response.ok:

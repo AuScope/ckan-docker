@@ -6,34 +6,42 @@
 
 <ul>
  {% for composite_dict in composite_dict_list %}
-       <li>
-       {% for key in name_list %}
-          {% if composite_dict[key]|length > 0 %}
-             {% if choices_dict[key]|length > 0  %}
-                {% if h.composite_is_list(composite_dict[key])  %}
-                    {%- set labels = [] -%}
-                    {% for item in composite_dict[key] %}
-      					{%- do labels.append(h.scheming_choices_label(choices_dict[key], item)) -%}
-                 	{% endfor %}
-                 	{% set value = h.composite_join_list(labels) %}                 	
-             	{% else %}                 
-                 	{% set value = h.scheming_choices_label(choices_dict[key], composite_dict[key]) %} 
-             	{% endif %}
-             {% else %}
-                {% set value = composite_dict[key] %} 
-             {% endif %}
-             {% if first_key_written %}&nbsp{% endif %}<b>{{ label_dict[key] }}:</b>
-             {% set first_key_written = true %}
-             {% if h.composite_is_mail(value|string) %}
-               {{ value.split('@')[0] }}<span style="display:none">foo</span>(at){{ value.split('@')[1] }}
-             {% else %}
-               {{ value.replace('(&#8224;)', '') }}
-               {% if '(&#8224;)' in value %}
-                   (&#8224;)
-               {% endif %}
-             {% endif %}
-          {% endif %}
-      {% endfor %}
-       </li>
+   <li>
+     {% set first_key_written = false %}
+     {% for key in name_list %}
+       {% set subfield = field.subfields | selectattr('field_name', 'equalto', key) | list | first %}
+       {% if subfield.display_snippet is not none and subfield.display_snippet != "None"and composite_dict[key]|length > 0 %}
+         {% set value = "" %}
+         {% if choices_dict[key]|length > 0 %}
+           {% if h.composite_is_list(composite_dict[key]) %}
+             {%- set labels = [] -%}
+             {% for item in composite_dict[key] %}
+               {%- do labels.append(h.scheming_choices_label(choices_dict[key], item)) -%}
+             {% endfor %}
+             {% set value = labels | join(', ') %}
+           {% else %}
+             {% set value = h.scheming_choices_label(choices_dict[key], composite_dict[key]) %}
+           {% endif %}
+         {% else %}
+           {% set value = composite_dict[key] %}
+         {% endif %}
+
+         <div>
+           {% if first_key_written %}
+             <br>
+           {% endif %}
+           <b>{{ label_dict[key] }}:</b> 
+           {% if subfield.display_snippet is not none and subfield.display_snippet == "URL" %}
+              {{ h.link_to(value, value, target='_blank') }}
+           {% elif h.composite_is_mail(value|string) %}
+              {{ h.mail_to(email_address=value, name=value) }}
+           {% else %}
+             {{ value }}
+           {% endif %}
+           {% set first_key_written = true %}
+         </div>
+       {% endif %}
+     {% endfor %}
+   </li>
  {% endfor %}
 </ul>

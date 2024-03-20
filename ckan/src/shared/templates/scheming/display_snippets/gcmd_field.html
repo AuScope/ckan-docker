@@ -1,0 +1,19 @@
+{%- set gcmd_keywords = data['gcmd_keywords'].strip("[]").split('","') %}
+{%- set gcmd_keywords_code = data['gcmd_keywords_code'].strip("[]").split(",") %}
+
+<style>
+    .no-bullets {
+        list-style-type: none; /* Removes bullet points */
+        padding-left: 0; /* Removes indentation */
+    }
+</style>
+
+<ul class="no-bullets">
+  {% for i in range(gcmd_keywords|length) %}
+    {% set keyword = gcmd_keywords[i].strip('" ') %}
+    {% set keyword_code = gcmd_keywords_code[i] %}
+    <li>
+      {{ h.link_to(keyword, keyword_code, target='_blank') }}
+    </li>
+  {% endfor %}
+</ul>

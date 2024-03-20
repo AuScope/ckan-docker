@@ -1,9 +1,9 @@
 {% ckan_extends %}
 
-{% set is_creating_dataset = h.is_creating_dataset() %}
+{% set is_creating_or_editing_dataset = h.is_creating_or_editing_dataset() %}
 
 {% block secondary %}
-{% if not is_creating_dataset %}
+{% if not is_creating_or_editing_dataset %}
 <aside class="secondary col-md-3">
     {#
     The secondary_content block can be used to add content to the
@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block primary %}
-<div class="primary {% if is_creating_dataset %}col-md-12{% else %}col-md-9{% endif %} col-xs-12" role="main">
+<div class="primary {% if is_creating_or_editing_dataset %}col-md-12{% else %}col-md-9{% endif %} col-xs-12" role="main">
     {#
     The primary_content block can be used to add content to the page.
     This is the main block that is likely to be used within a template.

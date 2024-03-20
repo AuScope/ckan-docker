@@ -4,10 +4,12 @@ import ckan.logic as logic
 def igsn_theme_hello():
     return "Hello, igsn_theme!"
 
-def is_creating_dataset():
-    """Determine if the user is creating or managing a dataset."""
+def is_creating_or_editing_dataset():
+    """Determine if the user is creating or editing a dataset."""
     current_path = toolkit.request.path
     if current_path.startswith('/dataset/new'):
+        return True
+    elif "/dataset/edit/" in current_path:
         return True
     return False
 
@@ -31,6 +33,6 @@ def get_search_facets():
 def get_helpers():
     return {
         "igsn_theme_hello": igsn_theme_hello,
-        "is_creating_dataset" :is_creating_dataset,
+        "is_creating_or_editing_dataset" :is_creating_or_editing_dataset,
         "get_search_facets" : get_search_facets
     }
