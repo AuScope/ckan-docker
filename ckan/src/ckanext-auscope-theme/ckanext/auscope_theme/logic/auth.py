@@ -110,9 +110,11 @@ def package_update(next_auth, context, data_dict):
 
     if package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
+        # Editors and admins can always edit a package
         if user_role in ['editor', 'admin']:
             return {'success': True}
-        elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
+        # Members can edit package if it hasn't been published (is private)
+        elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id and package.private:
             return {'success': True}
         else:
             return {'success': False, 'msg': 'Unauthorized to update dataset'}
