@@ -1,6 +1,7 @@
 import ckan.authz as authz
 import ckan.plugins.toolkit as tk
 import json
+from datetime import datetime
 
 
 
@@ -29,9 +30,10 @@ def after_dataset_show(context, pkg_dict):
         citation += author_list[i]['author_name']
         if i != len(author_list) - 1:
             citation += ', '
-        elif 'publication_date' in pkg_dict:
-            # May want to reduce to year
-            citation += ' (' + pkg_dict['publication_date'] + '): '
+        # TODO: Change this to publication_date when dataset is published (and when field is reinstated)
+        elif 'deposit_date' in pkg_dict:
+            deposit_date = datetime.strptime(pkg_dict['deposit_date'], '%Y-%m-%d')
+            citation += ' (' + str(deposit_date.year) + '): '
     citation += pkg_dict['title']
 
     if citation[len(citation) -1] != '.':
