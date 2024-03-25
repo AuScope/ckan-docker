@@ -562,7 +562,7 @@ dataset_fields:
 - field_name: credit
   label: Credit
   form_snippet: textarea.html
-  help_text: The Credit field is where you acknolwedge people or organisations who contributed to the collection
+  help_text: The Credit field is where you acknowledge people or organisations who contributed to the collection
   groupBy: Supporting Metadata    
 
 # XXX This is to be hidden, but value entered in DB
