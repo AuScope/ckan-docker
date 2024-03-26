@@ -4,6 +4,7 @@ volumes:
   ckan_storage:
   pg_data:
   solr_data:
+  minio-data:
 
 services:
 
@@ -78,3 +79,18 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "-e", "QUIT"]
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ACCESS_KEY: your-access-key
+      MINIO_SECRET_KEY: your-secret-key
+    volumes:
+      - minio-data:/data
+    command: server /data
+
