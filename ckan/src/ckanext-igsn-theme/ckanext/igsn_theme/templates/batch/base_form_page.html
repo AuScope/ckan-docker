@@ -1,0 +1,31 @@
+{% extends "batch/base.html" %}
+
+{% block primary_content %}
+  <section class="module">
+    {% block page_header %}{% endblock %}
+    <div class="module-content">
+      {% block primary_content_inner %}
+        {% block form %}
+          {% snippet "batch/create_batch_dataset.html" %}
+        {% endblock %}
+      {% endblock %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block secondary_content %}
+  {% block info_module %}
+    <section class="module module-narrow module-shallow">
+      <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('What are datasets?') }}</h2>
+      <div class="module-content">
+        <p>
+          {% trans %}
+          The Batch Dataset Upload feature allows for the efficient upload of multiple datasets at once, streamlining the process of data sharing. This tool enables users to quickly share extensive data collections, complete with resources and metadata, facilitating seamless collaboration and data dissemination.
+          {% endtrans %}
+        </p>
+      </div>
+    </section>
+  {% endblock %}
+  {% block resources_module %}
+  {% endblock %}
+{% endblock %}

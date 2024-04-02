@@ -30,16 +30,12 @@ def location_validator(field, schema):
         point_latitude_key = ('point_latitude',)
         point_longitude_key = ('point_longitude',)
         bounding_box_key = ('bounding_box',)
-        elevation_key = ('elevation',)
-        vertical_datum_key = ('vertical_datum',)
         epsg_code_key = ('epsg_code',)
 
         location_choice = data.get(location_choice_key, missing)
         point_latitude = data.get(point_latitude_key, missing)
         point_longitude = data.get(point_longitude_key, missing)
         bounding_box = data.get(bounding_box_key, missing)
-        elevation = data.get(elevation_key, missing)
-        vertical_datum = data.get(vertical_datum_key, missing)
         epsg_code = data.get(epsg_code_key, missing)
 
         def add_error(key, error_message):
@@ -78,11 +74,7 @@ def location_validator(field, schema):
         
         if epsg_code is missing:
             add_error(epsg_code_key, missing_error)
-
-        if elevation and elevation is not missing:
-            if vertical_datum is missing:
-                add_error(vertical_datum_key, missing_error)
-                
+               
     return validator
 
 def is_valid_latitude(lat):
