@@ -70,6 +70,13 @@ ckan.module('map-module', function ($, _) {
                     self.addMarker();
                 }
             });
+            $('.card-header').on('click', '.btn-link', function () {
+                setTimeout(function () {
+                    if (self.map) {
+                        self.map.invalidateSize();
+                    }
+                }, 100);
+            });            
         },
 
         debounce: function (func, wait) {
