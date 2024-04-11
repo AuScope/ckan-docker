@@ -327,6 +327,12 @@ hr {
    The main masthead bar that contains the site logo, nav links, and search
    ======================================================================== */
 
+.navbar-light .navbar-toggler {
+    color: var(--color-aus-royal-blue);
+    border-color: var(--color-aus-royal-blue);
+    background-color: var(--color-aus-royal-blue-bright);
+}
+
 .masthead {
   background: none;
   background-color: var(--color-background-default);
@@ -780,3 +786,5 @@ body {
 .schema-table tbody tr:last-child td {
     border-bottom: none;
 }
+
+
