@@ -222,21 +222,16 @@ dataset_fields:
 
 - field_name: map_display
   label: Map Display
-  form_snippet: map_field.html
+  form_snippet: map_field_multi_points.html
   display_snippet: null
   help_text: Interactive map for selecting coordinates.
   groupBy: Spatial & Temporal
 
-- field_name: point_latitude
-  label: Point Latitude
+- field_name: location_data
+  label: Location Data
   form_snippet: null
   display_snippet: null
-  groupBy: Spatial & Temporal
-
-- field_name: point_longitude
-  label: Point Longitude
-  form_snippet: null
-  display_snippet: null
+  preset: json_object
   groupBy: Spatial & Temporal
 
 - field_name: elevation
@@ -256,13 +251,6 @@ dataset_fields:
 #       label: 1292  
 #   help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level. 
 #   groupBy: Spatial & Temporal   
-
-- field_name: bounding_box
-  label: Bounding Box
-  help_text: "The spatial coverage of the dataset defined by two longitudes and two latitudes, where: Latitude is a decimal number between -90.0 and 90.0. Longitude is a decimal number between -180.0 and 180.0"
-  form_snippet: null
-  display_snippet: null
-  groupBy: Spatial & Temporal
 
 - field_name: epsg_code
   label: Geographic Coordinate System

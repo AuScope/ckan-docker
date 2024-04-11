@@ -1,0 +1,78 @@
+<div class="form-group" id="location_data_coordinates" style="display: none;">
+    <label for="field-location_data">Location data</label>
+    <input type="text" class="form-control" id="field-location_data" name="location_data" value="{{ (data['location_data'] or {}) | tojson | safe }}">
+    {% if errors['location_data'] %}
+        {% for error in errors['location_data'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+</div>
+
+
+{% if errors['location_data'] %}
+    {% for error in errors['location_data'] %}
+        <span class="error-block">{{ error }}</span>
+    {% endfor %}
+{% endif %}
+
+<div id="bounding_box_coordinates" style="display: none;">
+    <div id="bounds-table-container">
+        <table class="table schema-table">
+            <thead>
+                <tr>
+                    <th>Min Longitude</th>
+                    <th>Min Latitude</th>
+                    <th>Max Longitude</th>
+                    <th>Max Latitude</th>
+                </tr>
+            </thead>
+            <tbody id="bounds-table-body">
+                <!-- Rows will be added here dynamically -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div  id="point_container" style="display: none;">
+    <div id="points-table-container">
+        <table class="table schema-table">
+            <thead>
+                <tr>
+                    <th>Longitude</th>
+                    <th>Latitude</th>
+                </tr>
+            </thead>
+            <tbody id="points-table-body">
+                <!-- Rows will be added here dynamically -->
+            </tbody>
+        </table>
+    </div>
+    <div class="form-group" id="elevation_container">
+        <label for="field-elevation">Elevation</label>
+        <input type="text" class="form-control" id="field-elevation" name="elevation" value="{{data['elevation']}}" >
+        {% if errors['elevation'] %}
+            {% for error in errors['elevation'] %}
+                <span class="error-block">{{ error }}</span>
+            {% endfor %}
+        {% endif %}
+        <div class="info-block ">
+            <i class="fa fa-info-circle"></i>
+            The measurement of height above or below mean sea level in meters
+        </div>
+    </div>    
+</div>
+
+<div class="form-group" id="epsg_code_container" style="display: none;">
+    <label for="field-epsg_code">Geographic Coordinate System</label>
+    <input class="form-control" id="field-epsg_code" name="epsg_code"  value="{{data['epsg_code']}}" >
+    </input>
+    {% if errors['epsg_code'] %}
+        {% for error in errors['epsg_code'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block ">
+        <i class="fa fa-info-circle"></i>
+         A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and longitude. Latitude and longitude measure angles
+    </div>
+</div>
