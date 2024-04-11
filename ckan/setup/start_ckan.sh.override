@@ -16,16 +16,16 @@ then
 fi
 
 ### AUTH Settings ###
-if [[ $CKAN__PLUGINS == *"igsn_theme"* ]]; then
+if echo "$CKAN__PLUGINS" | grep -q "igsn_theme"; then
     #ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
-    ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = True"
+    ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = true"
     #ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
-    ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = True"
+    ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = false"
 else
     #ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
-    ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = False"
+    ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = false"
     #ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
-    ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = False"
+    ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = false"
 fi
 
 # This seems to be necessary as the envvar equivlents are not resolved
