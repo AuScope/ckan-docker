@@ -535,17 +535,14 @@ dataset_fields:
   display_snippet: null
   groupBy: Supporting Metadata   
 
-- field_name: license
+- field_name: license_id
   label: License
-  required: true
-  preset: select
-  choices:
-    - value: CC BY 4.0 International
-      label: CC BY 4.0 International    
-  default: CC BY 4.0 International
+  default: "CC-BY-4.0"
+  form_snippet: license.html
   form_include_blank_choice: false   
   help_text: License for the distribution and sharing of the dataset
   groupBy: Supporting Metadata   
+
 
 - field_name: credit
   label: Credit
