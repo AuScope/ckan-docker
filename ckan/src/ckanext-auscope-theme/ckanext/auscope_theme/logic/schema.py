@@ -62,12 +62,13 @@ def after_dataset_search(search_results, search_params):
         if user:
             filtered_results = search_results['results'].copy()
             for package in search_results['results']:
-                # There's only one org so we could probably get away with only doing this once
-                user_role = authz.users_role_for_group_or_org(package['owner_org'], user.name)
-                # Filter out any private datasets that the user did not create themselves if they are only a member
-                if user_role == 'member' and package['private'] and user.id != package['creator_user_id']:
-                    filtered_results.remove(package)
-                    result_count -= 1
+                if 'owner_org' in package:
+                    # There's only one org so we could probably get away with only doing this once
+                    user_role = authz.users_role_for_group_or_org(package['owner_org'], user.name)
+                    # Filter out any private datasets that the user did not create themselves if they are only a member
+                    if user_role == 'member' and package['private'] and user.id != package['creator_user_id']:
+                        filtered_results.remove(package)
+                        result_count -= 1
             search_results['results'] = filtered_results
             search_results['count'] = result_count
 
