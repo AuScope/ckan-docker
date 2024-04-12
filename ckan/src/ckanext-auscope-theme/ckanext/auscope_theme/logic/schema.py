@@ -65,7 +65,9 @@ def after_dataset_search(search_results, search_params):
                 # There's only one org so we could probably get away with only doing this once
                 user_role = authz.users_role_for_group_or_org(package['owner_org'], user.name)
                 # Filter out any private datasets that the user did not create themselves if they are only a member
-                if user_role == 'member' and package['private'] and user.id != package['creator_user_id']:
+                # and aren't a dataset collaborator
+                if user_role == 'member' and package['private'] and user.id != package['creator_user_id'] \
+                        and not authz.user_is_collaborator_on_dataset(user.id, package['id']):
                     filtered_results.remove(package)
                     result_count -= 1
             search_results['results'] = filtered_results
