@@ -6,7 +6,8 @@ requests>=1.1.0
 six
 cython==0.29.36; python_version < '3.9'
 pyproj==2.6.1; python_version < '3.9'
-pyproj @ git+https://github.com/pyproj4/pyproj.git@main; python_version >= '3.9'
+# Require specific version of pyproj as latest requires PROJ < 9.2
+pyproj @ git+https://github.com/pyproj4/pyproj.git@b84639b0cb1928579648fb0687b212d007a3b9ca; python_version >= '3.9'
 
 Shapely==2.0.1
 OWSLib==0.28.1
