@@ -32,6 +32,8 @@ ckan config-tool $CKAN_INI "ckanext.doi.prefix = 12.34567"
 ckan config-tool $CKAN_INI "ckanext.doi.publisher = my-publisher"
 ckan config-tool $CKAN_INI "ckanext.doi.test_mode = True" # Set to False for production DOI minting
 
+ckan config-tool $CKAN_INI "licenses_group_url= $CKAN__LICENSES_GROPU_YRL"
+
 # Run the prerun script to init CKAN and create the default admin user
 #su ckan -c "/usr/bin/python3 prerun.py"
 python3 prerun.py
@@ -39,7 +41,6 @@ python3 prerun.py
 echo "Set up ckan.datapusher.api_token in the CKAN config file"
 ckan config-tool $CKAN_INI "ckan.datapusher.api_token=$(ckan -c $CKAN_INI user token add ckan_admin datapusher | tail -n 1 | tr -d '\t')"
 
-ckan config-tool $CKAN_INI "licenses_group_url= file:///shared/public/licenses.json"
 # Run any startup scripts provided by images extending this one
 if [[ -d "/docker-entrypoint.d" ]]
 then
