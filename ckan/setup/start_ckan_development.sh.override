@@ -73,6 +73,8 @@ ckan config-tool $SRC_DIR/ckan/test-core.ini \
     "solr_url = $TEST_CKAN_SOLR_URL" \
     "ckan.redis.url = $TEST_CKAN_REDIS_URL"
 
+ckan config-tool $CKAN_INI "ckan.locale_default = en_AU"
+
 ### AUTH Settings ###
 if echo "$CKAN__PLUGINS" | grep -q "igsn_theme"; then
     #ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"

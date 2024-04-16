@@ -30,7 +30,7 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
 
     def i18n_locales(self):
         # Return a list of locales your extension supports
-        return ['en']
+        return ['en_AU']
 
     def i18n_directory(self):
         # This points to 'ckanext-igsn_theme/ckanext/igsn_theme/i18n'
