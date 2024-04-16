@@ -5,7 +5,6 @@ from ckan.logic.auth.create import package_create as ckan_package_create
 from ckan.logic.auth.update import package_update as ckan_package_update
 
 
-
 @tk.auth_allow_anonymous_access
 def auscope_theme_get_sum(context, data_dict):
     return {"success": True}
@@ -110,11 +109,14 @@ def package_update(next_auth, context, data_dict):
 
     if package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        # Editors and admins can always edit a package
+        # Editors and admins can always edit a package (editors require to package_update to publish)
         if user_role in ['editor', 'admin']:
             return {'success': True}
         # Members can edit package if it hasn't been published (is private)
         elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id and package.private:
+            return {'success': True}
+        # Member is an editing collaborator and package has not been published
+        elif authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']) and package.private:
             return {'success': True}
         else:
             return {'success': False, 'msg': 'Unauthorized to update dataset'}
@@ -136,14 +138,17 @@ def resource_update(next_auth, context, data_dict):
 
     if package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        # Admins can always edit a resource
+        # Admins and editors can always edit a resource
         if user_role == 'admin':
             return {'success': True}
-        # Can't edit a published resource unless admin
+        # Can't edit a published resource unless admin/editor
         elif not package.private:
             return {'success': False, 'msg': 'You are not authorised to edit a resource of a published dataset'}
         # Members and editors can only update their own resources IF the dataset has not been published (private)
-        elif (user_role == 'member' or user_role == 'editor') and package.creator_user_id and package.creator_user_id == user.id:
+        elif (user_role == 'member' or user_role=='editor') and package.creator_user_id and package.creator_user_id == user.id:
+            return {'success': True}
+        # Member is an editing collaborator and package has not been published
+        elif authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']):
             return {'success': True}
 
     return next_auth(context, data_dict)
@@ -243,7 +248,8 @@ def package_show(next_auth, context, data_dict):
 
     if package and package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        if user_role == 'member' and package.private and package.creator_user_id != user.id:
+        if user_role == 'member' and package.private and package.creator_user_id != user.id \
+                and not authz.user_is_collaborator_on_dataset(user.id, package.id):
             return {'success': False, 'msg': 'This dataset is private.'}
 
     return next_auth(context, data_dict)

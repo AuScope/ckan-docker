@@ -327,6 +327,12 @@ hr {
    The main masthead bar that contains the site logo, nav links, and search
    ======================================================================== */
 
+.navbar-light .navbar-toggler {
+    color: var(--color-aus-royal-blue);
+    border-color: var(--color-aus-royal-blue);
+    background-color: var(--color-aus-royal-blue-bright);
+}
+
 .masthead {
   background: none;
   background-color: var(--color-background-default);
@@ -732,4 +738,53 @@ body {
 .hidden-panel {
   display: none;
 }
+
+
+.schema-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.schema-table th,
+.schema-table td {
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd; 
+}
+
+.schema-table thead {
+    background-color: var(--bs-gray-300);
+    color: var(--color-aus-royal-blue);
+    border-radius: 6px 6px 0 0;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.schema-table thead tr:first-child th:first-child {
+    border-top-left-radius: 6px;
+}
+
+.schema-table thead tr:first-child th:last-child {
+    border-top-right-radius: 6px;
+}
+
+.schema-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.schema-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 6px;
+}
+
+.schema-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 6px;
+}
+
+.schema-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
 
