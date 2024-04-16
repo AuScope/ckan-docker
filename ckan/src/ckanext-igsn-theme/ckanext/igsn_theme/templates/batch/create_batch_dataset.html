@@ -4,37 +4,37 @@
 {% macro remove_button(js='') %}
   <button type="button" class="btn btn-danger btn-remove-url"
     onclick="
-      document.getElementById('resource-url-none').checked = true;
+      document.getElementById('batch-url-none').checked = true;
       {{ js }}
     ">{{ _('Remove') }}</button>
 {% endmacro %}
 
-<form id="dataset-edit" method="post" action="{{ action }}" data-module="basic-form" novalidate>
+<form id="dataset-edit" method="post" action="{{ action }}" data-module="basic-form" novalidate enctype="multipart/form-data">
 
-  <div id="batch-upload-form" data-module="resource-upload-field" class="resource-upload-field form-group">
+  <div id="batch-upload-form" class="resource-upload-field form-group">
 
-    <input type="radio" id="resource-url-none" name="url_type" value="" {{
+    <input type="radio" id="batch-url-none" name="url_type" value="" {{
       'checked' if not url and not url_type else '' }}>
 
     <div class="select-type">
-        <label id="resource-menu-label" class="form-label"
+        <label id="batch-menu-label" class="form-label"
         >{{ _('Batch Upload Datasets') }}</label>
 
-      <div role="group" aria-labelledby="resource-menu-label">
+      <div role="group" aria-labelledby="batch-menu-label">
         {% block url_type_select %}
           {% if is_upload_enabled %}
-            <button type="button" class="btn btn-default" id="resource-upload-button"
+            <button type="button" class="btn btn-default" id="batch-upload-button"
               title="{{ _('Upload a file on your computer') }}"
               onclick="
-                document.getElementById('resource-url-upload').checked = true;
-                document.getElementById('field-resource-upload').click();
+                document.getElementById('batch-url-upload').checked = true;
+                document.getElementById('field-batch-upload').click();
               "autofocus="true"><i class="fa fa-cloud-upload"></i>{{ _("Upload") }}</button>
           {% endif %}
-          <button type="button" class="btn btn-default" id="resource-link-button"
+          <button type="button" class="btn btn-default" id="batch-link-button"
             title="{{ _('Link to a URL on the internet (you can also link to an API)') }}"
               onclick="
-                document.getElementById('resource-url-link').checked = true;
-                document.getElementById('field-resource-url').focus();
+                document.getElementById('batch-url-link').checked = true;
+                document.getElementById('field-batch-url').focus();
               "><i class="fa fa-globe"></i>{{ _('Link') }}</button>
         {% endblock %}
       </div>
@@ -42,7 +42,7 @@
 
     {% block url_type_fields %}
       {% if is_upload_enabled %}
-        <input type="radio" id="resource-url-upload" name="url_type" value="upload" {{
+        <input type="radio" id="batch-url-upload" name="url_type" value="upload" {{
           'checked' if is_upload else '' }}>
         <div class="select-type">
           {% block upload_controls %}
@@ -53,7 +53,7 @@
                 <button type="button" class="btn btn-danger btn-remove-url"
                   onclick="
                     document.getElementById('field-clear-upload').checked = true;
-                    document.getElementById('field-resource-upload').focus();
+                    document.getElementById('field-batch-upload').focus();
                   ">{{ _('Clear Upload') }}</button>
                 <label class="form-label">{{ upload_label or _('File') }}</label>
 
@@ -61,28 +61,29 @@
             {% endif %}
             <div class="upload-type">
               {{ remove_button(
-                js="$('#field-resource-upload').replaceWith($('#field-resource-upload').val('').clone(true))") }}
+                js="$('#field-batch-upload').replaceWith($('#field-batch-upload').val('').clone(true))") }}
               {{ form.input(
-                'upload',
+                'file',
                 label=upload_label or _('File'),
-                id='field-resource-upload',
+                id='field-batch-upload',
                 type='file',
+                attrs={'class': 'form-control', 'accept': '.xlsx,.xls'},                
                 classes=['control-full']) }}
             </div>
           {% endblock %}
         </div>
       {% endif %}
 
-      <input type="radio" id="resource-url-link" name="url_type" value="" {{
+      <input type="radio" id="batch-url-link" name="url_type" value="" {{
         'checked' if is_url else '' }}>
       <div class="select-type">
         {% block link_controls %}
           {{ remove_button(
-            js="$('#field-resource-url').val('')") }}
+            js="$('#field-batch-url').val('')") }}
           {{ form.input(
             'url',
             label=url_label or _('URL'),
-            id='field-resource-url',
+            id='field-batch-url',
             type='url',
             placeholder=placeholder,
             classes=['control-full']) }}

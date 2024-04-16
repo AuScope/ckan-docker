@@ -2,6 +2,7 @@ from flask import Blueprint, request, Response, render_template, redirect, url_f
 from flask.views import MethodView
 from typing import Any
 import requests
+import os
 
 from ckan.plugins.toolkit import get_action, h
 from ckan.model import Package
@@ -39,33 +40,56 @@ class BatchUploadView(MethodView):
         """
         self._prepare()  
         return render_template('batch/new.html')
-
     def post(self):
         """
-        Handles the POST request to upload and process the batch dataset file.
+        Handles the POST request to upload and process the batch dataset file or submit a URL.
         """
         context = self._prepare()
 
         uploaded_file = request.files.get('file')
-        if not uploaded_file:
-            h.flash_error(_('No file uploaded.'))
+        provided_url = request.form.get('url')
+
+        if not uploaded_file and not provided_url:
+            h.flash_error(_('No file or URL provided.'))
             return redirect(url_for('igsn_theme.batch_upload'))
 
         try:
-            # Add logic to process the uploaded file here
+            if uploaded_file:
+                
+                file_name = uploaded_file.filename
+                file_extension = os.path.splitext(file_name)[1].lower()
+                if file_extension not in ['.xlsx', '.xls']:
+                    flash('Please upload an Excel file (.xlsx or .xls).', 'error')
+                    return redirect(url_for('upload_page'))  # Adjust the redirect as needed
 
-            h.flash_success(_('File successfully uploaded and processed'))
+                api_url = "https://example.com/api/upload"
+                files = {'file': (uploaded_file.filename, uploaded_file, uploaded_file.content_type)}
+                response = requests.post(api_url, files=files)
+            elif provided_url:
+                api_url = "https://example.com/api/submit-url"
+                data = {'url': provided_url}
+                response = requests.post(api_url, data=data)
+
+            response.raise_for_status()
+            if response.status_code == 200:
+                h.flash_success(_('Successfully processed your submission'))
+                return redirect(url_for('igsn_theme.batch_upload'))
+            else:
+                h.flash_error(_('Failed to process your submission'))
+                return self.get()
+
+        except requests.exceptions.RequestException as e:
+            h.flash_error(_('Failed to process submission: ') + str(e))
             return redirect(url_for('igsn_theme.batch_upload'))
-
         except NotAuthorized:
             base.abort(403, _('Unauthorized to read package'))
         except NotFound:
-            base.abort(404, _('Dataset not found'))
+            base.abort(404, _('Not Found'))
         except ValidationError as e:
             h.flash_error(_('Validation error: ') + str(e))
             return self.get()
         except Exception as e:
-            h.flash_error(_('Failed to process uploaded file: ') + str(e))
+            h.flash_error(_('Unexpected error: ') + str(e))
             return redirect(url_for('igsn_theme.batch_upload'))
 
 
