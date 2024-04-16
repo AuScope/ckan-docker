@@ -6,6 +6,26 @@
 
 {% asset 'ckanext-contact/main' %}
 
+{% block header_site_navigation_tabs %}
+    {% set org_type = h.default_group_type('organization') %}
+    {% set group_type = h.default_group_type('group') %}
+
+    {{ h.build_nav_main(
+        (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Samples'), ["dataset","resource"]),
+        (org_type ~ '.index', h.humanize_entity_type('organization', org_type, 'main nav') or _('Collections'), ['organization']),
+        ('home.about', _('About')) )
+    }}
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        {{ _('Help') }} <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a href="#">{{ _('User Manual haha') }}</a></li>
+        <li><a href="#">{{ _('Data Deposit Guidelines') }}</a></li>
+    </ul>
+</li>
+{% endblock %}
+
 {% block header_logo %}
   <a class="logo" href="{{ h.url_for('home.index') }}">
     <img src="{{ h.url_for_static_or_external('/base/images/AuScope Logo Icon.png') }}" alt="Auscope Logo" title="AuScope Data Repository" />

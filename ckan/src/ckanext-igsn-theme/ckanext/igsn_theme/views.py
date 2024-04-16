@@ -37,7 +37,7 @@ class BatchUploadView(MethodView):
         """
         Handles the GET request to show the batch upload form.
         """
-        self._prepare()  
+        self._prepare()
         return render_template('batch/new.html')
 
     def post(self):
@@ -69,19 +69,39 @@ class BatchUploadView(MethodView):
             return redirect(url_for('igsn_theme.batch_upload'))
 
 
+
 def page():
     return "Hello, igsn_theme!"
 
 
 igsn_theme.add_url_rule("/igsn_theme/page", view_func=page)
 
+
+# def project_index():
+#     return helpers.redirect_to(controller='group', action='index')
+
+# def project_new():
+#     return helpers.redirect_to(controller='group', action='new')
+
+# def project_edit(id):
+#     return helpers.redirect_to(controller='group', action='edit', id=id)
+
+# def project_read(id):
+#     return helpers.redirect_to(controller='group', action='read', id=id)
+
+# igsn_theme.add_url_rule("/project", view_func=project_index)
+# igsn_theme.add_url_rule("/new", view_func=project_new)
+# igsn_theme.add_url_rule("/igsn_theme/edit/<id>", view_func=project_edit)
+# igsn_theme.add_url_rule("/igsn_theme/<id>", view_func=project_read)
+
+
 igsn_theme.add_url_rule(
-    '/batch_upload', 
+    '/batch_upload',
     view_func=BatchUploadView.as_view('batch_upload'),
     methods=['GET', 'POST']
 )
 
-# Add the proxy route        
+# Add the proxy route
 @igsn_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
 def fetch_epsg():
     page = request.args.get('page', 0)
