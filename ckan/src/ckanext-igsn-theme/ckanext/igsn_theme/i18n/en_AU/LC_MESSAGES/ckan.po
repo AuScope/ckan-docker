@@ -2664,7 +2664,7 @@ msgstr "Last Updated"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""Before you can create a sample you need to create an collection.""
+msgstr "Before you can create a sample you need to create an collection."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
