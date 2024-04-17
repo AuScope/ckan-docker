@@ -527,14 +527,21 @@ ckan.module('map-module', function ($, _) {
         },
 
         prepopulateEPSG: function () {
-            var self = this;
             var existingId = this.EPSGCodeElement.val();
             var existingText = this.EPSGTextElement.val();
-            if (existingId && existingId !== "") {
-                var dataForSelect2 = { id: existingId, text: existingText };
-                self.EPSGCodeElement.select2('data', dataForSelect2, true);
+
+            if (!existingId || existingId.trim() === "") {
+                // Set default values
+                this.EPSGCodeElement.val("4326");
+                this.EPSGTextElement.val("4326 - WGS 84");
+                existingId = "4326";
+                existingText = "4326 - WGS 84";
             }
+
+            var dataForSelect2 = { id: existingId, text: existingText };
+            this.EPSGCodeElement.select2('data', dataForSelect2, true);
         },
+
 
     };
 });
