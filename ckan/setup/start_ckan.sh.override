@@ -2,7 +2,8 @@
 
 # Add ckan.datapusher.api_token to the CKAN config file (updated with corrected value later)
 ckan config-tool $CKAN_INI ckan.datapusher.api_token=xxx
-APP_DIR=$(dirname "$SRC_EXTENSIONS_DIR")
+APP_DIR=$(dirname "$CKAN_INI")
+SRC_EXTENSIONS_DIR=$APP_DIR/src_extensions
 echo "Ckan app directory: $APP_DIR"
 
 # Set up the Secret key used by Beaker and Flask
