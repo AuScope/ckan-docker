@@ -156,7 +156,7 @@ msgstr ""
 
 #: ckan/lib/helpers.py:1076
 msgid "There are no {object_type}s associated with this dataset"
-msgstr ""
+msgstr "There are no {object_type}s associated with this sample"
 
 #: ckan/lib/helpers.py:1078
 msgid "There is no description for this {object_type}"
@@ -301,7 +301,7 @@ msgstr "User"
 #: ckan/tests/config/test_middleware.py:26
 #: ckanext/stats/templates/ckanext/stats/index.html:63
 msgid "Dataset"
-msgstr "Dataset"
+msgstr "Sample"
 
 #: ckan/logic/converters.py:195 ckan/logic/validators.py:299
 #: ckan/views/group.py:1040
@@ -319,7 +319,7 @@ msgstr ""
 
 #: ckan/logic/validators.py:77
 msgid "You cannot move this dataset to another organization"
-msgstr ""
+msgstr "You cannot move this sample to another collection"
 
 #: ckan/logic/validators.py:81
 msgid "Organization does not exist"
@@ -327,7 +327,7 @@ msgstr "Collection does not exist"
 
 #: ckan/logic/validators.py:89
 msgid "You cannot add a dataset to this organization"
-msgstr "You cannot add a dataset to this collection"
+msgstr "You cannot add a sample to this collection"
 
 #: ckan/logic/validators.py:132
 msgid "Invalid integer"
@@ -351,7 +351,7 @@ msgstr "Date format incorrect"
 
 #: ckan/logic/validators.py:208
 msgid "Dataset id already exists"
-msgstr "Dataset id already exists"
+msgstr "Sample id already exists"
 
 #: ckan/logic/validators.py:255
 msgid "Resource"
@@ -515,7 +515,7 @@ msgstr "role does not exist."
 
 #: ckan/logic/validators.py:807
 msgid "Datasets with no organization can't be private."
-msgstr "Datasets with no collection can't be private."
+msgstr "Samples with no collection can't be private."
 
 #: ckan/logic/validators.py:816
 msgid "Not a list"
@@ -593,7 +593,7 @@ msgstr ""
 #: ckanext/activity/views.py:219 ckanext/activity/views.py:251
 #: ckanext/activity/views.py:332
 msgid "Dataset not found"
-msgstr "Dataset not found"
+msgstr "Sample not found"
 
 #: ckan/logic/action/create.py:699 ckan/logic/action/delete.py:356
 #: ckan/logic/auth/update.py:200 ckan/views/dataset.py:1165
@@ -606,7 +606,7 @@ msgstr "User not found"
 #: ckan/logic/action/create.py:703 ckan/logic/action/delete.py:348
 #: ckan/logic/action/get.py:241 ckan/logic/action/get.py:287
 msgid "Dataset collaborators not enabled"
-msgstr ""
+msgstr "Sample collaborators not enabled"
 
 #: ckan/logic/action/create.py:880
 msgid "Trying to create an organization as a group"
@@ -631,7 +631,7 @@ msgstr "You are already following {0}"
 
 #: ckan/logic/action/create.py:1297 ckan/logic/action/create.py:1304
 msgid "You must be logged in to follow a dataset."
-msgstr "You must be logged in to follow a dataset."
+msgstr "You must be logged in to follow a sample."
 
 #: ckan/logic/action/create.py:1358 ckan/views/feed.py:226
 msgid "Organization not found"
@@ -660,7 +660,7 @@ msgstr ""
 
 #: ckan/logic/action/delete.py:408
 msgid "Organization cannot be deleted while it still has datasets"
-msgstr ""
+msgstr "Collection cannot be deleted while it still has samples"
 
 #: ckan/logic/action/delete.py:607 ckan/logic/action/delete.py:633
 #: ckan/logic/action/get.py:2501 ckan/logic/action/update.py:1037
@@ -736,11 +736,11 @@ msgstr "User %s not authorised to edit these groups"
 #: ckan/logic/auth/create.py:44
 #, python-format
 msgid "User %s not authorized to add dataset to this organization"
-msgstr "User %s not authorised to add dataset to this collection"
+msgstr "User %s not authorised to add sample to this collection"
 
 #: ckan/logic/auth/create.py:71
 msgid "No dataset id provided, cannot check auth."
-msgstr "No dataset id provided, cannot check auth."
+msgstr "No sample id provided, cannot check auth."
 
 #: ckan/logic/auth/create.py:78 ckan/logic/auth/delete.py:36
 #: ckan/logic/auth/get.py:142 ckan/logic/auth/update.py:82
@@ -750,7 +750,7 @@ msgstr "No package found for this resource, cannot check auth."
 #: ckan/logic/auth/create.py:87
 #, python-format
 msgid "User %s not authorized to create resources on dataset %s"
-msgstr "User %s not authorised to create resources on dataset %s"
+msgstr "User %s not authorised to create resources on sample %s"
 
 #: ckan/logic/auth/create.py:125
 #, python-format
@@ -792,7 +792,7 @@ msgstr "User %s not authorised to edit group %s"
 #: ckan/logic/auth/create.py:298
 #, python-format
 msgid "User %s not authorized to add collaborators to this dataset"
-msgstr ""
+msgstr "User %s not authorized to add collaborators to this sample"
 
 #: ckan/logic/auth/delete.py:44
 #, python-format
@@ -831,7 +831,7 @@ msgstr "User %s not authorised to delete collection %s"
 #: ckan/logic/auth/delete.py:163
 #, python-format
 msgid "User %s not authorized to remove collaborators from this dataset"
-msgstr ""
+msgstr "User %s not authorized to remove collaborators from this sample"
 
 #: ckan/logic/auth/get.py:16 ckan/logic/auth/get.py:271
 msgid "Not authorized"
@@ -860,7 +860,7 @@ msgstr "User %s not authorised to read group %s"
 #: ckan/logic/auth/get.py:365
 #, python-format
 msgid "User %s not authorized to list collaborators from this dataset"
-msgstr ""
+msgstr "User %s not authorized to list collaborators from this sample"
 
 #: ckan/logic/auth/update.py:51
 #, python-format
@@ -1315,7 +1315,7 @@ msgstr "Register"
 #: ckan/templates/user/read.html:11 ckan/templates/user/read_base.html:20
 #: ckan/templates/user/read_base.html:56
 msgid "Datasets"
-msgstr "Datasets"
+msgstr "Samples"
 
 #: ckan/templates/header.html:104 ckan/templates/organization/edit.html:6
 #: ckan/templates/organization/edit_base.html:5
@@ -1352,7 +1352,7 @@ msgstr "About"
 
 #: ckan/templates/header.html:114
 msgid "Search Datasets..."
-msgstr ""
+msgstr "Search Samples..."
 
 #: ckan/templates/header.html:115 ckan/templates/home/snippets/search.html:12
 #: ckan/templates/snippets/simple_search.html:5
@@ -1365,7 +1365,7 @@ msgstr "Search"
 #: ckan/templates/package/search.html:35
 #: ckan/templates/snippets/search_form.html:3
 msgid "Search datasets..."
-msgstr "Search datasets..."
+msgstr "Search samples..."
 
 #: ckan/templates/header.html:116 ckan/templates/snippets/search_form.html:16
 msgid "Submit"
@@ -1517,7 +1517,7 @@ msgstr ""
 #: ckan/templates/admin/trash.html:32
 msgid ""
 "Purge deleted datasets, organizations or groups forever and irreversibly."
-msgstr ""
+msgstr "Purge deleted samples, collections or groups forever and irreversibly"
 
 #: ckan/templates/admin/snippets/confirm_delete.html:3
 #: ckan/templates/admin/snippets/confirm_delete.html:18
@@ -1538,7 +1538,7 @@ msgstr "Confirm Delete"
 
 #: ckan/templates/admin/snippets/data_type.html:11
 msgid "Deleted datasets"
-msgstr ""
+msgstr "Deleted samples"
 
 #: ckan/templates/admin/snippets/data_type.html:13
 msgid "Deleted organizations"
@@ -1837,7 +1837,7 @@ msgid ""
 msgstr ""
 " <p><strong>Admin:</strong> Can edit group information, as well as manage "
 "collection members.</p> <p><strong>Member:</strong> Can add/remove "
-"datasets from groups</p> "
+"samples from groups</p> "
 
 #: ckan/templates/group/new.html:3
 msgid "Create a Group"
@@ -1875,7 +1875,7 @@ msgstr "Popular"
 
 #: ckan/templates/group/snippets/feeds.html:2
 msgid "Datasets in group: {group}"
-msgstr "Datasets in group: {group}"
+msgstr "Samples in group: {group}"
 
 #: ckan/templates/group/snippets/group_form.html:12
 #: ckan/templates/organization/snippets/organization_form.html:12
@@ -1915,15 +1915,15 @@ msgstr "Save Group"
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:22
 msgid "{num} Dataset"
 msgid_plural "{num} Datasets"
-msgstr[0] "{num} Dataset"
-msgstr[1] "{num} Datasets"
+msgstr[0] "{num} Sample"
+msgstr[1] "{num} Samples"
 
 #: ckan/templates/group/snippets/group_item.html:34
 #: ckan/templates/organization/snippets/organization_item.html:33
 #: ckanext/example_theme_docs/v10_custom_snippet/templates/snippets/example_theme_most_popular_groups.html:25
 #: ckanext/example_theme_docs/v11_HTML_and_CSS/templates/snippets/example_theme_most_popular_groups.html:24
 msgid "0 Datasets"
-msgstr "0 Datasets"
+msgstr "0 Samples"
 
 #: ckan/templates/group/snippets/group_item.html:38
 #: ckan/templates/group/snippets/group_item.html:39
@@ -1932,7 +1932,7 @@ msgstr "View {name}"
 
 #: ckan/templates/group/snippets/group_item.html:43
 msgid "Remove dataset from this group"
-msgstr "Remove dataset from this group"
+msgstr "Remove sample from this group"
 
 #: ckan/templates/group/snippets/helper.html:15
 msgid "What are Groups?"
@@ -1945,10 +1945,10 @@ msgid ""
 "particular theme, or as a very simple way to help people find and search "
 "your own published datasets."
 msgstr ""
-" You can use CKAN Groups to create and manage collections of datasets. This "
-"could be to catalogue datasets for a particular project or team, or on a "
+" You can use CKAN Groups to create and manage collections of samples. This "
+"could be to catalogue samples for a particular project or team, or on a "
 "particular theme, or as a very simple way to help people find and search "
-"your own published datasets. "
+"your own published samples. "
 
 #: ckan/templates/group/snippets/info.html:18
 #: ckan/templates/organization/bulk_process.html:85
@@ -2016,7 +2016,7 @@ msgstr "Search data"
 
 #: ckan/templates/home/snippets/search.html:9
 msgid "Search datasets"
-msgstr ""
+msgstr "Search samples"
 
 #: ckan/templates/home/snippets/search.html:17
 msgid "Popular tags"
@@ -2031,11 +2031,11 @@ msgstr "{0} statistics"
 #: ckanext/activity/templates/snippets/activities/deleted_package.html:10
 #: ckanext/activity/templates/snippets/activities/new_package.html:9
 msgid "dataset"
-msgstr "dataset"
+msgstr "sample"
 
 #: ckan/templates/home/snippets/stats.html:11
 msgid "datasets"
-msgstr "datasets"
+msgstr "samples"
 
 #: ckan/templates/home/snippets/stats.html:17
 msgid "organizations"
@@ -2104,7 +2104,7 @@ msgstr "Collection Form"
 #: ckan/templates/organization/bulk_process.html:5
 #: ckan/templates/organization/bulk_process.html:13
 msgid "Edit datasets"
-msgstr "Edit datasets"
+msgstr "Edit samples"
 
 #: ckan/templates/organization/bulk_process.html:18
 msgid " found for \"{query}\""
@@ -2112,7 +2112,7 @@ msgstr " found for \"{query}\""
 
 #: ckan/templates/organization/bulk_process.html:20
 msgid "Sorry no datasets found for \"{query}\""
-msgstr "Sorry no datasets found for \"{query}\""
+msgstr "Sorry no samples found for \"{query}\""
 
 #: ckan/templates/organization/bulk_process.html:50
 msgid "Make public"
@@ -2140,7 +2140,7 @@ msgstr "Private"
 
 #: ckan/templates/organization/bulk_process.html:101
 msgid "This organization has no datasets associated to it"
-msgstr "This collection has no datasets associated to it"
+msgstr "This collection has no samples associated to it"
 
 #: ckan/templates/organization/confirm_delete.html:11
 msgid "Are you sure you want to delete organization - {name}?"
@@ -2189,11 +2189,11 @@ msgid ""
 "<p><strong>Member:</strong> Can view the organization's private datasets, "
 "but not add new datasets.</p>"
 msgstr ""
-" <p><strong>Admin:</strong> Can add/edit and delete datasets, as well as "
+" <p><strong>Admin:</strong> Can add/edit and delete samples, as well as "
 "manage collection members.</p> <p><strong>Editor:</strong> Can add and "
-"edit datasets, but not manage collection members.</p> "
-"<p><strong>Member:</strong> Can view the collection's private datasets, "
-"but not add new datasets.</p> "
+"edit samples, but not manage collection members.</p> "
+"<p><strong>Member:</strong> Can view the collection's private samples, "
+"but not add new samples.</p> "
 
 #: ckan/templates/organization/members.html:14
 msgid "{count} member"
@@ -2215,7 +2215,7 @@ msgstr "Create Collection"
 
 #: ckan/templates/organization/snippets/feeds.html:2
 msgid "Datasets in organization: {group}"
-msgstr "Datasets in collection: {group}"
+msgstr "Samples in collection: {group}"
 
 #: ckan/templates/organization/snippets/helper.html:16
 msgid "What are Organizations?"
@@ -2228,7 +2228,7 @@ msgid ""
 "on their level of authorisation to create, edit and publish."
 msgstr ""
 " CKAN Collections are used to create, manage and publish collections of "
-"datasets. Users can have different roles within an Collection, depending "
+"samples. Users can have different roles within an Collection, depending "
 "on their level of authorisation to create, edit and publish. "
 
 #: ckan/templates/organization/snippets/organization_form.html:12
@@ -2244,6 +2244,8 @@ msgid ""
 "Are you sure you want to delete this Organization? Note*: Deleting cannot be"
 " performed while public or private datasets belong to this organization."
 msgstr ""
+"Are you sure you want to delete this Collection? Note*: Deleting cannot be"
+" performed while public or private samples belong to this organization."
 
 #: ckan/templates/organization/snippets/organization_form.html:43
 msgid "Save Organization"
@@ -2259,11 +2261,11 @@ msgstr "View {organization_name}"
 #: ckan/templates/package/snippets/stages.html:25
 #: ckan/templates/package/snippets/stages.html:27
 msgid "Create Dataset"
-msgstr "Create Dataset"
+msgstr "Create Sample"
 
 #: ckan/templates/package/base_form_page.html:19
 msgid "What are datasets?"
-msgstr "What are datasets?"
+msgstr "What are samples?"
 
 #: ckan/templates/package/base_form_page.html:22
 msgid ""
@@ -2271,13 +2273,13 @@ msgid ""
 "with a description and other information, at a fixed URL. Datasets are what "
 "users see when searching for data."
 msgstr ""
-" A CKAN Dataset is a collection of data resources (such as files), together "
-"with a description and other information, at a fixed URL. Datasets are what "
+" A CKAN Sample is a collection of data resources (such as files), together "
+"with a description and other information, at a fixed URL. Samples are what "
 "users see when searching for data. "
 
 #: ckan/templates/package/confirm_delete.html:12
 msgid "Are you sure you want to delete dataset - {name}?"
-msgstr "Are you sure you want to delete dataset - {name}?"
+msgstr "Are you sure you want to delete sample - {name}?"
 
 #: ckan/templates/package/confirm_delete_resource.html:11
 msgid "Are you sure you want to delete resource - {name}?"
@@ -2285,7 +2287,7 @@ msgstr "Are you sure you want to delete resource - {name}?"
 
 #: ckan/templates/package/edit_base.html:13
 msgid "View dataset"
-msgstr "View dataset"
+msgstr "View sample"
 
 #: ckan/templates/package/edit_base.html:17
 msgid "Edit metadata"
@@ -2315,7 +2317,7 @@ msgstr "Update"
 
 #: ckan/templates/package/group_list.html:17
 msgid "Associate this group with this dataset"
-msgstr "Associate this group with this dataset"
+msgstr "Associate this group with this sample"
 
 #: ckan/templates/package/group_list.html:17
 msgid "Add to group"
@@ -2323,15 +2325,15 @@ msgstr "Add to group"
 
 #: ckan/templates/package/group_list.html:26
 msgid "There are no groups associated with this dataset"
-msgstr "There are no groups associated with this dataset"
+msgstr "There are no groups associated with this sample"
 
 #: ckan/templates/package/new_package_form.html:13
 msgid "Update Dataset"
-msgstr "Update Dataset"
+msgstr "Update Sample"
 
 #: ckan/templates/package/new_resource.html:5
 msgid "Add data to the dataset"
-msgstr "Add data to the dataset"
+msgstr "Add data to the sample"
 
 #: ckan/templates/package/new_resource.html:11
 #: ckan/templates/package/new_resource_not_draft.html:8
@@ -2411,7 +2413,7 @@ msgstr "URL:"
 
 #: ckan/templates/package/resource_read.html:95
 msgid "Dataset description:"
-msgstr ""
+msgstr "Sample description:"
 
 #: ckan/templates/package/resource_read.html:97
 #, python-format
@@ -2522,7 +2524,7 @@ msgid ""
 "<p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not add"
 " some?</a></p>"
 msgstr ""
-" <p class=\"empty\">This dataset has no data, <a href=\"%(url)s\">why not "
+" <p class=\"empty\">This sample has no data, <a href=\"%(url)s\">why not "
 "add some?</a></p> "
 
 #: ckan/templates/package/search.html:52
@@ -2600,6 +2602,8 @@ msgid ""
 "<p><strong>Admin:</strong> In addition to managing the dataset, admins can "
 "add and remove collaborators from a dataset.</p>"
 msgstr ""
+"<p><strong>Admin:</strong> In addition to managing the sample, admins can "
+"add and remove collaborators from a sample.</p>"
 
 #: ckan/templates/package/collaborators/collaborator_new.html:72
 msgid ""
@@ -2607,6 +2611,9 @@ msgid ""
 "as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
 "Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
+"<p><strong>Editor:</strong> Editors can edit the sample and its resources, "
+"as well accessing the sample if private.</p> <p><strong>Member:</strong> "
+"Members can access the sample if private, but not edit it.</p>"
 
 #: ckan/templates/package/collaborators/collaborators.html:7
 msgid "Add Collaborators"
@@ -2657,7 +2664,7 @@ msgstr "Last Updated"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr ""
+msgstr ""Before you can create a sample you need to create an collection.""
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
@@ -2665,13 +2672,15 @@ msgstr ""
 
 #: ckan/templates/package/snippets/cannot_create_package.html:18
 msgid "There are no organizations to which you can assign this dataset."
-msgstr ""
+msgstr "There are no collections to which you can assign this sample"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:19
 msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
+"Ask a system administrator to create an collection before you can "
+"continue."
 
 #: ckan/templates/package/snippets/package_basic_fields.html:6
 #: ckan/templates/package/snippets/view_form.html:8
@@ -2684,7 +2693,7 @@ msgstr "eg. A descriptive title"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:15
 msgid "eg. my-dataset"
-msgstr "eg. my-dataset"
+msgstr "eg. my-sample"
 
 #: ckan/templates/package/snippets/package_basic_fields.html:21
 msgid "eg. Some useful notes about the data"
@@ -2736,14 +2745,14 @@ msgid ""
 "Database License</a>."
 msgstr ""
 "The <i>data license</i> you select above only applies to the contents of any"
-" resource files that you add to this dataset. By submitting this form, you "
+" resource files that you add to this sample. By submitting this form, you "
 "agree to release the <i>metadata</i> values that you enter into the form "
 "under the <a href=\"http://opendatacommons.org/licenses/odbl/1-0/\">Open "
 "Database License</a>."
 
 #: ckan/templates/package/snippets/package_form.html:40
 msgid "Are you sure you want to delete this dataset?"
-msgstr "Are you sure you want to delete this dataset?"
+msgstr "Are you sure you want to delete this sample?"
 
 #: ckan/templates/package/snippets/package_form.html:44
 msgid "Next: Add Data"
@@ -2751,7 +2760,7 @@ msgstr "Next: Add Data"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:6
 msgid "http://example.com/dataset.json"
-msgstr "http://example.com/dataset.json"
+msgstr "http://example.com/sample.json"
 
 #: ckan/templates/package/snippets/package_metadata_fields.html:10
 msgid "1.0"
@@ -2912,7 +2921,7 @@ msgstr "Data and Resources"
 #: ckan/templates/package/snippets/resources_list.html:32
 #: ckanext/activity/templates/package/snippets/resources_list.html:14
 msgid "This dataset has no data"
-msgstr "This dataset has no data"
+msgstr "This sample has no data"
 
 #: ckan/templates/package/snippets/stages.html:32
 #: ckan/templates/package/snippets/stages.html:36
@@ -2948,7 +2957,7 @@ msgstr "A view is a representation of the data held against a resource"
 
 #: ckan/templates/snippets/add_dataset.html:4
 msgid "Add Dataset"
-msgstr "Add Dataset"
+msgstr "Add Sample"
 
 #: ckan/templates/snippets/datapusher_status.html:8
 msgid "Datapusher status: {status}."
@@ -2990,7 +2999,7 @@ msgstr "No License Provided"
 
 #: ckan/templates/snippets/license.html:27
 msgid "This dataset satisfies the Open Definition."
-msgstr "This dataset satisfies the Open Definition."
+msgstr "This sample satisfies the Open Definition."
 
 #: ckan/templates/snippets/organization.html:48
 msgid "There is no description for this organization"
@@ -2998,7 +3007,7 @@ msgstr "There is no description for this collection"
 
 #: ckan/templates/snippets/package_item.html:49
 msgid "There is no description for this dataset"
-msgstr ""
+msgstr "There is no description for this sample"
 
 #: ckan/templates/snippets/search_form.html:33
 #: ckan/templates/snippets/simple_search.html:8
@@ -3022,22 +3031,22 @@ msgstr ""
 #: ckan/templates/snippets/search_result_text.html:15
 msgid "{number} dataset found for \"{query}\""
 msgid_plural "{number} datasets found for \"{query}\""
-msgstr[0] "{number} dataset found for \"{query}\""
-msgstr[1] "{number} datasets found for \"{query}\""
+msgstr[0] "{number} sample found for \"{query}\""
+msgstr[1] "{number} samples found for \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:16
 msgid "No datasets found for \"{query}\""
-msgstr "No datasets found for \"{query}\""
+msgstr "No samples found for \"{query}\""
 
 #: ckan/templates/snippets/search_result_text.html:17
 msgid "{number} dataset found"
 msgid_plural "{number} datasets found"
-msgstr[0] "{number} dataset found"
-msgstr[1] "{number} datasets found"
+msgstr[0] "{number} sample found"
+msgstr[1] "{number} samples found"
 
 #: ckan/templates/snippets/search_result_text.html:18
 msgid "No datasets found"
-msgstr "No datasets found"
+msgstr "No samples found"
 
 #: ckan/templates/snippets/search_result_text.html:21
 msgid "{number} group found for \"{query}\""
@@ -3112,7 +3121,7 @@ msgstr ""
 #: ckan/templates/user/dashboard.html:25
 #: ckan/templates/user/dashboard_datasets.html:11
 msgid "My Datasets"
-msgstr "My Datasets"
+msgstr "My Samples"
 
 #: ckan/templates/user/dashboard.html:26
 #: ckan/templates/user/dashboard_organizations.html:12
@@ -3127,7 +3136,7 @@ msgstr "My Groups"
 #: ckan/templates/user/dashboard_datasets.html:16
 #: ckan/templates/user/read.html:20
 msgid "You haven't created any datasets."
-msgstr "You haven't created any datasets."
+msgstr "You haven't created any samples."
 
 #: ckan/templates/user/dashboard_datasets.html:18
 #: ckan/templates/user/dashboard_groups.html:22
@@ -3331,7 +3340,7 @@ msgstr "Why Sign Up?"
 
 #: ckan/templates/user/new.html:28
 msgid "Create datasets, groups and other exciting things"
-msgstr "Create datasets, groups and other exciting things"
+msgstr "Create samples, groups and other exciting things"
 
 #: ckan/templates/user/new_user_form.html:10
 msgid "username"
@@ -3374,7 +3383,7 @@ msgstr "Simply enter a new password and we'll update your account"
 
 #: ckan/templates/user/read.html:27
 msgid "User hasn't created any datasets."
-msgstr "User hasn't created any datasets."
+msgstr "User hasn't created any samples."
 
 #: ckan/templates/user/read_base.html:42
 msgid "You have not provided a biography."
@@ -3463,7 +3472,7 @@ msgstr "Need to be system administrator to administer"
 
 #: ckan/views/admin.py:156
 msgid "Are you sure you want to purge datasets?"
-msgstr ""
+msgstr "Are you sure you want to purge samples?"
 
 #: ckan/views/admin.py:158
 msgid "Are you sure you want to purge organizations?"
@@ -3475,11 +3484,11 @@ msgstr ""
 
 #: ckan/views/admin.py:162
 msgid "{number} datasets have been purged"
-msgstr ""
+msgstr "{number} samples have been purged"
 
 #: ckan/views/admin.py:163
 msgid "{number} organizations have been purged"
-msgstr ""
+msgstr "{number} collections have been purged"
 
 #: ckan/views/admin.py:164
 msgid "{number} groups have been purged"
@@ -3487,11 +3496,11 @@ msgstr ""
 
 #: ckan/views/admin.py:167
 msgid "There are no datasets to purge"
-msgstr ""
+msgstr "There are no samples to purge"
 
 #: ckan/views/admin.py:168
 msgid "There are no organizations to purge"
-msgstr ""
+msgstr "There are no collections to purge"
 
 #: ckan/views/admin.py:169
 msgid "There are no groups to purge"
@@ -3566,7 +3575,7 @@ msgstr "Unauthorised to read package %s"
 
 #: ckan/views/dataset.py:509
 msgid "Viewing datasets of type \"{package_type}\" is not supported ({file_!r})."
-msgstr ""
+msgstr "Viewing samples of type \"{package_type}\" is not supported ({file_!r})."
 
 #: ckan/views/dataset.py:532
 msgid "Unauthorized to create a package"
@@ -3598,7 +3607,7 @@ msgstr "Unauthorised to delete package %s"
 
 #: ckan/views/dataset.py:887
 msgid "Dataset has been deleted."
-msgstr "Dataset has been deleted."
+msgstr "Sample has been deleted."
 
 #: ckan/views/dataset.py:936 ckan/views/group.py:594 ckan/views/user.py:819
 msgid "You are now following {0}"
@@ -3732,12 +3741,12 @@ msgstr "No download is available"
 
 #: ckan/views/resource.py:224
 msgid "Unauthorized to update dataset"
-msgstr "Unauthorised to update dataset"
+msgstr "Unauthorised to update sample"
 
 #: ckan/views/resource.py:228 ckan/views/resource.py:266
 #: ckan/views/resource.py:306
 msgid "The dataset {id} could not be found."
-msgstr "The dataset {id} could not be found."
+msgstr "The sample {id} could not be found."
 
 #: ckan/views/resource.py:232
 msgid "You must add at least one data resource"
@@ -3942,12 +3951,12 @@ msgstr ""
 
 #: ckanext/activity/views.py:258
 msgid "The detail of this dataset activity is not available"
-msgstr ""
+msgstr "The detail of this sample activity is not available"
 
 #: ckanext/activity/views.py:334
 #, python-format
 msgid "Unauthorized to read dataset %s"
-msgstr "Unauthorised to read dataset %s"
+msgstr "Unauthorised to read sample %s"
 
 #: ckanext/activity/views.py:336
 msgid "Invalid parameters"
@@ -4027,6 +4036,9 @@ msgid ""
 "match the old version of the metadata. <a href=\"%(url)s\">View the current "
 "version</a>."
 msgstr ""
+"You're currently viewing an old version of this sample. Data files may not "
+"match the old version of the metadata. <a href=\"%(url)s\">View the current "
+"version</a>."
 
 #: ckanext/activity/templates/snippets/activity_type_selector.html:16
 msgid "All activity types"
@@ -4042,7 +4054,7 @@ msgstr ""
 
 #: ckanext/activity/templates/snippets/activities/added_tag.html:6
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr "{actor} added the tag {tag} to the dataset {dataset}"
+msgstr "{actor} added the tag {tag} to the sample {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/changed_group.html:6
 msgid "{actor} updated the group {group}"
@@ -4063,7 +4075,7 @@ msgstr ""
 
 #: ckanext/activity/templates/snippets/activities/changed_resource.html:6
 msgid "{actor} updated the resource {resource} in the dataset {dataset}"
-msgstr "{actor} updated the resource {resource} in the dataset {dataset}"
+msgstr "{actor} updated the resource {resource} in the sample {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/changed_user.html:6
 msgid "{actor} updated their profile"
@@ -4083,7 +4095,7 @@ msgstr ""
 
 #: ckanext/activity/templates/snippets/activities/deleted_resource.html:6
 msgid "{actor} deleted the resource {resource} from the dataset {dataset}"
-msgstr "{actor} deleted the resource {resource} from the dataset {dataset}"
+msgstr "{actor} deleted the resource {resource} from the sample {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/fallback.html:16
 msgid "{actor} {activity_type}"
@@ -4115,7 +4127,7 @@ msgstr ""
 
 #: ckanext/activity/templates/snippets/activities/new_resource.html:6
 msgid "{actor} added the resource {resource} to the dataset {dataset}"
-msgstr "{actor} added the resource {resource} to the dataset {dataset}"
+msgstr "{actor} added the resource {resource} to the sample {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/new_user.html:6
 msgid "{actor} signed up"
@@ -4123,7 +4135,7 @@ msgstr "{actor} signed up"
 
 #: ckanext/activity/templates/snippets/activities/removed_tag.html:6
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr "{actor} removed the tag {tag} from the dataset {dataset}"
+msgstr "{actor} removed the tag {tag} from the sample {dataset}"
 
 #: ckanext/activity/templates/snippets/changes/author.html:5
 msgid "Set author of {pkg_link} to {new_author} (previously {old_author})"
@@ -4869,7 +4881,7 @@ msgstr ""
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:11
 msgid "Datasets per page"
-msgstr "Datasets per page"
+msgstr "Samples per page"
 
 #: ckanext/example_iconfigurer/templates/admin/config.html:13
 msgid "Test conf"
@@ -5054,7 +5066,7 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:10
 msgid "Total number of Datasets"
-msgstr ""
+msgstr "Total number of Samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:17
 #: ckanext/stats/templates/ckanext/stats/index.html:40
@@ -5063,25 +5075,25 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:18
 msgid "Total datasets"
-msgstr ""
+msgstr "Total samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:33
 #: ckanext/stats/templates/ckanext/stats/index.html:165
 msgid "Dataset Revisions per Week"
-msgstr ""
+msgstr "Sample Revisions per Week"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:41
 msgid "All dataset revisions"
-msgstr ""
+msgstr "All sample revisions"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:42
 msgid "New datasets"
-msgstr ""
+msgstr "New samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:58
 #: ckanext/stats/templates/ckanext/stats/index.html:166
 msgid "Most Edited Datasets"
-msgstr ""
+msgstr "Most Edited Samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:64
 msgid "Number of edits"
@@ -5089,7 +5101,7 @@ msgstr ""
 
 #: ckanext/stats/templates/ckanext/stats/index.html:81
 msgid "No edited datasets"
-msgstr ""
+msgstr "No edited samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:86
 #: ckanext/stats/templates/ckanext/stats/index.html:167
@@ -5098,7 +5110,7 @@ msgstr "Largest Groups"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:92
 msgid "Number of datasets"
-msgstr "Number of datasets"
+msgstr "Number of samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:109
 msgid "No groups"
@@ -5116,12 +5128,12 @@ msgstr "Tag Name"
 #: ckanext/stats/templates/ckanext/stats/index.html:119
 #: ckanext/stats/templates/ckanext/stats/index.html:143
 msgid "Number of Datasets"
-msgstr "Number of Datasets"
+msgstr "Number of Samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:138
 #: ckanext/stats/templates/ckanext/stats/index.html:169
 msgid "Users Creating Most Datasets"
-msgstr ""
+msgstr "Users Creating Most Samples"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:161
 msgid "Statistics Menu"
@@ -5129,7 +5141,7 @@ msgstr "Statistics Menu"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:164
 msgid "Total Number of Datasets"
-msgstr ""
+msgstr "Total Number of Samples"
 
 #: ckanext/textview/plugin.py:64 ckanext/textview/plugin.py:66
 msgid "Text"
