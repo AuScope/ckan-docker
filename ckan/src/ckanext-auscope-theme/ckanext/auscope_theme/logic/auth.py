@@ -10,39 +10,6 @@ def auscope_theme_get_sum(context, data_dict):
     return {"success": True}
 
 
-def user_is_member_of_package_org(user, package):
-    """
-    Return True if the package is in an organization and the user has the member role in
-    that organization.
-
-    :param user: A user object
-    :param package: A package object
-    :returns: True if the user has the 'member' role in the organization that owns the
-              package, False otherwise
-    """
-    if package.owner_org:
-        role_in_org = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        if role_in_org == 'member':
-            return True
-    return False
-
-
-def user_owns_package_as_member(user, package):
-    """
-    Checks that the given user created the package, and has the 'member' role in the
-    organization that owns the package.
-
-    :param user: A user object
-    :param package: A package object
-    :returns: True if the user created the package and has the 'member' role in the
-              organization to which package belongs. False otherwise.
-    """
-    if user_is_member_of_package_org(user, package):
-        return package.creator_user_id and user.id == package.creator_user_id
-
-    return False
-
-
 @tk.chained_auth_function
 def package_create(next_auth, context, data_dict):
     user = context.get('auth_user_obj')
@@ -90,10 +57,26 @@ def resource_view_create(next_auth, context, data_dict):
     else:
         dc = data_dict
     resource = get_resource_object(context, dc)
-    if user_owns_package_as_member(user, resource.package):
-        return {'success': True}
-    elif user_is_member_of_package_org(user, resource.package):
-        return {'success': False}
+
+    #if user_owns_package_as_member(user, resource.package):
+    #    return {'success': True}
+    #elif user_is_member_of_package_org(user, resource.package):
+    #    return {'success': False}
+
+    if resource and resource.package and resource.package.owner_org:
+        package = resource.package
+        user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
+        # Editors and admins can always view a resoure
+        if user_role in ['editor', 'admin']:
+            return {'success': True}
+        # Members can view their own resources
+        elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
+            return {'success': True}
+        # Member is an editing collaborator
+        elif authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']):
+            return {'success': True}
+        else:
+            return {'success': False, 'msg': 'Unauthorized to view dataset'}
 
     return next_auth(context, data_dict)
 
