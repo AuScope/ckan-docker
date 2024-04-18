@@ -58,11 +58,6 @@ def resource_view_create(next_auth, context, data_dict):
         dc = data_dict
     resource = get_resource_object(context, dc)
 
-    #if user_owns_package_as_member(user, resource.package):
-    #    return {'success': True}
-    #elif user_is_member_of_package_org(user, resource.package):
-    #    return {'success': False}
-
     if resource and resource.package and resource.package.owner_org:
         package = resource.package
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
