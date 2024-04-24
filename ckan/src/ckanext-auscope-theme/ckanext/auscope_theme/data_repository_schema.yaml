@@ -112,7 +112,7 @@ dataset_fields:
     - field_name: author_email
       label: Author Email
       required: true
-      display_snippet: email.html
+      display_snippet: None
       display_email_name_field: author_name
       help_text: The email of the author
 
@@ -272,7 +272,7 @@ dataset_fields:
   form_snippet: composite_repeating_field.html
   validators: composite_repeating_validator
   form_blanks: 1
-  groupBy: Funder Identifier    
+  groupBy: Funding and Project    
   subfields:
     - field_name: funder_name
       label: Funder Name
@@ -306,17 +306,17 @@ dataset_fields:
       label: Funding Program Name
       help_text: The name of the funding program through which the the project grant was awarded
 
-    - field_name: project_grant_identifier
-      label: Project Grant Identifier
+    - field_name: project_identifier
+      label: Project Identifier
       display_snippet: URL
       help_text: The code assigned by the funder to a sponsored grant or project of the dataset. Please specify the absolute URL, e.g. https:&#47;&#47;://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/IM240100006
 
-    - field_name: project_grant_name
-      label: Project Grant Name
-      help_text: The full name of project grant of the dataset
+    - field_name: project_name
+      label: Project Name
+      help_text: The full name of the project through which the data is generated or collected
 
-    - field_name: project_grant_identifier_type
-      label: Project Grant Identifier Type
+    - field_name: project_identifier_type
+      label: Project Identifier Type
       preset: select
       choices:
         - value: raid
@@ -324,7 +324,9 @@ dataset_fields:
         - value: cordis grant agreement id
           label: CORDIS Grant Agreement ID
         - value: grantconnect id
-          label: GrantConnect ID  
+          label: GrantConnect ID
+        - value: other
+          label: Other            
       help_text: The type of project identifier
 
 - field_name: related_resource
