@@ -455,7 +455,6 @@ ckan.module('map-module', function ($, _) {
         },
 
         adjustBounds: function (bounds) {
-            console.log(bounds);
             let southwest = bounds.getSouthWest().wrap();
             let northeast = bounds.getNorthEast().wrap();
 
@@ -468,8 +467,6 @@ ckan.module('map-module', function ($, _) {
                 alert("Detected bounds that imply crossing the antimeridian");
                 east += 360;
             }
-
-            console.log(L.latLngBounds([south, west], [north, east]));
             return L.latLngBounds([south, west], [north, east]);
         },
 
