@@ -176,6 +176,7 @@ dataset_fields:
 - field_name: deposit_date
   label: Deposit Date
   required: true
+  form_snippet: date_field.html
   preset: date
   help_text: The date the data was deposited into the repository 
   groupBy: About Dataset  
