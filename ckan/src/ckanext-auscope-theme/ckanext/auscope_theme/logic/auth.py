@@ -44,18 +44,18 @@ def user_owns_package_as_member(user, package):
     return False
 
 
-@tk.chained_auth_function
-def package_create(next_auth, context, data_dict):
-    user = context.get('auth_user_obj')
-    if data_dict and 'owner_org' in data_dict:
-        user_role = authz.users_role_for_group_or_org(data_dict['owner_org'], user.name)
-        # userdatasets only checks for 'member' here
-        if user_role in ['admin', 'editor', 'member']:
-            return {'success': True}
-    else:
-        if authz.has_user_permission_for_some_org(user.name, 'read'):
-            return {'success': True}
-    return next_auth(context, data_dict)
+# @tk.chained_auth_function
+# def package_create(next_auth, context, data_dict):
+#     user = context.get('auth_user_obj')
+#     if data_dict and 'owner_org' in data_dict:
+#         user_role = authz.users_role_for_group_or_org(data_dict['owner_org'], user.name)
+#         # userdatasets only checks for 'member' here
+#         if user_role in ['admin', 'editor', 'member']:
+#             return {'success': True}
+#     else:
+#         if authz.has_user_permission_for_some_org(user.name, 'read'):
+#             return {'success': True}
+#     return next_auth(context, data_dict)
 
 
 @tk.chained_auth_function
@@ -252,7 +252,7 @@ def package_show(next_auth, context, data_dict):
 def get_auth_functions():
     return {
         "auscope_theme_get_sum": auscope_theme_get_sum,
-        "package_create": package_create,
+        # "package_create": package_create,
         "resource_create": resource_create,
         "resource_view_create": resource_view_create,
         "package_update": package_update,

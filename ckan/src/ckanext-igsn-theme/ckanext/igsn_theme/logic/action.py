@@ -17,9 +17,16 @@ def igsn_theme_get_sum(context, data_dict):
         "right": data["right"],
         "sum": data["left"] + data["right"]
     }
-
+@tk.chained_action
+def package_create(next_action, context, data_dict):
+    package_type = data_dict.get('type')
+    
+    # Replace owner_org_validator
+    
+    return next_action(context, data_dict)
 
 def get_actions():
     return {
         'igsn_theme_get_sum': igsn_theme_get_sum,
+        'package_create': package_create,
     }
