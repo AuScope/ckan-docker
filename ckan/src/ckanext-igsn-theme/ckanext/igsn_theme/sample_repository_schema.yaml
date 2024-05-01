@@ -112,7 +112,7 @@ dataset_fields:
     - field_name: author_email
       label: Author Email
       required: true
-      display_snippet: email.html
+      display_snippet: None
       display_email_name_field: author_name
       help_text: The email of the author
 
