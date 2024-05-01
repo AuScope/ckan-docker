@@ -68,6 +68,10 @@ RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=cka
 ### Zip preview ###
 RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview"
 
+### DCAT plugins ###
+RUN pip install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
+RUN pip install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat
+
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
 

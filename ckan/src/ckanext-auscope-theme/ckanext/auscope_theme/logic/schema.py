@@ -45,7 +45,7 @@ def after_dataset_show(context, pkg_dict):
     if 'resource_type' in pkg_dict:
         citation += '(' + pkg_dict['resource_type'].capitalize() +'). '
     if 'doi' in pkg_dict:
-        citation += pkg_dict['doi']
+        citation += 'https://doi.org/' + pkg_dict['doi']
 
     pkg_dict['citation'] = citation
 
