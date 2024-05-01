@@ -258,6 +258,7 @@ dataset_fields:
 - field_name: publication_date
   label: Publication Date
   required: true
+  form_snippet: date_field.html  
   preset: date
   help_text: The date the physical sample is published through the repository
   groupBy: About Sample   

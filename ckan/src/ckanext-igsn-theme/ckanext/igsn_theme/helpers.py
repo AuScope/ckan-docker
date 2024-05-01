@@ -1,7 +1,7 @@
 from ckan.plugins import toolkit
 import ckan.logic as logic
 import ckan.authz as authz
-
+from datetime import date
 
 def igsn_theme_hello():
     return "Hello, igsn_theme!"
@@ -40,6 +40,8 @@ def users_role_in_org(user_name):
     # TODO: Get org name from config and pass in
     return authz.users_role_for_group_or_org(group_id='auscope', user_name=user_name)
 
+def current_date():
+    return date.today().isoformat()
 
 def get_helpers():
     return {
@@ -47,5 +49,6 @@ def get_helpers():
         "is_creating_or_editing_dataset" :is_creating_or_editing_dataset,
         'get_org_list': get_org_list,
         'users_role_in_org': users_role_in_org,
-        "get_search_facets" : get_search_facets
+        "get_search_facets" : get_search_facets,
+        'current_date': current_date,        
     }
