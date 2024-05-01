@@ -9,7 +9,7 @@
     ">{{ _('Remove') }}</button>
 {% endmacro %}
 
-<form id="dataset-edit" method="post" action="{{ action }}" data-module="basic-form" novalidate>
+<form id="dataset-edit" method="post" action="{{ action }}" enctype="multipart/form-data" data-module="basic-form" novalidate>
 
   <div id="batch-upload-form" data-module="resource-upload-field" class="resource-upload-field form-group">
 
@@ -63,7 +63,7 @@
               {{ remove_button(
                 js="$('#field-resource-upload').replaceWith($('#field-resource-upload').val('').clone(true))") }}
               {{ form.input(
-                'upload',
+                'file',
                 label=upload_label or _('File'),
                 id='field-resource-upload',
                 type='file',

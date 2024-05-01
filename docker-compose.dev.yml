@@ -35,15 +35,6 @@ services:
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
     
-  fastapi:
-      container_name: fastapi-dev
-      build:
-        context: batch/
-        dockerfile: Dockerfile
-      volumes:
-        - ./batch:/app/batch
-      ports:
-        - "8000:80"
 
   datapusher:
     container_name: ${DATAPUSHER_CONTAINER_NAME}
