@@ -4,14 +4,13 @@ igsn_theme-js:
     - /shared/public/base/vendor/jstree/jstree.min.js
     - /shared/public/base/vendor/leaflet/leaflet.js
     - /shared/public/base/vendor/leaflet-draw/leaflet.draw.js
-
-    - /shared/public/base/js/jstree-view-module.js
     - /shared/public/base/js/map-module.js
     - /shared/public/base/js/display-map-module.js
     - /shared/public/base/js/composite-repeating-module.js
     - /shared/public/base/js/for-fields-handler-module.js
     - /shared/public/base/js/gcmd-fields-handler-module.js
-
+    - js/jstree-view-module.js
+    - js/parent-sample-selector-module.js
     - js/igsn_theme.js   
   extra:
     preload:
@@ -23,8 +22,6 @@ igsn_theme-css:
     - /shared/public/base/vendor/leaflet/leaflet.css
     - /shared/public/base/vendor/leaflet-draw/leaflet.draw.css
     - /shared/public/base/vendor/jstree/themes/default/style.min.css
-
     - /shared/public/shared_style.css    
-
     - css/igsn_theme.css
   output: ckanext-igsn_theme/%(version)s-igsn_theme.css

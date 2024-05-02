@@ -27,6 +27,18 @@ dataset_fields:
   form_placeholder: eg. my-dataset
   groupBy: About Sample
 
+- field_name: parent
+  label: Parent Sample
+  form_snippet: sample_parent_field.html
+  display_snippet: sample_parent_field.html
+  help_text: Select the parent sample from existing samples.
+  groupBy: About Sample
+
+- field_name: parent-name
+  form_snippet: hidden_field.html
+  display_snippet: null
+  groupBy: About Sample
+
 - field_name: author
   label: Authors
   preset: composite_repeating

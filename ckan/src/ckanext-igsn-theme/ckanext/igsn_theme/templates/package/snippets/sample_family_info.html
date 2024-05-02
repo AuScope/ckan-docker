@@ -1,0 +1,16 @@
+{% block info %}
+  <div class="module module-narrow module-shallow context-info">
+    <h2 class="module-heading"><i class="fa fa-sitemap"></i> Sample Family</h2>
+    <section class="module-content">
+      {% block inner %}
+        {% block description %}
+            <div data-module="jstree-view-module" data-pkg='{{ pkg | tojson | safe }}'>
+                <div id="tree"></div>
+            </div>
+        {% endblock %}
+      
+      {% endblock %}
+    </section>
+  </div>
+  {% endblock %}
+

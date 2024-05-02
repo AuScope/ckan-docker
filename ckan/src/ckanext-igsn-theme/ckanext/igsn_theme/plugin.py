@@ -12,8 +12,10 @@ from ckanext.igsn_theme.logic import (
     action, auth, validators
 )
 
+
 class IgsnThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
+    plugins.implements(plugins.IPackageController, inherit=True)
 
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.IActions)
@@ -46,6 +48,15 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "igsn_theme")
 
+    # IPackageController
+    def after_dataset_create(self, context, pkg_dict):
+        return action.create_package_relationship(context, pkg_dict)
+
+    def after_dataset_update(self, context, pkg_dict):
+        return action.update_package_relationship(context, pkg_dict)
+
+    def after_dataset_delete(self, context, pkg_dict):
+        return action.delete_package_relationship(context, pkg_dict)
 
     # IAuthFunctions
 

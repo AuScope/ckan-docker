@@ -1,0 +1,14 @@
+<div data-module="parent-sample-selector-module" class="form-group" id="parent">
+    <label class="form-label" for="field-parent">Parent Sample</label>
+    <input class="form-control gcmd-keywords" id="field-parent" name="parent" value="{{data['parent']}}" autocomplete="off">
+    {% if errors['parent'] %}
+        {% for error in errors['parent'] %}
+            <span class="error-block">{{ error }}</span>
+        {% endfor %}
+    {% endif %}
+    <div class="info-block">
+        <i class="fa fa-info-circle"></i>
+        Select the parent sample from existing samples.
+    </div>
+</div>
+

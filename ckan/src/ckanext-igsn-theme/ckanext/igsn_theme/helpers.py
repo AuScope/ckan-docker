@@ -2,6 +2,7 @@ from ckan.plugins import toolkit
 import ckan.logic as logic
 import ckan.authz as authz
 from datetime import date
+from ckan.logic import NotFound
 
 def igsn_theme_hello():
     return "Hello, igsn_theme!"
@@ -43,6 +44,14 @@ def users_role_in_org(user_name):
 def current_date():
     return date.today().isoformat()
 
+def get_package(package_id):
+    """Retrieve package details given an ID or return None if not found."""
+    context = {'user': toolkit.c.user or toolkit.c.author}
+    try:
+        return toolkit.get_action('package_show')(context, {'id': package_id})
+    except NotFound:
+        return None
+
 def get_helpers():
     return {
         "igsn_theme_hello": igsn_theme_hello,
@@ -51,4 +60,5 @@ def get_helpers():
         'users_role_in_org': users_role_in_org,
         "get_search_facets" : get_search_facets,
         'current_date': current_date,        
+        "get_package": get_package
     }

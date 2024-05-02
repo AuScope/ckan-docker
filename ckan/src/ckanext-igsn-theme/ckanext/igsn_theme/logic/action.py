@@ -5,11 +5,9 @@ import ckan.lib.plugins as lib_plugins
 import ckan.logic as logic
 from ckan.logic.validators import owner_org_validator as default_owner_org_validator
 from ckan.logic.action.create import user_create as ckan_user_create
-
+from ckan.logic import _actions
+import ckan.authz as authz
 import logging
-
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
 
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
@@ -72,8 +70,8 @@ def package_create(next_action, context, data_dict):
             owner_org_validator if f is default_owner_org_validator else f
             for f in schema['owner_org']
         ]
-    context['schema'] = schema
-    return next_action(context, data_dict)
+    created_package = next_action(context, data_dict)
+    return created_package
 
 
 # We do not need user_create customization here.
@@ -103,11 +101,74 @@ def package_create(next_action, context, data_dict):
 #     return user
 
 
+def create_package_relationship(context, pkg_dict):
+    if 'parent' in pkg_dict and pkg_dict['parent']:
+        logger = logging.getLogger(__name__)
+        parent_id = pkg_dict['parent']
+        try:
+            tk.get_action('package_relationship_create')(context, {
+                'subject': pkg_dict['id'],
+                'object': parent_id,
+                'type': 'child_of',
+                'comment': 'Creating a child_of relationship'
+            })
+        except Exception as e:
+            logger.error('Failed to create package relationship: {}'.format(str(e)))
+
+
+def update_package_relationship(context, pkg_dict):
+    """
+    Updates the parent relationship of a package.
+    
+    Parameters:
+    context (dict): The context dictionary containing user and auth details.
+    pkg_dict (dict): Dictionary containing the package details, including 'id' and optional 'parent'.
+    
+    Returns:
+    None
+    """
+    if 'parent' in pkg_dict and pkg_dict['parent']:
+        logger = logging.getLogger(__name__)
+        parent_id = pkg_dict['parent']
+        package_id = pkg_dict['id']
+        relationship_type = 'child_of'
+        try:
+            existing_relationships = tk.get_action('package_relationships_list')(
+                context, {'id': package_id, 'rel': relationship_type}
+            )
+            for rel in existing_relationships:
+                tk.get_action('package_relationship_delete')(context, rel)
+        except Exception as e:
+                logger.error(f"Error while accessing relationships for package {package_id}: {str(e)}")
+        try:
+            tk.get_action('package_relationship_create')(context, {
+                'subject': package_id,
+                'object': parent_id,
+                'type': relationship_type,
+                'comment': 'Updated relationship to new parent'
+            })
+        except Exception as e:
+            logger.error(f"Failed to create package relationship for package {package_id}: {str(e)}")
+
+
+def delete_package_relationship(context, pkg_dict):
+    logger = logging.getLogger(__name__)
+    package_id = pkg_dict['id']
+    try:
+        existing_relationships = tk.get_action('package_relationships_list')(context, {'id': package_id})
+        for rel in existing_relationships:
+            tk.get_action('package_relationship_delete')(context, rel)
+    except Exception as e:
+        logger.error(f"Failed to delete package relationship: {str(e)}")
+
 def get_actions():
     return {
         # 'user_create': user_create,
         'igsn_theme_get_sum': igsn_theme_get_sum,
         'organization_list_for_user': organization_list_for_user,
         'package_create': package_create,
-        # 'group_list': group_list,
+        'create_package_relationship' : create_package_relationship,
+        'update_package_relationship' : update_package_relationship,
+        'delete_package_relationship' : delete_package_relationship
+         # 'group_list': group_list,
     }
