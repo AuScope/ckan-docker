@@ -1,8 +1,34 @@
-/* 
-  NOTE:
-  The following styles are for testing purposes only.
-  Please insert the actual CSS styles for the igsn-theme extension below this comment block.
-*/
-.media-overlay .media-heading {
-  background-color: #282572;
+
+.stages {
+  margin: 0;
+  list-style: none;
+  color: #aeaeae;
+  counter-reset: none;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  padding: 0;
 }
+
+.stages::after {
+  display: block;
+  clear: both;
+  content: "";
+}
+
+.stages li::before {
+  display: block;
+  clear: both;
+  content: "";
+
+}
+.stages li {
+  line-height: 27px;
+  counter-increment: none;
+  width: 100%; 
+  background-color: transparent;
+  float: left;
+  padding: 10px 20px;
+  position: relative;
+  z-index: 0;
+}
+

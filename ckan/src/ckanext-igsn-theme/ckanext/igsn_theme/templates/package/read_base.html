@@ -1,0 +1,15 @@
+{% ckan_extends %}
+
+{% block secondary_content %}
+
+  {% block secondary_help_content %}{% endblock %}
+
+  {% block package_organization %}
+    {{ super() }}
+  {% endblock %}
+
+  {% block sample_family_info %}
+    {% snippet 'package/snippets/sample_family_info.html', pkg=pkg, am_following=am_following %}
+  {% endblock %}
+
+{% endblock %}

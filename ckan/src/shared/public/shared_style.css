@@ -88,15 +88,15 @@ h1:last-child,h2:last-child,h3:last-child {
     margin-bottom: 0
 }
 h1 {
-    font-weight: 300;
+    font-weight: 500;
     font-style: normal;
-    font-size: 1.313rem;
+    font-size: 2rem;
     line-height: 1.3em;
     text-transform: none
 }
 
 h2 {
-    font-weight: 300;
+    font-weight: 400;
     font-style: normal;
     font-size: 1.75rem;
     line-height: 1.3em;
@@ -123,7 +123,7 @@ h1+h1,h1+h2,h1+h3,h2+h1,h2+h2,h2+h3,h3+h1,h3+h2,h3+h3 {
 }
 
 h1 {
-    color: var(--color-aus-black)
+    color: var(--color-aus-royal-blue)
 }
 
 h1 a {
@@ -787,4 +787,10 @@ body {
     border-bottom: none;
 }
 
+.context-info .image img, .context-info .image a {
+    display: block;
+    width: 200px;
+    height: 100%;
+    border-radius: 4px;
+}
 

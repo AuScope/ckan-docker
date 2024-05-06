@@ -18,13 +18,25 @@ dataset_fields:
   label: Title
   required: true
   preset: title
-  help_text: The title of the physical sample should be informative, short and define technical terms and acronyms clearly
+  help_text: "The title should include appropriate elements that would help find and distinguish a physical sample. The exact syntax is at the discretion of the sample provider. Appropriate elements might include: (a) The basic form of the object that is registered. For example, polished section, core, pulp, solution, dredge haul in a box, lot, or piece of material. (b) The material or materials that compose the sample. For example, water, granite, or tissue. (c) Local sample identifiers"
   groupBy: About Sample
 
 - field_name: name
   label: URL
   preset: dataset_slug
   form_placeholder: eg. my-dataset
+  groupBy: About Sample
+
+- field_name: parent
+  label: Parent Sample
+  form_snippet: sample_parent_field.html
+  display_snippet: sample_parent_field.html
+  help_text: Select the parent sample from existing samples.
+  groupBy: About Sample
+
+- field_name: parent-name
+  form_snippet: hidden_field.html
+  display_snippet: null
   groupBy: About Sample
 
 - field_name: author
@@ -112,7 +124,7 @@ dataset_fields:
     - field_name: author_email
       label: Author Email
       required: true
-      display_snippet: email.html
+      display_snippet: None
       display_email_name_field: author_name
       help_text: The email of the author
 
@@ -125,7 +137,7 @@ dataset_fields:
       label: PhysicalObject
   default: physicalobject
   form_include_blank_choice: false      
-  help_text: The type of the resource to be published
+  help_text: The type of the resource to be published; the default value for a physical sample is PhysicalObject
   groupBy: About Sample
 
 # XXX This conflicts with resource description, changed to notes to match original schema
@@ -258,6 +270,7 @@ dataset_fields:
 - field_name: publication_date
   label: Publication Date
   required: true
+  form_snippet: date_field.html  
   preset: date
   help_text: The date the physical sample is published through the repository
   groupBy: About Sample   
@@ -358,17 +371,17 @@ dataset_fields:
       label: Funding Program Name
       help_text: The name of the funding program through which the the project grant was awarded
 
-    - field_name: project_grant_identifier
-      label: Project Grant Identifier
+    - field_name: project_identifier
+      label: Project Identifier
       display_snippet: URL
-      help_text: The code assigned by the funder to a sponsored grant or project of the physical sample
+      help_text: The code assigned by the funder to a sponsored project of the physical sample
 
-    - field_name: project_grant_name
-      label: Project Grant Name
-      help_text: The full name of project grant of the physical sample
+    - field_name: project_name
+      label: Project Name
+      help_text: The full name of the project through which the physical sample is generated or collected
 
-    - field_name: project_grant_identifier_type
-      label: Project Grant Identifier Type
+    - field_name: project_identifier_type
+      label: Project Identifier Type
       preset: select
       choices:
         - value: raid
@@ -537,6 +550,11 @@ dataset_fields:
   label: Lineage
   form_snippet: textarea.html
   help_text: The Lineage should contain information about how the sample was collected or produced, e.g. location of collection, method used to collect the sample and sample preparation.
+  groupBy: Supporting Metadata
+
+- field_name: commodities
+  label: Commodities
+  help_text: The type natural resources mined or extracted. You may add one or more commodities separated by comma, e.g. Au, Cu, Ni
   groupBy: Supporting Metadata
 
 - field_name: supplementation_information
