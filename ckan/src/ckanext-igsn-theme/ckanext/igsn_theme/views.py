@@ -10,6 +10,7 @@ from ckan.common import _, g, current_user
 import ckan.lib.base as base
 import ckan.logic as logic
 import ckan.lib.helpers as helpers
+from ckanext.igsn_theme.logic.action import process_excel, create_package
 
 # Only import what's needed and avoid duplications
 check_access = logic.check_access
@@ -62,9 +63,12 @@ class BatchUploadView(MethodView):
                     flash('Please upload an Excel file (.xlsx or .xls).', 'error')
                     return redirect(url_for('upload_page'))  # Adjust the redirect as needed
 
-                api_url = "https://example.com/api/upload"
-                files = {'file': (uploaded_file.filename, uploaded_file, uploaded_file.content_type)}
-                response = requests.post(api_url, files=files)
+                data = process_excel(uploaded_file)
+                results = []
+                for package_data in data:
+                    package = create_package(context, package_data)
+                    results.append(package)
+                return redirect(url_for('igsn_theme.batch_upload'))
             elif provided_url:
                 api_url = "https://example.com/api/submit-url"
                 data = {'url': provided_url}
