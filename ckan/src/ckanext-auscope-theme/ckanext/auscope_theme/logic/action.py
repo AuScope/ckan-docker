@@ -5,6 +5,8 @@ import ckan.logic as logic
 from ckan.logic.validators import owner_org_validator as default_owner_org_validator
 from ckanext.auscope_theme.logic.validators import owner_org_validator
 from ckan.logic.action.create import user_create as ckan_user_create
+from datetime import datetime
+from ckan.logic.auth import get_package_object
 
 
 
@@ -49,6 +51,24 @@ def package_create(next_action, context, data_dict):
             for f in schema['owner_org']
         ]
     context['schema'] = schema
+
+    # Set deposit date
+    data_dict['deposit_date'] = datetime.now()
+
+    # Editors/admins may create dataset as public, so add publication date
+    if data_dict['private'] == 'False':
+        data_dict['publication_date'] = datetime.now()
+
+    return next_action(context, data_dict)
+
+
+@tk.chained_action
+def package_update(next_action, context, data_dict):
+    package = get_package_object(context, {'id': data_dict['id']})
+    # If package being made public for first time, set publication date
+    if package.private and data_dict['private'] == 'False' and \
+            (not data_dict['publication_date'] or data_dict['publication_date'] == ''):
+        data_dict['publication_date'] = datetime.now()
     return next_action(context, data_dict)
 
 
@@ -83,4 +103,5 @@ def get_actions():
         'auscope_theme_get_sum': auscope_theme_get_sum,
         'organization_list_for_user': organization_list_for_user,
         'package_create': package_create,
+        'package_update': package_update,
     }

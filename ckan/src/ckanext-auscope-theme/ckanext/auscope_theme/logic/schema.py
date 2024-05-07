@@ -30,10 +30,11 @@ def after_dataset_show(context, pkg_dict):
         citation += author_list[i]['author_name']
         if i != len(author_list) - 1:
             citation += ', '
-        # TODO: Change this to publication_date when dataset is published (and when field is reinstated)
-        elif 'deposit_date' in pkg_dict:
-            deposit_date = datetime.strptime(pkg_dict['deposit_date'], '%Y-%m-%d')
-            citation += ' (' + str(deposit_date.year) + '): '
+        elif 'publication_date' in pkg_dict and pkg_dict['publication_date'] != '':
+            #publication_date = datetime.strptime(pkg_dict['publication_date'], '%Y-%m-%d')
+            publication_date = datetime.strptime(pkg_dict['publication_date'].split(' ', 1)[0], '%Y-%m-%d')
+            #citation += ' (' + pkg_dict['publication_date'].year + '): '
+            citation += ' (' + str(publication_date.year) + '): '
     citation += pkg_dict['title']
 
     if citation[len(citation) -1] != '.':

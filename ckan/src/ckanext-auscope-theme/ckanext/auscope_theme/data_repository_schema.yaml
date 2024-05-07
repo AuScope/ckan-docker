@@ -128,7 +128,6 @@ dataset_fields:
   help_text: The type of the resource to be published
   groupBy: About Dataset
 
-# XXX This conflicts with resource description, changed to notes to match original schema
 - field_name: notes
   label: Description
   required: true
@@ -176,10 +175,18 @@ dataset_fields:
 - field_name: deposit_date
   label: Deposit Date
   required: true
-  form_snippet: date_field.html
-  preset: date
-  help_text: The date the data was deposited into the repository 
+  form_snippet: hidden_field.html
+  display_snippet: date_tz.html
+  help_text: The date the data was deposited into the repository
   groupBy: About Dataset  
+
+- field_name: publication_date
+  label: Publication Date
+  required: false
+  form_snippet: hidden_field.html
+  display_snippet: date_tz.html
+  help_text: The date the data was published with a DOI through the repository
+  groupBy: About Dataset
 
 - field_name: embargo_date
   label: Embargo Date
@@ -283,7 +290,7 @@ dataset_fields:
     - field_name: funder_identifier
       label: Funder Identifier
       display_snippet: URL
-      help_text: Unique identifier of the funding entity. Please specify the absolute URL, e.g. httpS:&#47;&#47;dx.doi.org/10.13039/501100000923
+      help_text: 'Unique identifier of the funding entity. Please specify the absolute URL, e.g. http:&#47;&#47;dx.doi.org/10.13039/501100000923'
 
     - field_name: funder_identifier_type
       label: Funder Identifier Scheme
