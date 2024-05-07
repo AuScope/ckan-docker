@@ -1,5 +1,6 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from ckanext.doi.lib import metadata as doi_metadata
 import os
 
 from ckanext.igsn_theme.logic import validators
@@ -11,6 +12,29 @@ from ckanext.igsn_theme import helpers
 from ckanext.igsn_theme.logic import (
     action, auth, validators
 )
+
+import logging
+
+original_build_metadata_dict = doi_metadata.build_metadata_dict
+
+
+def patched_build_metadata_dict(pkg_dict):
+    """
+    A patched version of build_metadata_dict to correct language handling and possibly other
+    adjustments needed for DOI metadata.
+    """
+    # Call the original function
+    xml_dict = original_build_metadata_dict(pkg_dict)
+
+    # Correct the language field
+    xml_dict['language'] = 'en'  # or some other logic to determine the correct language
+
+    # Return the modified metadata dict
+    return xml_dict
+
+
+# Apply the patch
+doi_metadata.build_metadata_dict = patched_build_metadata_dict
 
 
 class IgsnThemePlugin(plugins.SingletonPlugin):
@@ -33,6 +57,8 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     def i18n_locales(self):
         # Return a list of locales your extension supports
         return ['en_AU']
+        # return ['en']
+
 
     def i18n_directory(self):
         # This points to 'ckanext-igsn_theme/ckanext/igsn_theme/i18n'
@@ -40,7 +66,6 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
         return os.path.join('ckanext', 'igsn_theme', 'i18n')
 
     # IConfigurer
-
     def update_config(self, config_):
         toolkit.add_template_directory(config_, '/shared/templates')
         toolkit.add_template_directory(config_, "templates")
@@ -48,11 +73,23 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
         toolkit.add_public_directory(config_, "public")
         toolkit.add_resource("assets", "igsn_theme")
 
+
     # IPackageController
+    # def process_doi_metadata(self, pkg_dict):
+    #     pkg_dict['language_code'] = 'en'
+
+    def before_view(self, pkg_dict):
+        logger = logging.getLogger(__name__)
+        logger.info(pkg_dict)
+
     def after_dataset_create(self, context, pkg_dict):
+        logger = logging.getLogger(__name__)
+        # self.process_doi_metadata(pkg_dict)
+        logger.info(pkg_dict)
         return action.create_package_relationship(context, pkg_dict)
 
     def after_dataset_update(self, context, pkg_dict):
+        # self.process_doi_metadata(pkg_dict)
         return action.update_package_relationship(context, pkg_dict)
 
     def after_dataset_delete(self, context, pkg_dict):

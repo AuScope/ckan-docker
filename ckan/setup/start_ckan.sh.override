@@ -18,7 +18,7 @@ then
     ckan config-tool $CKAN_INI "api_token.jwt.decode.secret=${JWT_SECRET}"
 fi
 
-ckan config-tool $CKAN_INI "ckan.locale_default = en_AU"
+
 
 ### AUTH Settings ###
 if echo "$CKAN__PLUGINS" | grep -q "igsn_theme"; then
@@ -26,11 +26,21 @@ if echo "$CKAN__PLUGINS" | grep -q "igsn_theme"; then
     ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = false"
     #ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
     ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = false"
+    # ckan config-tool $CKAN_INI "ckan.dataset.create.require.resource = true"
+    ckan config-tool $CKAN_INI "ckan.dataset.create.require.resource = false"
+    # ckan config-tool $CKAN_INI "ckan.dataset.create_on_ui_requires_resources = true"
+    ckan config-tool $CKAN_INI "ckan.dataset.create_on_ui_requires_resources = false"
+
+    export CKAN___SCHEMING__DATASET_SCHEMAS="ckanext.igsn_theme:sample_repository_schema.yaml"
+
+    ckan config-tool $CKAN_INI "ckan.locale_default = en_AU"
 else
     #ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
     ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = false"
     #ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
     ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = false"
+
+    export CKAN___SCHEMING__DATASET_SCHEMAS="ckanext.auscope_theme:data_repository_schema.yaml"
 fi
 
 # Compiling translations for the custom extension
