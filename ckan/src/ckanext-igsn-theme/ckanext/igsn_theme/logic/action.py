@@ -90,6 +90,9 @@ def package_create(next_action, context, data_dict):
             owner_org_validator if f is default_owner_org_validator else f
             for f in schema['owner_org']
         ]
+
+    data_dict['private'] = False
+
     created_package = next_action(context, data_dict)
     return created_package
 
@@ -139,11 +142,11 @@ def create_package_relationship(context, pkg_dict):
 def update_package_relationship(context, pkg_dict):
     """
     Updates the parent relationship of a package.
-    
+
     Parameters:
     context (dict): The context dictionary containing user and auth details.
     pkg_dict (dict): Dictionary containing the package details, including 'id' and optional 'parent'.
-    
+
     Returns:
     None
     """

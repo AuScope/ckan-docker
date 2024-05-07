@@ -610,7 +610,7 @@ msgstr "Sample collaborators not enabled"
 
 #: ckan/logic/action/create.py:880
 msgid "Trying to create an organization as a group"
-msgstr "Trying to create an collection as a group"
+msgstr "Trying to create a collection as a group"
 
 #: ckan/logic/action/create.py:1116
 msgid "Error sending the invite email, the user was not created: {0}"
@@ -2203,7 +2203,7 @@ msgstr[1] ""
 
 #: ckan/templates/organization/new.html:3
 msgid "Create an Organization"
-msgstr "Create an Collection"
+msgstr "Create a Collection"
 
 #: ckan/templates/organization/new_organization_form.html:19
 msgid "Update Organization"
@@ -2228,7 +2228,7 @@ msgid ""
 "on their level of authorisation to create, edit and publish."
 msgstr ""
 " CKAN Collections are used to create, manage and publish collections of "
-"samples. Users can have different roles within an Collection, depending "
+"samples. Users can have different roles within a Collection, depending "
 "on their level of authorisation to create, edit and publish. "
 
 #: ckan/templates/organization/snippets/organization_form.html:12
@@ -2664,7 +2664,7 @@ msgstr "Last Updated"
 
 #: ckan/templates/package/snippets/cannot_create_package.html:10
 msgid "Before you can create a dataset you need to create an organization."
-msgstr "Before you can create a sample you need to create an collection."
+msgstr "Before you can create a sample you need to create a Collection."
 
 #: ckan/templates/package/snippets/cannot_create_package.html:13
 msgid "Create a new organization"
@@ -2679,7 +2679,7 @@ msgid ""
 "Ask a system administrator to create an organization before you can "
 "continue."
 msgstr ""
-"Ask a system administrator to create an collection before you can "
+"Ask a system administrator to create a Collection before you can "
 "continue."
 
 #: ckan/templates/package/snippets/package_basic_fields.html:6
