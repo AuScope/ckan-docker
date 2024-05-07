@@ -1,9 +1,29 @@
 {% import "macros/form.html" as form %}
 {% set is_upload_enabled = true %}
 {% set upload_label = 'Upload batch sample metadata' %}
+<style>
+.loader {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: none;
+}
 
-<form id="dataset-edit" method="post" action="{{ action }}" data-module="basic-form" novalidate
-  enctype="multipart/form-data">
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+
+<form id="dataset-edit" method="post" action="{{ action }}" data-module="basic-form" novalidate enctype="multipart/form-data">
 
   <div class="row" style="margin-bottom: 50px;">
     <div class="col-sm-9">
@@ -16,10 +36,9 @@
     </div>
   </div>
 
-  <div class="form-group control-full" >
+  <div class="form-group control-full">
     <div class="input-group">
-      <input id="field-batch-upload" type="file" name="file" value="" placeholder="" class="form-control"
-        accept=".xlsx,.xls">
+      <input id="field-batch-upload" type="file" name="file" value="" placeholder="" class="form-control" accept=".xlsx,.xls">
       <span class="input-group-btn">
         <button type="button" class="btn btn-danger btn-remove-url" style="top: 0px;" onclick="
               var uploadField = document.getElementById('field-batch-upload');
@@ -32,9 +51,20 @@
   {% block form_actions %}
   <div class="form-actions">
     {% block save_button %}
-    <button class="btn btn-primary" style="margin-top: 50px;" type="submit" name="save">{% block save_button_text %}{{
-      _('Submit') }}{% endblock %}</button>
+    <button class="btn btn-primary" style="margin-top: 50px;" type="submit" name="save">{% block save_button_text %}{{ _('Submit') }}{% endblock %}</button>
     {% endblock %}
   </div>
   {% endblock %}
 </form>
+
+<div id="loader" class="loader"></div>
+
+<script>
+document.getElementById('dataset-edit').onsubmit = function() {
+    document.getElementById('loader').style.display = 'block';
+};
+
+window.onload = function() {
+    document.getElementById('loader').style.display = 'none';
+};
+</script>

@@ -11,6 +11,7 @@ import ckan.lib.base as base
 import ckan.logic as logic
 import ckan.lib.helpers as helpers
 from ckanext.igsn_theme.logic.action import process_excel, create_package
+import logging
 
 # Only import what's needed and avoid duplications
 check_access = logic.check_access
@@ -41,61 +42,52 @@ class BatchUploadView(MethodView):
         """
         self._prepare()
         return render_template('batch/new.html')
+    
     def post(self):
         """
         Handles the POST request to upload and process the batch dataset file or submit a URL.
         """
         context = self._prepare()
+        logger = logging.getLogger(__name__)
+        logger.info(f"Failed to create package. Validation error: {request}")
 
         uploaded_file = request.files.get('file')
-        provided_url = request.form.get('url')
 
-        if not uploaded_file and not provided_url:
-            h.flash_error(_('No file or URL provided.'))
+        if not uploaded_file :
+            h.flash_error(_('No file provided.'))
             return redirect(url_for('igsn_theme.batch_upload'))
 
         try:
             if uploaded_file:
-                
                 file_name = uploaded_file.filename
                 file_extension = os.path.splitext(file_name)[1].lower()
                 if file_extension not in ['.xlsx', '.xls']:
                     flash('Please upload an Excel file (.xlsx or .xls).', 'error')
-                    return redirect(url_for('upload_page'))  # Adjust the redirect as needed
+                    return redirect(url_for('igsn_theme.batch_upload'))  
 
-                data = process_excel(uploaded_file)
+                org_id = request.args.get('group')
+                data = process_excel(uploaded_file, org_id)
                 results = []
+
                 for package_data in data:
                     package = create_package(context, package_data)
                     results.append(package)
-                return redirect(url_for('igsn_theme.batch_upload'))
-            elif provided_url:
-                api_url = "https://example.com/api/submit-url"
-                data = {'url': provided_url}
-                response = requests.post(api_url, data=data)
 
-            response.raise_for_status()
-            if response.status_code == 200:
                 h.flash_success(_('Successfully processed your submission'))
                 return redirect(url_for('igsn_theme.batch_upload'))
-            else:
-                h.flash_error(_('Failed to process your submission'))
-                return self.get()
 
-        except requests.exceptions.RequestException as e:
-            h.flash_error(_('Failed to process submission: ') + str(e))
-            return redirect(url_for('igsn_theme.batch_upload'))
         except NotAuthorized:
             base.abort(403, _('Unauthorized to read package'))
         except NotFound:
             base.abort(404, _('Not Found'))
         except ValidationError as e:
             h.flash_error(_('Validation error: ') + str(e))
-            return self.get()
+            return redirect(url_for('igsn_theme.batch_upload'))
         except Exception as e:
             h.flash_error(_('Unexpected error: ') + str(e))
             return redirect(url_for('igsn_theme.batch_upload'))
 
+        return redirect(url_for('igsn_theme.batch_upload'))
 
 
 def page():
