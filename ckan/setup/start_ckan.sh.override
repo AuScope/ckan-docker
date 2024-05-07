@@ -26,6 +26,10 @@ if echo "$CKAN__PLUGINS" | grep -q "igsn_theme"; then
     ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = false"
     #ckan config-tool $CKAN_INI "ckan.auth.create_unowned_dataset = True"
     ckan config-tool $CKAN_INI "ckan.auth.user_create_organizations = false"
+    # ckan config-tool $CKAN_INI "ckan.dataset.create.require.resource = true"
+    ckan config-tool $CKAN_INI "ckan.dataset.create.require.resource = false"
+    # ckan config-tool $CKAN_INI "ckan.dataset.create_on_ui_requires_resources = true"
+    ckan config-tool $CKAN_INI "ckan.dataset.create_on_ui_requires_resources = false"
 else
     #ckan config-tool $CKAN_INI "ckan.auth.allow_dataset_collaborators = True"
     ckan config-tool $CKAN_INI "ckan.auth.user_create_groups = false"
