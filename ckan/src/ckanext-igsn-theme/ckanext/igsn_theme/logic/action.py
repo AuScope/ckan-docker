@@ -12,6 +12,8 @@ from io import BytesIO
 import random
 import json
 import pandas as pd
+from datetime import date
+
 from ckanext.igsn_theme.logic.validators import validate_user_keywords
 
 @tk.side_effect_free
@@ -62,32 +64,34 @@ def organization_list_for_user(next_action, context, data_dict):
 
 def create_package(context, package_data):
     try:
+        logger = logging.getLogger(__name__)
         # Call the package_create action function
         package = tk.get_action('package_create')(context, package_data)
-        print(f"Package created successfully with ID: {package['id']}")
+        logger.info(f"Package created successfully with ID: {package['id']}")
         return package
     except tk.ValidationError as e:
-        print(f"Failed to create package. Validation error: {e}")
+        logger.info(f"Failed to create package. Validation error: {e}")
         raise
     except Exception as e:
-        print(f"Failed to create package. Error: {e}")
+        logger.info(f"Failed to create package. Error: {e}")
         raise
-# @tk.chained_action
-# def package_create(next_action, context, data_dict):
-#     package_type = data_dict.get('type')
-#     package_plugin = lib_plugins.lookup_package_plugin(package_type)
-#     if 'schema' in context:
-#         schema = context['schema']
-#     else:
-#         schema = package_plugin.create_package_schema()
-#     # Replace owner_org_validator
-#     if 'owner_org' in schema:
-#         schema['owner_org'] = [
-#             owner_org_validator if f is default_owner_org_validator else f
-#             for f in schema['owner_org']
-#         ]
-#     created_package = next_action(context, data_dict)
-#     return created_package
+
+@tk.chained_action
+def package_create(next_action, context, data_dict):
+    package_type = data_dict.get('type')
+    package_plugin = lib_plugins.lookup_package_plugin(package_type)
+    if 'schema' in context:
+        schema = context['schema']
+    else:
+        schema = package_plugin.create_package_schema()
+    # Replace owner_org_validator
+    if 'owner_org' in schema:
+        schema['owner_org'] = [
+            owner_org_validator if f is default_owner_org_validator else f
+            for f in schema['owner_org']
+        ]
+    created_package = next_action(context, data_dict)
+    return created_package
 
 
 # We do not need user_create customization here.
@@ -176,9 +180,11 @@ def delete_package_relationship(context, pkg_dict):
             tk.get_action('package_relationship_delete')(context, rel)
     except Exception as e:
         logger.error(f"Failed to delete package relationship: {str(e)}")
-def process_excel(file):
+
+def process_excel(file, org_id):
     try:
         # Read the content of the uploaded file into a BytesIO object
+
         content = file.read()        
         excel_data = BytesIO(content)
         sheets = ["samples", "authors", "related_resources"]
@@ -214,18 +220,25 @@ def process_excel(file):
             ]
             sample["related_resource"] = json.dumps(matched_resources.to_dict("records"))
             sample['user_keywords'] = validate_user_keywords(sample['user_keywords'])
+
+            sample['publication_date'] = date.today().isoformat()
+            sample['owner_org'] = org_id
+            sample['notes']=sample['description']
+            sample['location_choice']='noLocation'
+            if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
+                sample['location_choice'] = 'point'
+                coordinates = [(sample['point_latitude'] , sample['point_longitude'] )]
+                sample['location_data'] = create_point_feature_collection(coordinates)
+
             defaults = {
                 "publisher_identifier_type": "ror",
                 "publisher_identifier": "https://ror.org/04s1m4564",
-                "publication_date": "2024-03-08",
-                "notes": "A long description of my dataset",
                 "publisher": "AuScope",
                 "resource_type": "physicalobject",
-                "owner_org": "testing",
-                "location_choice": "noLocation"
             }
+
             sample.update(defaults)
-            
+
             sample["name"] = "ckan-api-test-" + str(random.randint(0, 10000))
             samples_data.append(sample)
         return samples_data
@@ -233,6 +246,27 @@ def process_excel(file):
         raise ValueError(f"Failed to process Excel file: {e}")
     except Exception as e:
         raise Exception(f"Failed to process Excel file: {e}")
+    
+def create_point_feature_collection(coordinates_list):
+    features = []
+    for lat, lng in coordinates_list:
+        point_feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [lng, lat]
+            },
+            "properties": {}
+        }
+        features.append(point_feature)
+
+    feature_collection = {
+        "type": "FeatureCollection",
+        "features": features
+    }
+    return feature_collection
+
+    
 def get_actions():
     return {
         # 'user_create': user_create,
