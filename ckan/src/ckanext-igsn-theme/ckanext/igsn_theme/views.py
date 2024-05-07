@@ -4,13 +4,14 @@ from typing import Any
 import requests
 import os
 
+
 from ckan.plugins.toolkit import get_action, h
 from ckan.model import Package
 from ckan.common import _, g, current_user
 import ckan.lib.base as base
 import ckan.logic as logic
 import ckan.lib.helpers as helpers
-from ckanext.igsn_theme.logic.action import process_excel, create_package
+from ckanext.igsn_theme.logic.action import process_excel  #, create_package
 import logging
 
 # Only import what's needed and avoid duplications
@@ -43,7 +44,7 @@ class BatchUploadView(MethodView):
         self._prepare()
         org_id = request.args.get('group')
         return render_template('batch/new.html',group=org_id)
-    
+
     def post(self):
         """
         Handles the POST request to upload and process the batch dataset file or submit a URL.
@@ -55,7 +56,7 @@ class BatchUploadView(MethodView):
 
         if not org_id:
             h.flash_error(_('No collection is selected.'))
-            return redirect(url_for('igsn_theme.batch_upload')) 
+            return redirect(url_for('igsn_theme.batch_upload'))
 
         if not uploaded_file :
             h.flash_error(_('No file provided.'))
@@ -67,13 +68,14 @@ class BatchUploadView(MethodView):
                 file_extension = os.path.splitext(file_name)[1].lower()
                 if file_extension not in ['.xlsx', '.xls']:
                     flash('Please upload an Excel file (.xlsx or .xls).', 'error')
-                    return redirect(url_for('igsn_theme.batch_upload', group=org_id))  
+                    return redirect(url_for('igsn_theme.batch_upload', group=org_id))
 
                 data = process_excel(uploaded_file, org_id)
                 results = []
 
                 for package_data in data:
-                    package = create_package(context, package_data)
+                    package = get_action('package_create')(context, package_data)
+                    # package = create_package(context, package_data)
                     results.append(package)
 
                 h.flash_success(_('Successfully processed your submission'))

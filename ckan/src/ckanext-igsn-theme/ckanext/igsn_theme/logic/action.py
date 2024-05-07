@@ -62,19 +62,19 @@ def organization_list_for_user(next_action, context, data_dict):
 #         return model.Session.query(model.Group).filter(model.Group.id.in_(allowed_groups)).all()
 #     return []
 
-def create_package(context, package_data):
-    try:
-        logger = logging.getLogger(__name__)
-        # Call the package_create action function
-        package = tk.get_action('package_create')(context, package_data)
-        logger.info(f"Package created successfully with ID: {package['id']}")
-        return package
-    except tk.ValidationError as e:
-        logger.info(f"Failed to create package. Validation error: {e}")
-        raise
-    except Exception as e:
-        logger.info(f"Failed to create package. Error: {e}")
-        raise
+# def create_package(context, package_data):
+#     try:
+#         logger = logging.getLogger(__name__)
+#         # Call the package_create action function
+#         package = tk.get_action('package_create')(context, package_data)
+#         logger.info(f"Package created successfully with ID: {package['id']}")
+#         return package
+#     except tk.ValidationError as e:
+#         logger.info(f"Failed to create package. Validation error: {e}")
+#         raise
+#     except Exception as e:
+#         logger.info(f"Failed to create package. Error: {e}")
+#         raise
 
 @tk.chained_action
 def package_create(next_action, context, data_dict):
@@ -188,7 +188,7 @@ def process_excel(file, org_id):
     try:
         # Read the content of the uploaded file into a BytesIO object
 
-        content = file.read()        
+        content = file.read()
         excel_data = BytesIO(content)
         sheets = ["samples", "authors", "related_resources"]
         dfs = {}
@@ -249,7 +249,7 @@ def process_excel(file, org_id):
         raise ValueError(f"Failed to process Excel file: {e}")
     except Exception as e:
         raise Exception(f"Failed to process Excel file: {e}")
-    
+
 def create_point_feature_collection(coordinates_list):
     features = []
     for lat, lng in coordinates_list:
@@ -269,13 +269,13 @@ def create_point_feature_collection(coordinates_list):
     }
     return feature_collection
 
-    
+
 def get_actions():
     return {
         # 'user_create': user_create,
         'igsn_theme_get_sum': igsn_theme_get_sum,
         'organization_list_for_user': organization_list_for_user,
-        # 'package_create': package_create,
+        'package_create': package_create,
         'create_package_relationship' : create_package_relationship,
         'update_package_relationship' : update_package_relationship,
         'delete_package_relationship' : delete_package_relationship
