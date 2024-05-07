@@ -55,7 +55,6 @@ def render_tz_date_from_datetime(dt_str):
             dt = datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S.%f')
             dt = dt.astimezone(ZoneInfo(config.get('ckan.display_timezone')))
             dt_str = datetime.strftime(dt, '%Y-%m-%d')
-            log.info('new dt_str: ' + dt_str)
     return dt_str
 
 
