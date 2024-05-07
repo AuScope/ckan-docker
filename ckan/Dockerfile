@@ -36,10 +36,6 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 ### Pages ###
 #RUN  pip3 install -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
 
-### DCAT ###
-#RUN  pip3 install -e git+https://github.com/ckan/ckanext-dcat.git@v0.0.6#egg=ckanext-dcat && \
-#     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/v0.0.6/requirements.txt
-
 ### Spatial extension ###
 RUN apk add python3-dev libxml2-dev libxslt-dev geos geos-dev proj proj-dev proj-util py3-shapely
 RUN pip install --upgrade pip
@@ -70,7 +66,7 @@ RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=
 
 ### DCAT plugins ###
 RUN pip install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
-RUN pip install -e git+https://github.com/ckan/ckanext-dcat.git#egg=ckanext-dcat
+RUN pip install -e git+https://github.com/AuScope/ckanext-dcat.git@auscope_customise#egg=ckanext-dcat
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
