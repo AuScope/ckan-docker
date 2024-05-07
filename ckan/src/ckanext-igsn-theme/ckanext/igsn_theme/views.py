@@ -41,21 +41,25 @@ class BatchUploadView(MethodView):
         Handles the GET request to show the batch upload form.
         """
         self._prepare()
-        return render_template('batch/new.html')
+        org_id = request.args.get('group')
+        return render_template('batch/new.html',group=org_id)
     
     def post(self):
         """
         Handles the POST request to upload and process the batch dataset file or submit a URL.
         """
         context = self._prepare()
-        logger = logging.getLogger(__name__)
-        logger.info(f"Failed to create package. Validation error: {request}")
 
+        org_id = request.args.get('group')
         uploaded_file = request.files.get('file')
+
+        if not org_id:
+            h.flash_error(_('No collection is selected.'))
+            return redirect(url_for('igsn_theme.batch_upload')) 
 
         if not uploaded_file :
             h.flash_error(_('No file provided.'))
-            return redirect(url_for('igsn_theme.batch_upload'))
+            return redirect(url_for('igsn_theme.batch_upload', group=org_id))
 
         try:
             if uploaded_file:
@@ -63,9 +67,8 @@ class BatchUploadView(MethodView):
                 file_extension = os.path.splitext(file_name)[1].lower()
                 if file_extension not in ['.xlsx', '.xls']:
                     flash('Please upload an Excel file (.xlsx or .xls).', 'error')
-                    return redirect(url_for('igsn_theme.batch_upload'))  
+                    return redirect(url_for('igsn_theme.batch_upload', group=org_id))  
 
-                org_id = request.args.get('group')
                 data = process_excel(uploaded_file, org_id)
                 results = []
 
@@ -74,7 +77,7 @@ class BatchUploadView(MethodView):
                     results.append(package)
 
                 h.flash_success(_('Successfully processed your submission'))
-                return redirect(url_for('igsn_theme.batch_upload'))
+                return redirect(url_for('igsn_theme.batch_upload', group=org_id))
 
         except NotAuthorized:
             base.abort(403, _('Unauthorized to read package'))
@@ -82,12 +85,12 @@ class BatchUploadView(MethodView):
             base.abort(404, _('Not Found'))
         except ValidationError as e:
             h.flash_error(_('Validation error: ') + str(e))
-            return redirect(url_for('igsn_theme.batch_upload'))
+            return redirect(url_for('igsn_theme.batch_upload', group=org_id))
         except Exception as e:
             h.flash_error(_('Unexpected error: ') + str(e))
-            return redirect(url_for('igsn_theme.batch_upload'))
+            return redirect(url_for('igsn_theme.batch_upload', group=org_id))
 
-        return redirect(url_for('igsn_theme.batch_upload'))
+        return redirect(url_for('igsn_theme.batch_upload', group=org_id))
 
 
 def page():

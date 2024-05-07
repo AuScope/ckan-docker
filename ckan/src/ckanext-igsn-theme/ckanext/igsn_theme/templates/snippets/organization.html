@@ -14,6 +14,13 @@
           </a>
         </div>
       {% endblock %}
+      {% block heading %}
+      <h1 class="heading">{{ organization.title or organization.name }}
+        {% if organization.state == 'deleted' %}
+          [{{ _('Deleted') }}]
+        {% endif %}
+      </h1>
+      {% endblock %}      
       {% endblock %}
     </section>
   </div>
