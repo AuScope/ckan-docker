@@ -1,7 +1,9 @@
+from ckan.common import config
 from ckan.plugins import toolkit
 import ckan.logic as logic
 import ckan.authz as authz
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 
 
@@ -46,9 +48,14 @@ def users_role_in_org(user_name):
 def current_date():
     return date.today().isoformat()
 
-def get_helpers():
-    return {
-    }
+def render_tz_date_from_datetime(dt_str):
+    # Convert from UTC if necessary
+    if config.get('ckan.display_timezone'):
+        if len(dt_str.split(' ', 1)) > 1:
+            dt = datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S.%f')
+            dt = dt.astimezone(ZoneInfo(config.get('ckan.display_timezone')))
+            dt_str = datetime.strftime(dt, '%Y-%m-%d')
+    return dt_str
 
 
 def get_helpers():
@@ -59,4 +66,5 @@ def get_helpers():
         'get_org_list': get_org_list,
         'users_role_in_org': users_role_in_org,
         'current_date': current_date,
+        'render_tz_date_from_datetime': render_tz_date_from_datetime,
     }
