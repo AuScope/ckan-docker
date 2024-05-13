@@ -1,9 +1,11 @@
-from ckan.common import config
+from ckan.common import config, current_user
+from ckan.logic import _prepopulate_context
+from ckan.logic.auth import get_package_object
 from ckan.plugins import toolkit
-import ckan.logic as logic
-import ckan.authz as authz
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
+import ckan.logic as logic
+import ckan.authz as authz
 
 
 
@@ -58,6 +60,22 @@ def render_tz_date_from_datetime(dt_str):
     return dt_str
 
 
+def user_can_delete_draft_dataset(package_id):
+    """
+    Check if a user can delete a draft dataset.
+    Admins can delete any draft, but editors/members can only delete their own
+
+    :param str package_id: the ID of the dataset
+    """
+    context = _prepopulate_context(None)
+    package = get_package_object(context, {'id': package_id})
+    user_role = authz.users_role_for_group_or_org(package.owner_org, current_user.name)
+
+    # Editors, admins and the package creator can delete a draft dataset
+    if package.state == 'draft' and (package.creator_user_id == current_user.id or user_role == 'admin'):
+        return True
+
+
 def get_helpers():
     return {
         "auscope_theme_hello": auscope_theme_hello,
@@ -67,4 +85,5 @@ def get_helpers():
         'users_role_in_org': users_role_in_org,
         'current_date': current_date,
         'render_tz_date_from_datetime': render_tz_date_from_datetime,
+        'user_can_delete_draft_dataset': user_can_delete_draft_dataset,
     }
