@@ -788,3 +788,8 @@ body {
 }
 
 
+.leaflet-draw-toolbar a {
+  background-image: url('/base/vendor/leaflet-draw/images/spritesheet.png') !important;
+  background-repeat: no-repeat !important;
+  color: transparent !important;
+}
