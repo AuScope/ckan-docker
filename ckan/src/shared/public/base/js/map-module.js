@@ -16,6 +16,9 @@ ckan.module('map-module', function ($, _) {
             this.populateEPSG();
             this.prepopulateEPSG();
 
+            var customIconPath = 'base/vendor/leaflet/images/';
+            L.Icon.Default.imagePath = this.options.site_url + customIconPath;
+            
             this.map = L.map('map-container').setView([-31.9505, 115.8605], 3);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -190,7 +193,9 @@ ckan.module('map-module', function ($, _) {
                         edit: false,
                         remove: true
                     }
+                    
                 });
+  
             }
             this.map.addControl(this.markerControl);
 
@@ -536,6 +541,7 @@ ckan.module('map-module', function ($, _) {
             var dataForSelect2 = { id: existingId, text: existingText };
             this.EPSGCodeElement.select2('data', dataForSelect2, true);
         },
+
 
     };
 });
