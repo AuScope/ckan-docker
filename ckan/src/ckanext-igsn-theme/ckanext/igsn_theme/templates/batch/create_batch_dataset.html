@@ -169,7 +169,8 @@
       url: '/remove_preview_data',
       type: 'POST',
       success: function (response) {
-        $('.resource-view').html('<p>No data is defined yet.</p>');
+        $('.resource-view').html('<p>No preview data is available.</p>');
+        $('[name="save"]').hide();        
       },
       error: function (xhr, status, error) {
         console.error('Error removing preview data:', error);
