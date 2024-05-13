@@ -190,7 +190,6 @@ class BatchUploadView(MethodView):
         Handles the POST request to upload and process the batch dataset file or submit a URL.
         """
         context = self._prepare()
-        logger = logging.getLogger(__name__)
         org_id = request.args.get('group')
         uploaded_file = request.files.get('file')
         save_option = request.form.get('save')
@@ -239,7 +238,6 @@ class BatchUploadView(MethodView):
                     except Exception as e:
                         unsuccessful_creations += 1
                         sample_data['status'] = "error"
-                        logger.error(f"Failed to create sample: {str(e)}")
                 
                 if unsuccessful_creations == 0:
                     session.pop('preview_data', None)  
