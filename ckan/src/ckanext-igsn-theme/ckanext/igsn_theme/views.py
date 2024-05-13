@@ -243,7 +243,7 @@ class BatchUploadView(MethodView):
                     session.pop('preview_data', None)  
                     session.pop('file_name', None)  
                     h.flash_success(_('Successfully processed your submission'))
-                    return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
+                    return render_template('batch/new.html', group=org_id, preview_data={}, file_name='')
                 elif successful_creations == 0:
                         h.flash_error(_('Failed to create any samples.'), 'error')
                         return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
