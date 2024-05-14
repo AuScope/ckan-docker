@@ -389,7 +389,9 @@ dataset_fields:
         - value: cordis grant agreement id
           label: CORDIS Grant Agreement ID
         - value: grantconnect id
-          label: GrantConnect ID  
+          label: GrantConnect ID 
+        - value: other
+          label: Other           
       help_text: The type of project identifier
 
 - field_name: related_resource
