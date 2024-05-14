@@ -27,7 +27,7 @@ this.ckan.module('jstree-view-module', function (jquery) {
                 'plugins': ['types', 'wholerow'],
                 'types': {
                     'default': {
-                        'icon': 'fa fa-spinner'
+                        'icon': 'fa fa-arrow-down'
                     },
                     'branch': {
                         'icon': 'fa fa-sitemap'

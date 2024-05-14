@@ -23,6 +23,9 @@ ckan.module('display-map-module', function ($, _) {
         },
         initializeMapWithPoints: function (geoJSONStr, elevation) {
             var self = this;
+            var customIconPath = 'base/vendor/leaflet/images/';
+            L.Icon.Default.imagePath = this.options.site_url + customIconPath;
+
             var geoJSONObject;
 
             if (typeof geoJSONStr === "string") {

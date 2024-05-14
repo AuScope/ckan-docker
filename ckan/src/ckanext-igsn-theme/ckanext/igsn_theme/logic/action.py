@@ -1,20 +1,9 @@
-from ckan import model
 import ckan.plugins.toolkit as tk
 import ckanext.igsn_theme.logic.schema as schema
 import ckan.lib.plugins as lib_plugins
-import ckan.logic as logic
 from ckan.logic.validators import owner_org_validator as default_owner_org_validator
-from ckan.logic.action.create import user_create as ckan_user_create
-from ckan.logic import _actions
-import ckan.authz as authz
 import logging
-from io import BytesIO
-import random
-import json
-import pandas as pd
-from datetime import date
 
-from ckanext.igsn_theme.logic.validators import validate_user_keywords
 
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
@@ -40,7 +29,6 @@ def organization_list_for_user(next_action, context, data_dict):
     if perm in ['create_dataset', 'update_dataset', 'delete_dataset']:
         data_dict = {**data_dict, **{'permission': 'read'}}
     return next_action(context, data_dict)
-
 
 @tk.chained_action
 def package_create(next_action, context, data_dict):
@@ -139,95 +127,9 @@ def delete_package_relationship(context, pkg_dict):
     except Exception as e:
         logger.error(f"Failed to delete package relationship: {str(e)}")
 
-def process_excel(file, org_id):
-    try:
-        # Read the content of the uploaded file into a BytesIO object
-
-        content = file.read()
-        excel_data = BytesIO(content)
-        sheets = ["samples", "authors", "related_resources"]
-        dfs = {}
-        for sheet in sheets:
-            excel_data.seek(0)  # Reset file pointer to the beginning
-            dfs[sheet] = pd.read_excel(excel_data, sheet_name=sheet, na_filter=False, engine="openpyxl")
-        samples_df = dfs["samples"]
-        authors_df = dfs["authors"]
-        related_resources_df = dfs["related_resources"]
-
-        # Initialize samples data structure
-        samples_data = []
-
-        # Iterate over each row in the samples DataFrame
-        for _, row in samples_df.iterrows():
-            sample = row.to_dict()
-
-            # Process author_emails
-            author_emails = [
-                email.strip() for email in sample.get("author_emails", "").split(";")
-            ]
-            matched_authors = authors_df[authors_df["author_email"].isin(author_emails)]
-            sample["author"] = json.dumps(matched_authors.to_dict("records"))
-
-            # Process related_resources_urls
-            related_resource_urls = [
-                url.strip()
-                for url in sample.get("related_resources_urls", "").split(";")
-            ]
-            matched_resources = related_resources_df[
-                related_resources_df["related_resource_url"].isin(related_resource_urls)
-            ]
-            sample["related_resource"] = json.dumps(matched_resources.to_dict("records"))
-            sample['user_keywords'] = validate_user_keywords(sample['user_keywords'])
-
-            sample['publication_date'] = date.today().isoformat()
-            sample['owner_org'] = org_id
-            sample['notes']=sample['description']
-            sample['location_choice']='noLocation'
-            if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
-                sample['location_choice'] = 'point'
-                coordinates = [(sample['point_latitude'] , sample['point_longitude'] )]
-                sample['location_data'] = create_point_feature_collection(coordinates)
-
-            defaults = {
-                "publisher_identifier_type": "ror",
-                "publisher_identifier": "https://ror.org/04s1m4564",
-                "publisher": "AuScope",
-                "resource_type": "physicalobject",
-            }
-
-            sample.update(defaults)
-
-            sample["name"] = "ckan-api-test-" + str(random.randint(0, 10000))
-            samples_data.append(sample)
-        return samples_data
-    except ValueError as e:
-        raise ValueError(f"Failed to process Excel file: {e}")
-    except Exception as e:
-        raise Exception(f"Failed to process Excel file: {e}")
-
-def create_point_feature_collection(coordinates_list):
-    features = []
-    for lat, lng in coordinates_list:
-        point_feature = {
-            "type": "Feature",
-            "geometry": {
-                "type": "Point",
-                "coordinates": [lng, lat]
-            },
-            "properties": {}
-        }
-        features.append(point_feature)
-
-    feature_collection = {
-        "type": "FeatureCollection",
-        "features": features
-    }
-    return feature_collection
-
 
 def get_actions():
     return {
-        # 'user_create': user_create,
         'igsn_theme_get_sum': igsn_theme_get_sum,
         'organization_list_for_user': organization_list_for_user,
         'package_create': package_create,
@@ -236,5 +138,4 @@ def get_actions():
         'create_package_relationship' : create_package_relationship,
         'update_package_relationship' : update_package_relationship,
         'delete_package_relationship' : delete_package_relationship
-         # 'group_list': group_list,
     }
