@@ -79,7 +79,7 @@ def after_dataset_search(search_results, search_params):
     return search_results
 
 
-def get_dataset_notification_body(context, pkg_dict):
+def get_admin_dataset_notification_body(context, pkg_dict):
     """
     Note: the proper way to do this would be with an email template, but
           CKAN couldn't find custom email templates as easily as it could
@@ -113,16 +113,58 @@ Message sent by {site_title} ({site_url})
     """.format(user_name=user_name, user_email=user_email, dataset_title=dataset_title, dataset_url=dataset_url, site_title=site_title, site_url=site_url)
 
 
-def send_dataset_notification(context, pkg_dict):
+
+def get_user_dataset_notification_body(context, pkg_dict):
+    """
+    Note: the proper way to do this would be with an email template, but
+          CKAN couldn't find custom email templates as easily as it could
+          HTML templates.
+    """
+    site_title = config.get('ckan.site_title')
+    site_url = config.get('ckan.site_url')
+    dataset_title = pkg_dict['title']
+    dataset_url = config.get('ckan.site_url') + '/dataset/' + pkg_dict['name']
+    return """
+Dear Depositor,
+
+Thank you for submitting the following data:
+
+Dataset title: {dataset_title}
+Link to dataset: {dataset_url}
+
+Our curator will review and contact you with regards to publishing your submission.
+
+Kind Regards,
+AuScope Data Repository
+--
+Message sent by {site_title} ({site_url})
+    """.format(dataset_title=dataset_title, dataset_url=dataset_url, site_title=site_title, site_url=site_url)
+
+
+def send_admin_dataset_notification(context, pkg_dict):
     """
     Mail a dataset submission notification to the admin
     """
-    body = get_dataset_notification_body(context, pkg_dict)
-    site_title = config.get('ckan.site_title')
+    body = get_admin_dataset_notification_body(context, pkg_dict)
     dataset_title = pkg_dict['title']
-    subject = 'AuScope Data Repository - Dataset Submitted "{dataset_title}"'.format(site_title=site_title, dataset_title=dataset_title)
+    subject = 'AuScope Data Repository - Dataset Submitted "{dataset_title}"'.format(dataset_title=dataset_title)
     recipient_name = 'AuScope Data Repository admin'
     recipient_email = config.get('ckan_sysadmin_email')
+    mailer.mail_recipient(recipient_name, recipient_email, subject, body)
+
+
+def send_user_dataset_confirmation(context, pkg_dict):
+    """
+    Mail a dataset submission confirmation to the user
+    """
+    body = get_user_dataset_notification_body(context, pkg_dict)
+    dataset_title = pkg_dict['title']
+    subject = 'AuScope Data Repository - Submission Confirmed "{dataset_title}"'.format(dataset_title=dataset_title)
+    user = context.get('auth_user_obj')
+    recipient_name = user.name
+    if user.fullname != '':
+        recipient_name = user.fullname
+    recipient_email = user.email
     mailer.mail_recipient(recipient_name, recipient_email, subject, body)
 
 
@@ -135,5 +177,6 @@ def after_dataset_update(context, pkg_dict):
             # Check that the user is a member (editors and admins won't be notified)
             user_role = authz.users_role_for_group_or_org(pkg_dict['owner_org'], user.name)
             if user_role == 'member' and 'private' in pkg_dict and pkg_dict['private'] == True:
-                send_dataset_notification(context, pkg_dict)
+                send_admin_dataset_notification(context, pkg_dict)
+                send_user_dataset_confirmation(context, pkg_dict)
 
