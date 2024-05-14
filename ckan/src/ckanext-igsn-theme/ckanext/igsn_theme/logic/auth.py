@@ -1,6 +1,9 @@
 import ckan.plugins.toolkit as tk
 import ckan.authz as authz
+from ckan.
 from ckan.logic.auth import get_package_object, get_resource_object
+
+import logging
 
 
 @tk.auth_allow_anonymous_access
@@ -97,6 +100,36 @@ def package_delete(next_auth, context, data_dict):
     return next_auth(context, data_dict)
 
 
+# @tk.chained_auth_function
+# def package_show(context, data_dict):
+#     user = context.get('auth_user_obj')
+#     package = get_package_object(context, data_dict)
+#     logger = logging.getLogger(__name__)
+
+#     labels = get_permission_labels()
+#     user_labels = labels.get_user_dataset_labels(context['auth_user_obj'])
+#     authorized = any(
+#         dl in user_labels for dl in labels.get_dataset_labels(package))
+
+#     logger.info(f"package_show log: {user}")
+#     logger.info(f"package_show package: {package}")
+#     logger.info(f"package_show labels: {labels}")
+#     logger.info(f"package_show user_labels: {user_labels}")
+#     logger.info(f"package_show authorized: {authorized}")
+
+#     if package and package.owner_org:
+#         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
+#         if user_role == 'member' and package.private and package.creator_user_id != user.id:
+#             return {'success': False, 'msg': 'This dataset is private.'}
+#     if not authorized:
+#         logger.info(f"package_show false authorized: {authorized}")
+#         return {
+#             'success': False,
+#             'msg': "IIIIIIIIIIIIIIIIIIIIIIIIIII"} #_('User %s not authorized to read package %s') % (user, package.id)}
+#     else:
+#         logger.info("YYYYYYYYYYYYYYYYYYYYYYY")
+#         logger.info(f"package_show : {authorized}")
+#         return {'success': True}
 @tk.chained_auth_function
 def package_show(next_auth, context, data_dict):
     user = context.get('auth_user_obj')

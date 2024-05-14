@@ -42,40 +42,6 @@ def organization_list_for_user(next_action, context, data_dict):
     return next_action(context, data_dict)
 
 
-# def group_list_auth(context, data_dict):
-#     user = context['user']
-#     user_obj = model.User.get(user)
-
-#     if user_obj.sysadmin:
-#         return {'success': True}  # Allow sysadmins to see all groups
-
-#     user_groups = [group.id for group in user_obj.get_groups('group')]
-#     if user_groups:
-#         return {'success': True, 'output': user_groups}
-#     else:
-#         return {'success': False}
-
-
-# def group_list(context, data_dict):
-#     allowed_groups = group_list_auth(context, data_dict).get('output', [])
-#     if allowed_groups:
-#         return model.Session.query(model.Group).filter(model.Group.id.in_(allowed_groups)).all()
-#     return []
-
-# def create_package(context, package_data):
-#     try:
-#         logger = logging.getLogger(__name__)
-#         # Call the package_create action function
-#         package = tk.get_action('package_create')(context, package_data)
-#         logger.info(f"Package created successfully with ID: {package['id']}")
-#         return package
-#     except tk.ValidationError as e:
-#         logger.info(f"Failed to create package. Validation error: {e}")
-#         raise
-#     except Exception as e:
-#         logger.info(f"Failed to create package. Error: {e}")
-#         raise
-
 @tk.chained_action
 def package_create(next_action, context, data_dict):
     package_type = data_dict.get('type')
@@ -99,29 +65,18 @@ def package_create(next_action, context, data_dict):
 
 # We do not need user_create customization here.
 # Users do not need to be a part of an organization by default.
-# @tk.chained_action
-# def user_create(next_action, context, data_dict):
-#     user = ckan_user_create(context, data_dict)
-#     # TODO: get from config
-#     org_name = 'auscope'
-#     role = 'member'
-#     try:
-#         tk.get_action('organization_show')(
-#             context, {
-#                 'id': org_name,
-#             }
-#         )
-#     except logic.NotFound:
-#         return user
+@tk.chained_action
+def user_create(next_action, context, data_dict):
+    email = data_dict.get('email', '').lower()
+    data_dict['email'] = email
+    return next_action(context, data_dict)
 
-#     tk.get_action('organization_member_create')(
-#         context, {
-#             'id': org_name,
-#             'username': user['name'],
-#             'role': role,
-#         }
-#     )
-#     return user
+
+@tk.chained_action
+def user_invite(next_action, context, data_dict):
+    email = data_dict.get('email', '').lower()
+    data_dict['email'] = email
+    return next_action(context, data_dict)
 
 
 def create_package_relationship(context, pkg_dict):
@@ -276,6 +231,8 @@ def get_actions():
         'igsn_theme_get_sum': igsn_theme_get_sum,
         'organization_list_for_user': organization_list_for_user,
         'package_create': package_create,
+        'user_create': user_create,
+        'user_invite': user_invite,
         'create_package_relationship' : create_package_relationship,
         'update_package_relationship' : update_package_relationship,
         'delete_package_relationship' : delete_package_relationship

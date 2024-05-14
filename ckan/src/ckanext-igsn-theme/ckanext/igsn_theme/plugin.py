@@ -79,13 +79,9 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     #     pkg_dict['language_code'] = 'en'
 
     def before_view(self, pkg_dict):
-        logger = logging.getLogger(__name__)
-        logger.info(pkg_dict)
+        pass
 
     def after_dataset_create(self, context, pkg_dict):
-        logger = logging.getLogger(__name__)
-        # self.process_doi_metadata(pkg_dict)
-        logger.info(pkg_dict)
         return action.create_package_relationship(context, pkg_dict)
 
     def after_dataset_update(self, context, pkg_dict):
