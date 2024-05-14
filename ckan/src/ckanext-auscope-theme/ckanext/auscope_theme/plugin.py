@@ -34,6 +34,9 @@ class AuscopeThemePlugin(plugins.SingletonPlugin):
     def after_dataset_search(self, *args, **kwargs):
         return schema.after_dataset_search(*args, **kwargs)
 
+    def after_dataset_update(self, *args, **kwargs):
+        return schema.after_dataset_update(*args, **kwargs)
+
     # IAuthFunctions
 
     def get_auth_functions(self):
