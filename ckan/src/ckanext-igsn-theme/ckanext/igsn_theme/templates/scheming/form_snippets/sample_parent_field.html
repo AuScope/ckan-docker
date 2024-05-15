@@ -1,6 +1,6 @@
 <div data-module="parent-sample-selector-module" class="form-group" id="parent">
     <label class="form-label" for="field-parent">Parent Sample</label>
-    <input class="form-control gcmd-keywords" id="field-parent" name="parent" value="{{data['parent']}}" autocomplete="off">
+    <input class="form-control" id="field-parent" name="parent" value="{{data['parent']}}" autocomplete="off">
     {% if errors['parent'] %}
         {% for error in errors['parent'] %}
             <span class="error-block">{{ error }}</span>

@@ -6,10 +6,12 @@ this.ckan.module('jstree-view-module', function (jquery) {
 
         initializeTree: function () {
             var self = this;
-            var pkg = JSON.parse(this.el.attr('data-pkg'));
+            var id = this.el.attr('data-id');
+            var title = this.el.attr('data-title');
+
             var data = [{
-                "text": pkg.title,
-                "id": pkg.id,
+                "text": title,
+                "id": id,
                 "state": {
                     "opened": true
                 }
@@ -27,13 +29,13 @@ this.ckan.module('jstree-view-module', function (jquery) {
                 'plugins': ['types', 'wholerow'],
                 'types': {
                     'default': {
-                        'icon': 'fa fa-arrow-down'
+                        'icon': 'fa fa-folder'
                     },
                     'branch': {
-                        'icon': 'fa fa-sitemap'
+                        'icon': 'fa fa-folder'
                     },
                     'leaf': {
-                        'icon': 'fa fa-tag'
+                        'icon': 'fa fa-file'
                     }
                 }
             }).on("select_node.jstree", function (e, data) {
@@ -41,7 +43,7 @@ this.ckan.module('jstree-view-module', function (jquery) {
                     self.fetchChildren(data.node.id);
                 }
             });
-
+            
             $('#tree').on("dblclick", ".jstree-anchor", function (e) {
                 var href = $(this).attr('href');
                 if (href) {
@@ -49,6 +51,9 @@ this.ckan.module('jstree-view-module', function (jquery) {
                     window.location.href = href;
                 }
             });
+
+        self.fetchChildren(id);
+
         },
 
         fetchChildren: function (packageId) {
