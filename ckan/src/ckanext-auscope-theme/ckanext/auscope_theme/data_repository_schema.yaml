@@ -249,17 +249,6 @@ dataset_fields:
   display_snippet: null
   groupBy: Spatial & Temporal
 
-# - field_name: vertical_datum
-#   label: Vertical Datum
-#   preset: select
-#   choices:
-#     - value: "5111"
-#       label: 5111
-#     - value: "1292"
-#       label: 1292  
-#   help_text: The reference surface of zero elevation to which heights are referred to over a large geographic extent. These datums are used to measure the height (altitude) and depth (depression) above and below mean sea level. 
-#   groupBy: Spatial & Temporal   
-
 - field_name: epsg_code
   label: Geographic Coordinate System
   help_text: The measurement of height above mean sea level in meters
