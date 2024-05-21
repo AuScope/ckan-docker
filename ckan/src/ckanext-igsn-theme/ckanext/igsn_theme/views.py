@@ -4,6 +4,9 @@ import requests
 import os
 from werkzeug.utils import secure_filename
 from ckan.plugins.toolkit import get_action, h
+import ckan.plugins.toolkit as toolkit
+from ckan.common import g
+
 from ckan.common import _, current_user
 import ckan.lib.base as base
 import ckan.logic as logic
@@ -19,6 +22,16 @@ check_access = logic.check_access
 NotAuthorized = logic.NotAuthorized
 NotFound = logic.NotFound
 ValidationError = logic.ValidationError
+
+log = logging.getLogger(__name__)
+
+try:
+    from ckanext.contact.routes import _helpers
+    contact_plugin_available = True
+except ImportError:
+    contact_plugin_available = False
+    log.warning("ckanext-contact plugin is not available. The contact form functionality will be disabled.")
+
 
 igsn_theme = Blueprint("igsn_theme", __name__)
 
@@ -298,6 +311,42 @@ def remove_preview_data():
     session.pop('preview_data', None) 
     session.pop('file_name', None) 
     return "Preview data removed successfully", 200
+
+@igsn_theme.route('/organization/request_form', methods=['GET', 'POST'])
+def request_form():
+    """
+    Form based interaction for requesting a new collection.
+    """
+    if not g.user:
+        toolkit.abort(403, toolkit._('Unauthorized to send request'))
+
+    extra_vars = {
+        'data': {},
+        'errors': {},
+        'error_summary': {},
+    }
+
+    if toolkit.request.method == 'POST':
+        if contact_plugin_available:
+            result = _helpers.submit()
+            if result.get('success', False):
+                return toolkit.render('contact/success.html')
+            else:
+                if result.get('recaptcha_error'):
+                    toolkit.h.flash_error(result['recaptcha_error'])
+                extra_vars.update(result)
+        else:
+            toolkit.h.flash_error(toolkit._('Contact functionality is currently unavailable.'))
+            return toolkit.redirect_to('/organization')
+    else:
+        try:
+            extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
+            extra_vars['data']['email'] = g.userobj.email
+        except AttributeError:
+            extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
+
+    return toolkit.render('organization/request_form.html', extra_vars=extra_vars)
+
 
 # Add the proxy route
 @igsn_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
