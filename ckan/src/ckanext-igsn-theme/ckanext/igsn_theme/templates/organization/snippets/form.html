@@ -18,8 +18,8 @@
         {% endblock %}
         </legend>
     {% endblock %}
-    
     {% block contact_form_fields %}
+        <input type="hidden" name="subject" value="New Collection Request"> 
         {{ form.input('full_name', label=_('Contact Name'), id='field-name', value=data.full_name,
                         error=errors.full_name, classes=['control-medium'], is_required=true) }}
 
