@@ -20,10 +20,10 @@
     {% endblock %}
     {% block contact_form_fields %}
         <input type="hidden" name="subject" value="New Collection Request"> 
-        {{ form.input('full_name', label=_('Contact Name'), id='field-name', value=data.full_name,
+        {{ form.input('full_name', label=_('Collection Contact Name'), id='field-name', value=data.full_name,
                         error=errors.full_name, classes=['control-medium'], is_required=true) }}
 
-        {{ form.input('email', label=_('Email'), id='field-email', type='email',
+        {{ form.input('email', label=_('Collection Contact Email'), id='field-email', type='email',
                         value=data.email, error=errors.email, classes=['control-medium'],
                         is_required=true) }}    
 
