@@ -312,8 +312,8 @@ def remove_preview_data():
     session.pop('file_name', None) 
     return "Preview data removed successfully", 200
 
-@igsn_theme.route('/organization/request_form', methods=['GET', 'POST'])
-def request_form():
+@igsn_theme.route('/organization/request_new_collection', methods=['GET', 'POST'])
+def request_new_collection():
     """
     Form based interaction for requesting a new collection.
     """
@@ -345,8 +345,48 @@ def request_form():
         except AttributeError:
             extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
 
-    return toolkit.render('organization/request_form.html', extra_vars=extra_vars)
+    return toolkit.render('organization/req_new_collection.html', extra_vars=extra_vars)
 
+@igsn_theme.route('/organization/request_join_collection', methods=['GET', 'POST'])
+def request_join_collection():
+    """
+    Form based interaction for requesting to jon in a collection.
+    """
+    if not g.user:
+        toolkit.abort(403, toolkit._('Unauthorized to send request'))
+
+    org_id = toolkit.request.args.get('org_id')
+    org_name = toolkit.request.args.get('org_name')
+
+    extra_vars = {
+        'data': {},
+        'errors': {},
+        'error_summary': {},
+    }
+
+    if toolkit.request.method == 'POST':
+        if contact_plugin_available:
+            result = _helpers.submit()
+            if result.get('success', False):
+                return toolkit.render('contact/success.html')
+            else:
+                if result.get('recaptcha_error'):
+                    toolkit.h.flash_error(result['recaptcha_error'])
+                extra_vars.update(result)
+        else:
+            toolkit.h.flash_error(toolkit._('Contact functionality is currently unavailable.'))
+            return toolkit.redirect_to('/organization')
+    else:
+        try:
+            extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
+            extra_vars['data']['email'] = g.userobj.email
+            extra_vars['data']['collection_id'] = org_id
+            extra_vars['data']['collection_name'] = org_name
+
+        except AttributeError:
+            extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
+
+    return toolkit.render('organization/req_join_collection.html', extra_vars=extra_vars)
 
 # Add the proxy route
 @igsn_theme.route('/api/proxy/fetch_epsg', methods=['GET'])

@@ -51,6 +51,14 @@ def get_package(package_id):
         return toolkit.get_action('package_show')(context, {'id': package_id})
     except NotFound:
         return None
+    
+
+def get_user_role_in_organization(org_id):
+    if not toolkit.c.user:
+        return None
+
+    user_role = authz.users_role_for_group_or_org(org_id, toolkit.c.user)
+    return user_role
 
 def get_helpers():
     return {
@@ -60,5 +68,6 @@ def get_helpers():
         'users_role_in_org': users_role_in_org,
         "get_search_facets" : get_search_facets,
         'current_date': current_date,        
-        "get_package": get_package
+        "get_package": get_package,
+        "get_user_role_in_organization" : get_user_role_in_organization
     }

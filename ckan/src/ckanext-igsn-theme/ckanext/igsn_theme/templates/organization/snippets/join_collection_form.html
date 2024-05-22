@@ -1,0 +1,47 @@
+{% import 'macros/form.html' as form %}
+{% asset 'ckanext-contact/main' %}
+
+{% set recaptcha_v3_key = h.get_recaptcha_v3_key() %}
+{% set recaptcha_v3_action = h.get_recaptcha_v3_action() %}
+
+{% block contact_form %}
+<form class="contact-form form-horizontal" method="post" data-module="form-contact"
+        data-module-action="{{ recaptcha_v3_action }}" data-module-key="{{ recaptcha_v3_key }}">
+
+    {{ form.errors(error_summary) }}
+
+    <fieldset>
+    {% block contact_form_legend %}
+    {% endblock %}
+    {% block contact_form_fields %}
+        <input type="hidden" name="subject" value="Join Collection Request"> 
+        {{ form.input('full_name', label=_('Contact Name'), id='field-name', value=data.full_name,
+                        error=errors.full_name, classes=['control-medium'], is_required=true) }}
+
+        {{ form.input('email', label=_('Email'), id='field-email', type='email',
+                        value=data.email, error=errors.email, classes=['control-medium'],
+                        is_required=true) }}    
+
+        <input type="hidden" name="collection_id" value={{data.collection_id}}> 
+
+        <input type="hidden" name="collection_name" value={{data.collection_name}}> 
+
+        {{ form.textarea('description', label=_('Description'), id='field-description',
+                        value=data.description, error=errors.description,
+                        placeholder=_('Brief description'), is_required=true) }}
+
+
+    {% endblock %}
+    </fieldset>
+
+    <div class="form-actions">
+    {% block contact_form_actions %}
+        {{ form.required_message() }}
+
+        <button class="btn btn-primary save" type="submit" name="save">
+        {{ _('Submit') }}
+        </button>
+    {% endblock %}
+    </div>
+</form>
+{% endblock %}
