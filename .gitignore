@@ -12,3 +12,4 @@ local/*
 .vscode/
 .env.dev
 *kill*
+.env.local
