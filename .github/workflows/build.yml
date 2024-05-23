@@ -8,7 +8,32 @@ on:
 
 jobs:
 
-  build-and-push-ghcr-prod:
+  # build-and-push-ghcr-prod:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         submodules: true
+
+  #     - name: Set up Docker Buildx
+  #       uses: docker/setup-buildx-action@v1
+
+  #     - name: Log in to GitHub Container Registry
+  #       uses: docker/login-action@v1
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ vars.USERNAME }}
+  #         password: ${{ secrets.TOKEN }}
+
+  #     - name: Build and Push Docker image to GHCR (Prod)
+  #       uses: docker/build-push-action@v2
+  #       with:
+  #         context: ./ckan
+  #         file: ./ckan/Dockerfile
+  #         tags: ghcr.io/auscope/auscope-ckan:latest
+  #         push: true
+
+  build-and-push-ghcr:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -25,46 +50,20 @@ jobs:
           username: ${{ vars.USERNAME }}
           password: ${{ secrets.TOKEN }}
 
-      - name: Build and Push Docker image to GHCR (Prod)
-        uses: docker/build-push-action@v2
-        with:
-          context: ./ckan
-          file: ./ckan/Dockerfile
-          tags: ghcr.io/auscope/auscope-ckan:latest
-          push: true
-
-  build-and-push-ghcr-dev:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ vars.USERNAME }}
-          password: ${{ secrets.TOKEN }}
-
-      - name: Extract timestamp
-        id: timestamp
-        run: echo "::set-output name=timestamp::$(date +'%Y%m%d%H%M%S')"
+      # - name: Extract timestamp
+      #   id: timestamp
+      #   run: echo "::set-output name=timestamp::$(date +'%Y%m%d%H%M%S')"
 
       - name: Set dynamic tag
         id: set-tag
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev-sample" ]]; then
-            # echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:sample-${{ steps.timestamp.outputs.timestamp }}"
-            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:sample-latest"
+            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan:sample-latest"
           else
-            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:latest-${{ steps.timestamp.outputs.timestamp }}"
+            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan:latest"
           fi
 
-      - name: Build and Push Docker image to GHCR (Dev)
+      - name: Build and Push Docker image to GHCR
         uses: docker/build-push-action@v2
         with:
           context: ./ckan
