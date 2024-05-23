@@ -38,6 +38,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: ./ckan
-          file: ./ckan/Dockerfile # Consider using a separate Dockerfile for dev if needed
-          tags: ${{ steps.set-tag.outputs.tag }} # ghcr.io/auscope/auscope-ckan-dev:latest-${{ steps.timestamp.outputs.timestamp }}
+          file: ./ckan/Dockerfile
+          tags: ${{ steps.set-tag.outputs.tag }}
           push: true
