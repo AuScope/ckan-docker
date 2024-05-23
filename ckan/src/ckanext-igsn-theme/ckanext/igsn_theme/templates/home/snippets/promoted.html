@@ -5,7 +5,7 @@
     {% if intro %}
       {{ h.render_markdown(intro) }}
     {% else %}
-      <h1 class="page-heading">{{ _("Welcome to AuScope Data Repository") }}</h1>
+      <h1 class="page-heading">{{ _("Welcome to AuScope Sample Repository") }}</h1>
       <p>
         {% trans %} The AuScope Sample Repository provides a trusted digital repository for publishing specimen metadata from AuScope communities following the FAIR Data Guiding Principles and simplifying the issuing of globally unique persistent identifiers (IGSN) for specimens. Sample metadata and links to related datasets are available openly through this repository with appropriate attributions to promote open science.
         {% endtrans %}
@@ -21,7 +21,7 @@
   <style>
     .cropped-image {
       object-fit: cover;
-      max-height: 350px; 
+      max-height: 350px;
     }
   </style>
   {% block home_image %}
@@ -30,8 +30,8 @@
         {% block home_image_content %}
           <div class="media-image-wrapper">
             <a class="media-image" href="#">
-              <img class="img-fluid cropped-image" 
-                  src="{{ h.url_for_static('/base/images/RS6242_Maia 63244_corrected_balfeti.jpg') }}" 
+              <img class="img-fluid cropped-image"
+                  src="{{ h.url_for_static('/base/images/RS6242_Maia 63244_corrected_balfeti.jpg') }}"
                   alt="Placeholder" />
             </a>
             <div class="image-caption">
