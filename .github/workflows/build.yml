@@ -58,7 +58,8 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev-sample" ]]; then
-            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:sample-${{ steps.timestamp.outputs.timestamp }}"
+            # echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:sample-${{ steps.timestamp.outputs.timestamp }}"
+            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:sample-latest"
           else
             echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:latest-${{ steps.timestamp.outputs.timestamp }}"
           fi
