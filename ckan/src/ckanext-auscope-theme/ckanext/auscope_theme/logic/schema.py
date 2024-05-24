@@ -54,29 +54,33 @@ def after_dataset_show(context, pkg_dict):
     pkg_dict['citation'] = citation
 
 
-@tk.chained_action
-def after_dataset_search(search_results, search_params):
-    """
-    Filtered returned search results so that members do not see other user's private datasets.
-    Editors and admins will still see all datasets.
-    """
-    result_count = search_results['count']
-    if result_count > 0:
-        user = tk.g.userobj
-        if user:
-            filtered_results = search_results['results'].copy()
-            for package in search_results['results']:
-                if 'owner_org' in package:
-                    # There's only one org so we could probably get away with only doing this once
-                    user_role = authz.users_role_for_group_or_org(package['owner_org'], user.name)
-                    # Filter out any private datasets that the user did not create themselves if they are only a member
-                    if user_role == 'member' and package['private'] and user.id != package['creator_user_id']:
-                        filtered_results.remove(package)
-                        result_count -= 1
-            search_results['results'] = filtered_results
-            search_results['count'] = result_count
-
-    return search_results
+#@tk.chained_action
+#def after_dataset_search(search_results, search_params):
+#    """
+#    Filter returned search results so that members do not see other user's private datasets.
+#    Editors and admins will still see all datasets.
+#
+#    Note: We now want everyone to see all private datasets, just not access them. Have left
+#    this method here in case users don't want datasets advertised before release.
+#
+#    """
+#    result_count = search_results['count']
+#    if result_count > 0:
+#        user = tk.g.userobj
+#        if user:
+#            filtered_results = search_results['results'].copy()
+#            for package in search_results['results']:
+#                if 'owner_org' in package:
+#                    # There's only one org so we could probably get away with only doing this once
+#                    user_role = authz.users_role_for_group_or_org(package['owner_org'], user.name)
+#                    # Filter out any private datasets that the user did not create themselves if they are only a member
+#                    if user_role == 'member' and package['private'] and user.id != package['creator_user_id']:
+#                        filtered_results.remove(package)
+#                        result_count -= 1
+#            search_results['results'] = filtered_results
+#            search_results['count'] = result_count
+#
+#    return search_results
 
 
 def get_admin_dataset_notification_body(context, pkg_dict):
