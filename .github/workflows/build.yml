@@ -29,9 +29,9 @@ jobs:
         id: set-tag
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev-sample" ]]; then
-            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan:sample-latest"
+            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:sample-latest"
           else
-            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan:latest"
+            echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:latest"
           fi
 
       - name: Build and Push Docker image to GHCR
