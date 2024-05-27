@@ -41,6 +41,9 @@ jobs:
           file: ./ckan/Dockerfile # Consider using a separate Dockerfile for dev if needed
           tags: ${{ steps.set-tag.outputs.tag }}
           push: true
-          load: false # Ensure it's set to false to use Buildx's capabilities
-          no-cache: true # Optional to avoid using any cached layers
-          outputs: type=docker # Ensures the output is optimized for Docker
+          build-args: |
+            BRANCH_NAME=${{ env.BRANCH_NAME }}
+            COMMIT_SHA=${{ env.COMMIT_SHA }}
+          labels: |
+            branch=${{ env.BRANCH_NAME }}
+            commit_sha=${{ env.COMMIT_SHA }}

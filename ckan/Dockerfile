@@ -1,6 +1,13 @@
 FROM ckan/ckan-base:2.10.1
 #FROM ckan/ckan-base:2.9.9
 
+ARG BRANCH_NAME
+ARG COMMIT_SHA
+
+LABEL branch="$BRANCH_NAME"
+LABEL commit_sha="$COMMIT_SHA"
+
+
 # Set up environment variables
 ENV APP_DIR=/srv/app
 ENV TZ=UTC
