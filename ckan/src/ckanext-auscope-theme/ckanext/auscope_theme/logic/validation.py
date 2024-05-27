@@ -457,3 +457,13 @@ def embargo_date_validator(field, schema):
             errors[key].append(_("The embargo date must be less than a year"))
 
     return validator
+
+
+def tacs_validator(value):
+    """
+    Make sure the Terms & Conditions have been accepted
+    """
+    if not value or value is tk.missing or value == 'False':
+        raise tk.Invalid(tk._("You must accept the Terms and Conditions"))
+    return value
+

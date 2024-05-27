@@ -195,6 +195,25 @@ dataset_fields:
   validators: embargo_date_validator
   groupBy: About Dataset  
 
+- field_name: owner_org
+  label: Organization
+  form_snippet: org_visibility.html
+  validators: visibility_validator
+  groupBy: About Dataset
+
+- field_name: tacs
+  label: Terms & Conditions
+  required: true
+  form_snippet: multiple_checkbox.html
+  display_snippet: null
+  choices:
+    - value: tacs_accepted
+      label: I Agree to the Terms & Conditions
+  help_allow_html: true
+  help_text: You must accept the <a href="http://csiro.au" target="_blank">Terms &amp; Conditions</a> to submit a dataset.
+  validators: tacs_validator
+  groupBy: About Dataset
+
 - field_name: start_date
   label: Start Date
   preset: date
@@ -576,12 +595,6 @@ dataset_fields:
   display_snippet: null
   help_text: The full bibliographic citation of the dataset
   groupBy: Supporting Metadata   
-
-- field_name: owner_org
-  label: Organization
-  form_snippet: org_visibility.html
-  validators: visibility_validator
-  groupBy: About Dataset
 
 
 resource_fields:
