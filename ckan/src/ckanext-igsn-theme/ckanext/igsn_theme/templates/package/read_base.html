@@ -1,5 +1,9 @@
 {% ckan_extends %}
 
+{% block content_primary_nav %}
+  {{ h.build_nav_icon(dataset_type ~ '.read', _('Dataset'),  id=pkg.name, icon='sitemap') }}
+{% endblock %}
+
 {% block secondary_content %}
 
   {% block secondary_help_content %}{% endblock %}
