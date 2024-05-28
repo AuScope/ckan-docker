@@ -83,6 +83,15 @@ def after_dataset_show(context, pkg_dict):
 #    return search_results
 
 
+@tk.chained_action
+def before_dataset_search(search_params):
+    """
+    Force private datasets appear in search results
+    """
+    search_params['include_private'] = 'True'
+    return search_params
+
+
 def get_admin_dataset_notification_body(context, pkg_dict):
     """
     Note: the proper way to do this would be with an email template, but
