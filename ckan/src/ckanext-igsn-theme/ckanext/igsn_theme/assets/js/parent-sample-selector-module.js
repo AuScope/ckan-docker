@@ -9,10 +9,10 @@ this.ckan.module('parent-sample-selector-module', function ($, _) {
 
     initializeSelect2: function () {
       var self = this;
-
+      this.org_id = this.options.group;
       this.inputElement.select2({
         placeholder: "Select Parent of Sample",
-        minimumInputLength: 3,
+        minimumInputLength: 0,
         ajax: {
           url: '/api/3/action/package_search',
           dataType: 'json',
@@ -20,7 +20,8 @@ this.ckan.module('parent-sample-selector-module', function ($, _) {
           data: function (term, page) {
             return {
               q: term,
-              include_private: true
+              include_private: true,
+              fq: 'owner_org:' + self.org_id // filter query for organization id
             };
           },
           results: function (data, page) {
