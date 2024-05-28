@@ -1,29 +1,15 @@
 {% ckan_extends  %}
 
-<a class="btn btn-primary" data-module="modal-contact" data-module-template="" href="" title="">
-    <i class="fas fa-envelope"></i>
-</a>
-
-{% asset 'ckanext-contact/main' %}
-
 {% block header_site_navigation_tabs %}
     {% set org_type = h.default_group_type('organization') %}
     {% set group_type = h.default_group_type('group') %}
 
     {{ h.build_nav_main(
-        (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Samples'), ["dataset","resource"]),
         (org_type ~ '.index', h.humanize_entity_type('organization', org_type, 'main nav') or _('Collections'), ['organization']),
+        (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Samples'), ["dataset","resource"]),
         ('home.about', _('About')) )
     }}
-<li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-        {{ _('Help') }} <b class="caret"></b>
-    </a>
-    <ul class="dropdown-menu">
-        <li><a href="#">{{ _('User Manual haha') }}</a></li>
-        <li><a href="#">{{ _('Data Deposit Guidelines') }}</a></li>
-    </ul>
-</li>
+
 {% endblock %}
 
 {% block header_logo %}
