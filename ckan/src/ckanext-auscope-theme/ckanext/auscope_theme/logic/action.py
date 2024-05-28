@@ -73,6 +73,15 @@ def package_update(next_action, context, data_dict):
 
 
 @tk.chained_action
+def package_search(next_action, context, data_dict):
+    """
+    Overwrite package_search so that it will ignore auth so all results are returned
+    """
+    context['ignore_auth'] = True
+    return next_action(context, data_dict)
+
+
+@tk.chained_action
 def user_create(next_action, context, data_dict):
     user = ckan_user_create(context, data_dict)
     # TODO: get from config
@@ -104,4 +113,5 @@ def get_actions():
         'organization_list_for_user': organization_list_for_user,
         'package_create': package_create,
         'package_update': package_update,
+        'package_search': package_search,
     }
