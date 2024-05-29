@@ -1,0 +1,40 @@
+{% set resources = pkg.resources %}
+
+<section class="module module-narrow module-shallow">
+  <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('Data and Resources') }}</h2>
+  <div class="module-content">
+    {% block resource_list %}
+      {% if resources %}
+        {% set can_edit = can_edit or h.check_access('package_update', {'id': pkg.id}) %}
+        <div class="nav-resource">
+          <ul class="list-unstyled nav nav-simple nav-facet">
+            {% block resource_list_inner %}
+              {% set resources_to_display = resources[:10] %}
+              {% for resource in resources_to_display %}
+                {% snippet 'package/snippets/resource_item_short.html', pkg=pkg, res=resource, can_edit=can_edit %}
+              {% endfor %}
+            {% endblock %}
+          </ul>
+        </div>
+        {% if resources|length > 10 %}
+          <a href="{{ h.url_for('dataset.read', id=pkg.name) }}" class="load-more">Load More</a>
+        {% endif %}
+      {% else %}
+        {% block resource_list_empty %}
+          {% if h.check_access('resource_create', {'package_id': pkg['id']}) %}
+            {% trans url=h.url_for(pkg.type ~ '_resource.new', id=pkg.name) %}
+              <p class="empty">This dataset has no data, <a href="{{ url }}">why not add some?</a></p>
+            {% endtrans %}
+          {% else %}
+            <p class="empty">{{ _('This dataset has no data') }}</p>
+          {% endif %}
+        {% endblock %}
+      {% endif %}
+    {% endblock %}
+  </div>
+
+  <h2 class="module-heading"><i class="fa fa-info-circle"></i> {{ _('What\'s a resource?') }}</h2>
+  <div class="module-content">
+    <p>{{ _('A resource can be any file or link to a file containing useful data.') }}</p>
+  </div>
+</section>
