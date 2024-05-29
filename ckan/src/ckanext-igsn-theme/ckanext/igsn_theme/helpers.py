@@ -16,6 +16,21 @@ def is_creating_or_editing_dataset():
         return True
     return False
 
+def is_creating_or_editing_org():
+    """Determine if the user is creating or editing an organization."""
+    current_path = toolkit.request.path
+    if (
+        current_path.startswith('/organization/request_join_collection') or 
+        current_path.startswith('/organization/request_new_collection') or
+        current_path.startswith('/organization/new') or
+        current_path.startswith('/organization/edit') or
+        current_path.startswith('/organization/members') or
+        current_path.startswith('/organization/bulk_process') or
+        current_path == '/organization/' 
+    ):
+        return True
+    return False
+
 def get_search_facets():
     context = {'user': toolkit.c.user or toolkit.c.author}
     data_dict = {
@@ -64,6 +79,7 @@ def get_helpers():
     return {
         "igsn_theme_hello": igsn_theme_hello,
         "is_creating_or_editing_dataset" :is_creating_or_editing_dataset,
+        "is_creating_or_editing_org" : is_creating_or_editing_org,
         'get_org_list': get_org_list,
         'users_role_in_org': users_role_in_org,
         "get_search_facets" : get_search_facets,
