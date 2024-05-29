@@ -1,56 +1,28 @@
-{% import 'macros/form.html' as form %}
-{% asset 'ckanext-contact/main' %}
+{% extends "contact/snippets/form.html" %}
 
-{% set recaptcha_v3_key = h.get_recaptcha_v3_key() %}
-{% set recaptcha_v3_action = h.get_recaptcha_v3_action() %}
+{% block contact_form_legend_content %}
+{% endblock %}
 
-{% block contact_form %}
-<form class="contact-form form-horizontal" method="post" data-module="form-contact"
-        data-module-action="{{ recaptcha_v3_action }}" data-module-key="{{ recaptcha_v3_key }}">
+{% block contact_form_fields %}
+    <input type="hidden" name="subject" value="Collection Creation"> 
 
-    {{ form.errors(error_summary) }}
+    {{ form.input('full_name', label=_('Collection Contact Name'), id='field-name', value=data.full_name,
+                    error=errors.full_name, classes=['control-medium'], is_required=true) }}
 
-    <fieldset>
-    {% block contact_form_legend %}
-        <legend>
-        {% block contact_form_legend_content %}
-            {{ _('Please provide the following information to request the creation of a new collection') }}
-        {% endblock %}
-        </legend>
-    {% endblock %}
-    {% block contact_form_fields %}
-        <input type="hidden" name="subject" value="New Collection Request"> 
-        {{ form.input('full_name', label=_('Collection Contact Name'), id='field-name', value=data.full_name,
-                        error=errors.full_name, classes=['control-medium'], is_required=true) }}
+    {{ form.input('email', label=_('Collection Contact Email'), id='field-email', type='email',
+                    value=data.email, error=errors.email, classes=['control-medium'],
+                    is_required=true) }}    
 
-        {{ form.input('email', label=_('Collection Contact Email'), id='field-email', type='email',
-                        value=data.email, error=errors.email, classes=['control-medium'],
-                        is_required=true) }}    
+    {{ form.input('collection_full_name', label=_('Full Name of the Collection'), id='field-collection_full_name',
+                value=data.collection_full_name, error=errors.collection_full_name, classes=['control-medium'],
+                is_required=true) }}
 
-        {{ form.input('collection_full_name', label=_('Full Name of the Collection'), id='field-collection_full_name',
-                    value=data.collection_full_name, error=errors.collection_full_name, classes=['control-medium'],
-                    is_required=true) }}
+    {{ form.input('collection_short_name', label=_('Short Name of the Collection'), id='field-collection_short_name',
+                value=data.collection_short_name, error=errors.collection_short_name, classes=['control-medium'],
+                is_required=true) }}
 
-        {{ form.input('collection_short_name', label=_('Short Name of the Collection'), id='field-collection_short_name',
-                    value=data.collection_short_name, error=errors.collection_short_name, classes=['control-medium'],
-                    is_required=true) }}
+    {{ form.textarea('description', label=_('Description'), id='field-description',
+                    value=data.description, error=errors.description,
+                    placeholder=_('Brief description of the collection'), is_required=true) }}
 
-        {{ form.textarea('description', label=_('Description'), id='field-description',
-                        value=data.description, error=errors.description,
-                        placeholder=_('Brief description of the collection'), is_required=true) }}
-
-
-    {% endblock %}
-    </fieldset>
-
-    <div class="form-actions">
-    {% block contact_form_actions %}
-        {{ form.required_message() }}
-
-        <button class="btn btn-primary save" type="submit" name="save">
-        {{ _('Submit') }}
-        </button>
-    {% endblock %}
-    </div>
-</form>
 {% endblock %}

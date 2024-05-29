@@ -36,7 +36,11 @@ Example:
     {% if user_role %}
       {{ user_role | capitalize }}
     {% else %}
-      <a href="{{ h.url_for('igsn_theme.request_join_collection' , org_id=organization.id , org_name=organization.name) }}" role="button" class="btn btn-link">
+      <a 
+        data-module="modal-contact" 
+        data-module-template="{{ url_for('igsn_theme.request_join_collection')}}"
+        href="{{ h.url_for('igsn_theme.request_join_collection' , org_id=organization.id , org_name=organization.name) }}"  
+        role="button" class="btn btn-link">
         {{ _('Join') }}
       </a>
     {% endif %}
