@@ -2,12 +2,25 @@
 
 {% block header_account_notlogged %}
 <li>{% link_for _('Log in (AAF)'), named_route='oidc_pkce.login' %}</li>
+
 <li>
     <a href="#" role="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#aafLoginModal">
         Don't have AAF?
     </a>
 </li>
+
 <li>{% link_for _('Log in'), named_route='user.login' %}</li>
+
+<li>
+    <a href="{{ h.url_for('contact.form') }}" title="{{ _('Contact') }}">
+    {% if c.userobj %}
+        <i class="fas fa-envelope fa-lg"></i>
+    {% else %}
+        {{ _('Contact') }}
+    {% endif %}
+    </a>
+</li>
+
 {% if h.check_access('user_create') %}
 {% endif %}
 
@@ -28,6 +41,7 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block header_site_navigation_tabs %}
@@ -36,7 +50,7 @@
 "resource"]),
 ('home.about', _('About')) ) }}
 <li class="dropdown">
-    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+    <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
         {{ _('Help') }} <b class="caret"></b>
     </a>
     <ul class="dropdown-menu">

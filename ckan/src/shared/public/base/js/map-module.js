@@ -18,7 +18,7 @@ ckan.module('map-module', function ($, _) {
 
             var customIconPath = 'base/vendor/leaflet/images/';
             L.Icon.Default.imagePath = this.options.site_url + customIconPath;
-            
+
             this.map = L.map('map-container').setView([-31.9505, 115.8605], 3);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -131,28 +131,26 @@ ckan.module('map-module', function ($, _) {
             if (!this.rectangleDrawer) {
                 this.rectangleDrawer = new L.Draw.Rectangle(this.map, this.drawControl.options.draw.rectangle);
             }
-            this.rectangleDrawer.enable();
-
+            // this.rectangleDrawer.enable();
             var self = this;
+            this.map.off(L.Draw.Event.CREATED);
             this.map.on(L.Draw.Event.CREATED, function (event) {
                 var layer = event.layer;
                 var id = L.stamp(layer);
                 if (self.singleMode) {
                     self.drawnItems.clearLayers();
                     self.drawnItemsMap = {};
-
                     document.getElementById('bounds-table-body').innerHTML = '';
-
                 }
                 self.drawnItems.addLayer(layer);
-
                 if (layer instanceof L.Rectangle) {
                     var bounds = self.adjustBounds(layer.getBounds());
                     self.drawnItemsMap[id] = { type: 'rectangle', bbox: bounds.toBBoxString() };
                     self.updateBoundsTable();
-
                 }
             });
+
+            this.map.off(L.Draw.Event.DELETED);           
             this.map.on(L.Draw.Event.DELETED, function (event) {
                 event.layers.eachLayer(function (layer) {
                     var id = L.stamp(layer);
@@ -161,6 +159,7 @@ ckan.module('map-module', function ($, _) {
                 self.updateBoundsTable();
             });
 
+            this.map.off(L.Draw.Event.EDITED);
             this.map.on(L.Draw.Event.EDITED, function (event) {
                 event.layers.eachLayer(function (layer) {
                     var id = L.stamp(layer);
@@ -190,44 +189,49 @@ ckan.module('map-module', function ($, _) {
                     },
                     edit: {
                         featureGroup: this.markerItems,
-                        edit: false,
+                        edit: true,
                         remove: true
                     }
-                    
                 });
-  
-            }
-            this.map.addControl(this.markerControl);
+                this.map.addControl(this.markerControl);
 
-            var self = this;
-            this.map.off('click').on('click', function (e) {
-                if (self.singleMode) {
-                    self.markerItems.clearLayers();
-                    self.drawnItemsMap = {};
-                    document.getElementById('points-table-body').innerHTML = '';
-                }
-                var wrappedLatLng = e.latlng.wrap();
-                var newMarker = L.marker(e.latlng, { draggable: true });
-                self.markerItems.addLayer(newMarker);
-                var id = L.stamp(newMarker);
-                self.drawnItemsMap[id] = { type: 'marker', lat: wrappedLatLng.lat, lng: wrappedLatLng.lng };
-                self.updateMarkerTable();
-                newMarker.on('dragend', function (event) {
-                    var marker = event.target;
-                    var position = marker.getLatLng().wrap();;
-                    self.drawnItemsMap[id] = { type: 'marker', lat: position.lat, lng: position.lng };
-                    self.updateMarkerTable();
-                });
-            });
-            this.map.on(L.Draw.Event.DELETED, function (event) {
-                event.layers.eachLayer(function (layer) {
-                    var id = L.stamp(layer);
-                    if (self.drawnItemsMap[id]) {
-                        delete self.drawnItemsMap[id];
+                var self = this;
+
+                this.map.off(L.Draw.Event.CREATED);
+                this.map.on(L.Draw.Event.CREATED, function (event) {
+                    var layer = event.layer;
+                    if (event.layerType === 'marker') {
+                        // Check if singleMode is enabled
+                        if (self.singleMode) {
+                            self.markerItems.clearLayers();
+                            self.drawnItemsMap = {};
+                            document.getElementById('points-table-body').innerHTML = '';
+                        }
+                        var wrappedLatLng = layer.getLatLng().wrap();
+                        self.markerItems.addLayer(layer);
+                        var id = L.stamp(layer);
+                        self.drawnItemsMap[id] = { type: 'marker', lat: wrappedLatLng.lat, lng: wrappedLatLng.lng };
+                        self.updateMarkerTable();
+                        layer.on('dragend', function (event) {
+                            var marker = event.target;
+                            var position = marker.getLatLng().wrap();
+                            self.drawnItemsMap[id] = { type: 'marker', lat: position.lat, lng: position.lng };
+                            self.updateMarkerTable();
+                        });
                     }
                 });
-                self.updateMarkerTable();
-            });
+
+                this.map.off(L.Draw.Event.DELETED);
+                this.map.on(L.Draw.Event.DELETED, function (event) {
+                    event.layers.eachLayer(function (layer) {
+                        var id = L.stamp(layer);
+                        if (self.drawnItemsMap[id]) {
+                            delete self.drawnItemsMap[id];
+                        }
+                    });
+                    self.updateMarkerTable();
+                });
+            }
         },
 
         updateMarkerTable: function () {
@@ -426,7 +430,7 @@ ckan.module('map-module', function ($, _) {
                 console.error("Invalid GeoJSON data type:", typeof geoJSONStr);
                 return;
             }
-            
+
 
             geoJSONObject.features.forEach((feature, index) => {
                 let id = `feature-${index}`;

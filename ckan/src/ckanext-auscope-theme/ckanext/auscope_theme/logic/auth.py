@@ -68,7 +68,7 @@ def resource_view_create(next_auth, context, data_dict):
         elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id:
             return {'success': True}
         # Member is an editing collaborator
-        elif authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']):
+        elif hasattr(user, 'id') and authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']):
             return {'success': True}
         else:
             return {'success': False, 'msg': 'Unauthorized to view dataset'}
@@ -94,7 +94,7 @@ def package_update(next_auth, context, data_dict):
         elif user_role == 'member' and package.creator_user_id and package.creator_user_id == user.id and package.private:
             return {'success': True}
         # Member is an editing collaborator and package has not been published
-        elif authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']) and package.private:
+        elif hasattr(user, 'id') and authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']) and package.private:
             return {'success': True}
         else:
             return {'success': False, 'msg': 'Unauthorized to update dataset'}
@@ -126,7 +126,7 @@ def resource_update(next_auth, context, data_dict):
         elif (user_role == 'member' or user_role=='editor') and package.creator_user_id and package.creator_user_id == user.id:
             return {'success': True}
         # Member is an editing collaborator and package has not been published
-        elif authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']):
+        elif hasattr(user, 'id') and authz.user_is_collaborator_on_dataset(user.id, package.id, ['editor']):
             return {'success': True}
 
     return next_auth(context, data_dict)
@@ -226,11 +226,19 @@ def package_show(next_auth, context, data_dict):
 
     if package and package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        if user_role == 'member' and package.private and package.creator_user_id != user.id \
+        if (user_role != 'admin' and user_role != 'editor') and package.private and hasattr(user, 'id') and package.creator_user_id != user.id \
                 and not authz.user_is_collaborator_on_dataset(user.id, package.id):
             return {'success': False, 'msg': 'This dataset is private.'}
 
     return next_auth(context, data_dict)
+
+
+@tk.chained_auth_function
+def package_list(next_auth, context, data_dict):
+    """
+    Let any user bring up a package list
+    """
+    return {'success': True}
 
 
 def get_auth_functions():
@@ -246,5 +254,6 @@ def get_auth_functions():
         "resource_delete": resource_delete,
         "resource_view_delete": resource_view_delete,
         "package_show": package_show,
+        "package_list": package_list,
     }
 

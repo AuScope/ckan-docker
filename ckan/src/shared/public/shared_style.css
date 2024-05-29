@@ -799,3 +799,21 @@ body {
   background-repeat: no-repeat !important;
   color: transparent !important;
 }
+
+.nav-resource .resource-item .nav-format-label  {
+  display: flex;
+  align-items: center;
+}
+
+.nav-resource .resource-item .heading {
+    color: #000;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.nav-resource .nav-format-label .format-label {
+  width: 30px; 
+  height: 32.5px; 
+  margin: -14px 0 0 -14px; 
+  font: normal;
+}
