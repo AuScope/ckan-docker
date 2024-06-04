@@ -67,69 +67,35 @@ class BatchUploadView(MethodView):
         try:
             content = uploaded_file.read()
             excel_data = BytesIO(content)
-            sheets = ["samples", "authors", "related_resources"]
-            dfs = {}
-
-            for sheet in sheets:
-                excel_data.seek(0)
-                try:
-                    df = pd.read_excel(excel_data, sheet_name=sheet, na_filter=False, engine="openpyxl")
-                    dfs[sheet] = df if not df.empty else pd.DataFrame()
-                except Exception as e:
-                    dfs[sheet] = pd.DataFrame()
-                    print(f"Error processing sheet {sheet}: {str(e)}")
-
+            sheets = ["samples", "authors", "related_resources", "funding"]
+            dfs = self.read_excel_sheets(excel_data, sheets)
+            
             samples_df = dfs["samples"]
             authors_df = dfs["authors"]
             related_resources_df = dfs["related_resources"]
-
-            # Initialize samples data structure
-            samples_data = []
-
-            # Iterate over each row in the samples DataFrame
-            for _, row in samples_df.iterrows():
-                sample = row.to_dict()
-
-                # Process author_emails
-                author_emails = [
-                    email.strip() for email in sample.get("author_emails", "").split(";")
-                ]
-                matched_authors = authors_df[authors_df["author_email"].isin(author_emails)]
-                sample["author"] = json.dumps(matched_authors.to_dict("records"))
-
-                # Process related_resources_urls
-                related_resource_urls = [
-                    url.strip()
-                    for url in sample.get("related_resources_urls", "").split(";")
-                ]
-                matched_resources = related_resources_df[
-                    related_resources_df["related_resource_url"].isin(related_resource_urls)
-                ]
-                sample["related_resource"] = json.dumps(matched_resources.to_dict("records"))
-
-                sample['user_keywords'] = self.validate_user_keywords(sample['user_keywords'])
-                sample['publication_date'] = date.today().isoformat()
-                sample['owner_org'] = org_id
-                sample['notes'] = sample['description']
-                sample['location_choice'] = 'noLocation'
-                if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
-                    sample['location_choice'] = 'point'
-                    coordinates = [(sample['point_latitude'], sample['point_longitude'])]
-                    sample['location_data'] = self.generate_location_geojson(coordinates)
-
-                defaults = {
-                    "publisher_identifier_type": "ror",
-                    "publisher_identifier": "https://ror.org/04s1m4564",
-                    "publisher": "AuScope",
-                    "resource_type": "physicalobject",
-                }
-
-                sample.update(defaults)
-                name= self.generate_sample_name (org_id,sample['material_type'],sample['sample_type'],sample['sample_number']);
-                sample["name"] =  name
-
-                samples_data.append(sample)
-
+            funding_df = dfs["funding"]
+            
+            try:
+                self.validate_samples(samples_df)
+            except Exception as e:
+                raise ValueError(f"Validation error in validate_samples: {str(e)}")
+            
+            try:
+                self.validate_authors(authors_df)
+            except Exception as e:
+                raise ValueError(f"Validation error in validate_authors: {str(e)}")
+            
+            try:
+                self.validate_related_resources(related_resources_df)
+            except Exception as e:
+                raise ValueError(f"Validation error in validate_related_resources: {str(e)}")
+            
+            try:
+                self.validate_parent_sample(samples_df)
+            except Exception as e:
+                raise ValueError(f"Validation error in validate_parent_sample: {str(e)}")
+            
+            samples_data = self.prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
             return {
                 "samples": samples_data,
                 "authors": authors_df.to_dict("records"),
@@ -188,8 +154,322 @@ class BatchUploadView(MethodView):
         else:
             # Remove any characters that are not allowed
             sanitized_keywords = re.sub(r'[^\w\s.-]', ' ', user_keywords)
-            return sanitized_keywords    
+            return sanitized_keywords   
     
+    def read_excel_sheets(self, excel_data, sheets):
+        dfs = {}
+        for sheet in sheets:
+            excel_data.seek(0)
+            try:
+                df = pd.read_excel(excel_data, sheet_name=sheet, na_filter=False, engine="openpyxl")
+                dfs[sheet] = df if not df.empty else pd.DataFrame()
+            except Exception as e:
+                dfs[sheet] = pd.DataFrame()
+                print(f"Error processing sheet {sheet}: {str(e)}")
+        return dfs
+    
+    def prepare_samples_data(self, samples_df, authors_df, related_resources_df, funding_df, org_id):
+        existing_sample_names = self.get_sample_names()
+        samples_data = []
+        for _, row in samples_df.iterrows():
+            sample = row.to_dict()
+            sample["author"] = self.process_author_emails(sample, authors_df)
+            sample["related_resource"] = self.process_related_resources(sample, related_resources_df)
+            sample["funder"] = self.process_funding_info(sample, funding_df)
+
+            sample['user_keywords'] = self.validate_user_keywords(sample['user_keywords'])
+            sample['publication_date'] = date.today().isoformat()
+            sample['owner_org'] = org_id
+            sample['notes'] = sample['description']
+            sample['location_choice'] = 'noLocation'
+            sample['parent_sample'] = sample['parent_sample']
+            
+            if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
+                if not self.is_numeric(sample['point_latitude']) or not self.is_numeric(sample['point_longitude']):
+                    raise ValueError("Latitude and Longitude must be numeric.")
+                sample['location_choice'] = 'point'
+                coordinates = [(sample['point_latitude'], sample['point_longitude'])]
+                sample['location_data'] = self.generate_location_geojson(coordinates)
+
+            defaults = {
+                "publisher_identifier_type": "ror",
+                "publisher_identifier": "https://ror.org/04s1m4564",
+                "publisher": "AuScope",
+                "resource_type": "physicalobject",
+            }
+            sample.update(defaults)
+            sample["name"] = self.generate_sample_name(org_id, sample['material_type'], sample['sample_type'], sample['sample_number'])
+
+            samples_data.append(sample)
+
+        return samples_data
+    
+    def process_author_emails(self, sample, authors_df):
+        author_emails = [email.strip() for email in sample.get("author_emails", "").split(";")]
+        matched_authors = authors_df[authors_df["author_email"].isin(author_emails)]
+        return json.dumps(matched_authors.to_dict("records"))
+
+    def process_related_resources(self, sample, related_resources_df):
+        related_resources_urls = sample.get("related_resources_urls")
+        if self.is_cell_empty(related_resources_urls):
+            return "[]"
+        
+        related_resource_urls = [url.strip() for url in related_resources_urls.split(";")]
+        for url in related_resource_urls:
+            self.is_url(url)  # Check if the URL is valid
+            related_resources = related_resources_df[related_resources_df['related_resource_url'] == url]
+            required_fields = ['related_resource_type', 'related_resource_url', 'related_resource_title', 'relation_type']
+            if related_resources[required_fields].map(self.is_cell_empty).any().any():
+                raise ValueError(f"Missing required fields for related resource URL: {url}")
+
+        matched_resources = related_resources_df[related_resources_df["related_resource_url"].isin(related_resource_urls)]
+        return json.dumps(matched_resources.to_dict("records"))
+
+    def process_funding_info(self, sample, funding_df):
+        if not self.is_cell_empty(sample.get("project_ids")):
+            project_ids = [project_id.strip() for project_id in sample.get("project_ids").split(";")]
+            for project_id in project_ids:
+                funding_info = funding_df[funding_df['project_identifier'] == project_id]
+                if funding_info.empty:
+                    raise ValueError(f"Missing funding information for project ID: {project_id}")
+                for _, row in funding_info.iterrows():
+                    if self.is_cell_empty(row["funder_name"]):
+                        raise ValueError(f"Row for project ID {project_id} must include a funder_name")
+                    if not self.is_cell_empty(row["funder_identifier"]) and self.is_cell_empty(row["funder_identifier_type"]):
+                        raise ValueError(f"Row for project ID {project_id} with funder_identifier must include funder_identifier_type")
+                    if not self.is_cell_empty(row["funder_name"]):
+                        if self.is_cell_empty(row["project_name"]) or self.is_cell_empty(row["project_identifier"]) or self.is_cell_empty(row["project_identifier_type"]):
+                            raise ValueError(f"Row for funder_name {row['funder_name']} must include project_name, project_identifier, and project_identifier_type")
+
+            matched_funder_name = funding_df.loc[funding_df["project_identifier"].isin(project_ids), "funder_name"]
+            return matched_funder_name
+        return "[]"
+    
+    def validate_samples(self, samples_df):
+        samples_columns_to_check = ['sample_number', 'description', 'user_keywords', 'sample_type', 'material_type', 'author_emails']
+        self.check_required_fields(samples_df, samples_columns_to_check)
+        self.check_unique_sample_number(samples_df)
+        self.validate_epsg(samples_df)
+        
+    def check_required_fields(self, df, columns_to_check):
+        empty_check = df[columns_to_check].isna() | (df[columns_to_check] == '')
+        missing_fields = {}
+
+        for col in columns_to_check:
+            missing_in_col = empty_check[col]
+            if missing_in_col.any():
+                missing_fields[col] = df[missing_in_col].index.tolist()
+
+        if missing_fields:
+            error_messages = [f"Missing values in column '{col}': rows {indexes}" for col, indexes in missing_fields.items()]
+            raise ValueError(" | ".join(error_messages))
+
+    def check_unique_sample_number(self, samples_df):
+        duplicates = samples_df[samples_df['sample_number'].duplicated(keep=False)]
+        if not duplicates.empty:
+            duplicate_values = duplicates['sample_number'].value_counts()
+            # Raise an error with a message containing the duplicate values
+            raise ValueError(f"Duplicate sample numbers detected: {duplicate_values.index.tolist()}")
+        
+    def validate_authors(self, authors_df):
+        columns_to_check = ['author_email', 'author_name', 'author_affiliation', 'author_name_type']
+        valid_identifier_types = ["ORCID", "ISNI", "LCNA", "VIAF", "GND", "DAI", "ResearcherID", "ScopusID", "Other"]
+        valid_affiliation_identifier_types = ["ROR", "Other"]
+
+        try: 
+            self.check_required_fields(authors_df, columns_to_check)
+        except Exception as e:
+            raise ValueError(f"Validation error in check_required_fields: {str(e)}")
+        try: 
+            self.validate_affiliation_identifier(authors_df, valid_affiliation_identifier_types)
+        except Exception as e:
+            raise ValueError(f"Validation error in validate_affiliation_identifier: {str(e)}")
+        try:
+            self.validate_author_identifier(authors_df, valid_identifier_types)
+        except Exception as e:
+            raise ValueError(f"Validation error in validate_author_identifier: {str(e)}")        
+    def validate_affiliation_identifier(self, authors_df, valid_affiliation_identifier_types):
+        if 'author_affiliation_identifier' in authors_df.columns:
+            authors_df['author_affiliation_identifier'] = authors_df['author_affiliation_identifier'].fillna('')
+            authors_df['author_affiliation_identifier_type'] = authors_df['author_affiliation_identifier_type'].fillna('')
+
+            # Find rows where author_affiliation_identifier is not empty and author_affiliation_identifier_type is empty
+            missing_affil_type = authors_df[
+                authors_df['author_affiliation_identifier'].apply(lambda x: not self.is_cell_empty(x)) & 
+                authors_df['author_affiliation_identifier_type'].apply(lambda x: self.is_cell_empty(x))
+            ]
+            if not missing_affil_type.empty:
+                raise ValueError("author_affiliation_identifier_type is required when author_affiliation_identifier is provided.")
+
+            # Find rows where author_affiliation_identifier is not empty and author_affiliation_identifier_type is invalid
+            invalid_affil_types = authors_df[
+                authors_df['author_affiliation_identifier'].apply(lambda x: not self.is_cell_empty(x)) & 
+                ~authors_df['author_affiliation_identifier_type'].isin(valid_affiliation_identifier_types)
+            ]
+            if not invalid_affil_types.empty:
+                raise ValueError("Invalid author_affiliation_identifier_type. Must be one of: " + ", ".join(valid_affiliation_identifier_types))
+
+            # Find rows where author_affiliation_identifier is not a valid URL
+            invalid_entries = authors_df[
+                authors_df['author_affiliation_identifier'].apply(lambda x: not self.is_cell_empty(x)) &
+                authors_df['author_affiliation_identifier'].apply(lambda x: not self.is_url(str(x)))
+            ]
+            if not invalid_entries.empty:
+                error_message = "Invalid URLs found at the following entries:\n"
+                for idx, value in invalid_entries['author_affiliation_identifier'].items():
+                    error_message += f"Index {idx}: {value}\n"
+                raise ValueError(error_message)
+
+
+
+            
+    def validate_author_identifier(self, authors_df, valid_identifier_types):
+        if 'author_identifier' in authors_df.columns:
+            valid_identifiers = authors_df[~authors_df['author_identifier'].apply(self.is_cell_empty)]
+            
+            if not valid_identifiers.empty:
+                missing_identifier_type = valid_identifiers[valid_identifiers['author_identifier_type'].apply(self.is_cell_empty)]
+                if not missing_identifier_type.empty:
+                    raise ValueError("author_identifier_type is required when author_identifier is provided.")
+
+                invalid_identifier_types = valid_identifiers[~valid_identifiers['author_identifier_type'].isin(valid_identifier_types)]
+                if not invalid_identifier_types.empty:
+                    raise ValueError("author_identifier_type is invalid. must be one of: " + ", ".join(valid_identifier_types))
+
+
+
+    def validate_related_resources(self, related_resources_df):
+        required_fields = ['related_resource_type', 'related_resource_url', 'related_resource_title', 'relation_type']
+        valid_resource_types = [
+            "Audiovisual", "Book", "BookChapter", "Collection", "ComputationalNotebook",
+            "ConferencePaper", "ConferenceProceeding", "DataPaper", "Dataset", "Dissertation",
+            "Event", "Image", "InteractiveResource", "Journal", "JournalArticle", "Model",
+            "OutputManagementPlan", "PeerReview", "PhysicalObject", "Preprint", "Report",
+            "Service", "Software", "Sound", "Standard", "Text", "Workflow", "Other"
+        ]
+        valid_relation_types = [
+            "IsCitedBy", "IsSupplementTo", "IsContinuedBy", "IsDescribedBy", "HasMetadata",
+            "HasVersion", "IsNewVersionOf", "IsPartOf", "IsReferencedBy", "IsDocumentedBy",
+            "IsCompiledBy", "IsVariantFormOf", "IsIdenticalTo", "IsReviewedBy", "IsDerivedFrom",
+            "Requires", "IsObsoletedBy", "Cites", "IsSupplementedBy", "Continues",
+            "Describes", "IsMetadataFor", "IsVersionOf", "PreviousVersionOf", "HasPart",
+            "References", "Documents", "Compiles", "IsOriginalFormOf", "Reviews",
+            "IsSourceOf", "IsRequiredBy", "Obsoletes"
+        ]
+        
+        # Check for any missing required fields in any of the related resources entries
+        if related_resources_df[required_fields].map(self.is_cell_empty).any().any():
+            raise ValueError("All related resource fields must be provided when a related resource is specified.")
+        
+        # make sure the related_resource_url is a valid URL
+        invalid_entries = related_resources_df[related_resources_df['related_resource_url'].apply(lambda x: not self.is_url(str(x)))]
+        if not invalid_entries.empty:
+            error_message = "Invalid URLs found at the following entries:\n"
+            for idx, value in invalid_entries['related_resource_url'].items():
+                error_message += f"Index {idx}: {value}\n"
+            raise ValueError(error_message)
+        # Check if 'related_resource_type' is valid
+        if not related_resources_df['related_resource_type'].isin(valid_resource_types).all():
+            invalid_types = related_resources_df[~related_resources_df['related_resource_type'].isin(valid_resource_types)]['related_resource_type'].unique()
+            raise ValueError(f"Invalid related_resource_type. Must be one of: {', '.join(valid_resource_types)}. Found invalid types: {', '.join(invalid_types)}")
+        
+        # Check if 'relation_type' is valid
+        if not related_resources_df['relation_type'].isin(valid_relation_types).all():
+            invalid_relations = related_resources_df[~related_resources_df['relation_type'].isin(valid_relation_types)]['relation_type'].unique()
+            raise ValueError(f"Invalid relation_type. Must be one of: {', '.join(valid_relation_types)}. Found invalid types: {', '.join(invalid_relations)}")
+
+    def validate_parent_sample(self, samples_df):
+        sample_numbers = samples_df["sample_number"].tolist()
+
+        for index, row in samples_df.iterrows():
+            parent_sample = row["parent_sample"]
+            if self.is_cell_empty(parent_sample):
+                continue
+            if pd.notna(parent_sample) and parent_sample not in sample_numbers:
+                raise ValueError(f"Row {index}: parent_sample {parent_sample} does not exist in sample_number column")
+
+    
+    def validate_epsg(self, samples_df):
+        # List of valid EPSG codes
+        valid_epsg_codes = [
+            4202, 4203, 4283, 4326, 4347, 4348, 4938, 4939, 4979,
+            7842, 7843, 7844, 9462, 9463, 9464
+        ]
+        
+        # Identify rows with non-numeric latitude or longitude
+        invalid_latitudes = samples_df['point_latitude'].apply(lambda x: not self.is_cell_empty(x) and not self.is_numeric(x))
+        invalid_longitudes = samples_df['point_longitude'].apply(lambda x: not self.is_cell_empty(x) and not self.is_numeric(x))
+
+        # Raise an error if any invalid rows are found
+        if invalid_latitudes.any() or invalid_longitudes.any():
+            error_message = "Invalid values found in point_latitude or point_longitude:\n"
+            if invalid_latitudes.any():
+                error_message += f"Invalid point_latitude values:\n{samples_df[invalid_latitudes]}\n"
+            if invalid_longitudes.any():
+                error_message += f"Invalid point_longitude values:\n{samples_df[invalid_longitudes]}\n"
+            raise ValueError(error_message)
+        
+        # Check for missing EPSG when coordinates are provided
+        missing_epsg = samples_df[
+            (samples_df['point_latitude'].apply(lambda x: not self.is_cell_empty(x))) &
+            (samples_df['point_longitude'].apply(lambda x: not self.is_cell_empty(x))) &
+            (samples_df['epsg_code'].apply(self.is_cell_empty))
+        ]
+        if not missing_epsg.empty:
+            raise ValueError("EPSG is required when both point_latitude and point_longitude are specified.")
+
+        # Check for invalid EPSG codes
+        invalid_epsg = samples_df[
+            samples_df['epsg_code'].apply(lambda x: not self.is_cell_empty(x) and x not in valid_epsg_codes)
+        ]
+        if not invalid_epsg.empty:
+            invalid_codes = invalid_epsg['epsg_code'].unique()
+            raise ValueError(f"Invalid EPSG codes detected. Valid codes are: {', '.join(map(str, valid_epsg_codes))}. Found invalid codes: {', '.join(map(str, invalid_codes))}")
+
+        
+    def is_url(self, url: str) -> bool:
+        """
+        Check if the given string is a valid URL.
+
+        Args:
+        url (str): The URL to check.
+
+        Returns:
+        bool: True if the URL is valid, False otherwise.
+        """
+        # use re to check if the url is valid
+        url_pattern = re.compile(
+            r'^(?:http|ftp)s?://'  # http:// or https://
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}|'  # domain...
+            r'localhost|'  # localhost...
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+            r'(?::\d+)?'  # optional port
+            r'(?:/?|[/?]\S+)$', re.IGNORECASE
+        )
+        return bool(url_pattern.match(url))
+
+    
+    def is_numeric(self, value):
+        try:
+            float(value)
+            return True
+        except (ValueError, TypeError):
+            return False
+    def is_cell_empty(self, cell):
+        return pd.isna(cell) or (isinstance(cell, str) and cell.strip() == '')
+    
+    def get_sample_names(self):
+        """
+        get all the sample names for this collection for validate parent sample
+        """
+        package_list = get_action('package_list')(context={}, data_dict={})
+        # print('==================================: ', package_list)
+        # package_list is ['ckan-api-test-3069', 'ckan-api-test-5308', 'ckan-api-test-9611'] need to get the package details
+        existing_sample_names = []
+        for package in package_list:
+            package_details = get_action('package_show')(context={}, data_dict={'id': package})
+            existing_sample_names.append(package_details['name'])
+        return existing_sample_names
     def get(self):
         """
         Handles the GET request to show the batch upload form.
