@@ -349,7 +349,6 @@ def request_new_collection():
 
     except Exception as e:
         toolkit.h.flash_error(toolkit._('An error occurred while processing your request.'))
-        toolkit.h.error_log.exception(e)
         logger = logging.getLogger(__name__)
         logger.error('An error occurred while processing your request: {}'.format(str(e)))
         return toolkit.abort(500, toolkit._('Internal server error'))
@@ -396,10 +395,10 @@ def request_join_collection():
         return toolkit.render('contact/req_join_collection.html', extra_vars=extra_vars)
     except Exception as e:
         toolkit.h.flash_error(toolkit._('An error occurred while processing your request.'))
-        toolkit.h.error_log.exception(e)
         logger = logging.getLogger(__name__)
         logger.error('An error occurred while processing your request: {}'.format(str(e)))
         return toolkit.abort(500, toolkit._('Internal server error'))
+
     
 # Add the proxy route
 @igsn_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
