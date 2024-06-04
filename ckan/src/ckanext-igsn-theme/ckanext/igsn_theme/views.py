@@ -325,27 +325,34 @@ def request_new_collection():
         'errors': {},
         'error_summary': {},
     }
-
-    if toolkit.request.method == 'POST':
-        if contact_plugin_available:
-            result = _helpers.submit()
-            if result.get('success', False):
-                return toolkit.render('contact/success.html')
+    try:
+        if toolkit.request.method == 'POST':
+            if contact_plugin_available:
+                result = _helpers.submit()
+                if result.get('success', False):
+                    return toolkit.render('contact/success.html')
+                else:
+                    if result.get('recaptcha_error'):
+                        toolkit.h.flash_error(result['recaptcha_error'])
+                    extra_vars.update(result)
             else:
-                if result.get('recaptcha_error'):
-                    toolkit.h.flash_error(result['recaptcha_error'])
-                extra_vars.update(result)
+                toolkit.h.flash_error(toolkit._('Contact functionality is currently unavailable.'))
+                return toolkit.redirect_to('/organization')
         else:
-            toolkit.h.flash_error(toolkit._('Contact functionality is currently unavailable.'))
-            return toolkit.redirect_to('/organization')
-    else:
-        try:
-            extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
-            extra_vars['data']['email'] = g.userobj.email
-        except AttributeError:
-            extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
+            try:
+                extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
+                extra_vars['data']['email'] = g.userobj.email
+            except AttributeError:
+                extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
 
-    return toolkit.render('contact/req_new_collection.html', extra_vars=extra_vars)
+        return toolkit.render('contact/req_new_collection.html', extra_vars=extra_vars)
+
+    except Exception as e:
+        toolkit.h.flash_error(toolkit._('An error occurred while processing your request.'))
+        toolkit.h.error_log.exception(e)
+        logger = logging.getLogger(__name__)
+        logger.error('An error occurred while processing your request: {}'.format(str(e)))
+        return toolkit.abort(500, toolkit._('Internal server error'))
 
 @igsn_theme.route('/organization/request_join_collection', methods=['GET', 'POST'])
 def request_join_collection():
@@ -363,31 +370,37 @@ def request_join_collection():
         'errors': {},
         'error_summary': {},
     }
-
-    if toolkit.request.method == 'POST':
-        if contact_plugin_available:
-            result = _helpers.submit()
-            if result.get('success', False):
-                return toolkit.render('contact/success.html')
+    try: 
+        if toolkit.request.method == 'POST':
+            if contact_plugin_available:
+                result = _helpers.submit()
+                if result.get('success', False):
+                    return toolkit.render('contact/success.html')
+                else:
+                    if result.get('recaptcha_error'):
+                        toolkit.h.flash_error(result['recaptcha_error'])
+                    extra_vars.update(result)
             else:
-                if result.get('recaptcha_error'):
-                    toolkit.h.flash_error(result['recaptcha_error'])
-                extra_vars.update(result)
+                toolkit.h.flash_error(toolkit._('Contact functionality is currently unavailable.'))
+                return toolkit.redirect_to('/organization')
         else:
-            toolkit.h.flash_error(toolkit._('Contact functionality is currently unavailable.'))
-            return toolkit.redirect_to('/organization')
-    else:
-        try:
-            extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
-            extra_vars['data']['email'] = g.userobj.email
-            extra_vars['data']['collection_id'] = org_id
-            extra_vars['data']['collection_name'] = org_name
+            try:
+                extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
+                extra_vars['data']['email'] = g.userobj.email
+                extra_vars['data']['collection_id'] = org_id
+                extra_vars['data']['collection_name'] = org_name
 
-        except AttributeError:
-            extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
+            except AttributeError:
+                extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
 
-    return toolkit.render('contact/req_join_collection.html', extra_vars=extra_vars)
-
+        return toolkit.render('contact/req_join_collection.html', extra_vars=extra_vars)
+    except Exception as e:
+        toolkit.h.flash_error(toolkit._('An error occurred while processing your request.'))
+        toolkit.h.error_log.exception(e)
+        logger = logging.getLogger(__name__)
+        logger.error('An error occurred while processing your request: {}'.format(str(e)))
+        return toolkit.abort(500, toolkit._('Internal server error'))
+    
 # Add the proxy route
 @igsn_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
 def fetch_epsg():
