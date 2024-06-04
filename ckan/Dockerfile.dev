@@ -68,6 +68,8 @@ RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=cka
 
 ### Zip preview ###
 RUN pip install -e "git+https://github.com/AuScope/ckanext-zippreview.git@preview_error_log_messages#egg=ckanext-zippreview"
+#RUN pip install -e "git+https://github.com/AuScope/ckanext-zippreview.git#egg=ckanext-zippreview"
+
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
