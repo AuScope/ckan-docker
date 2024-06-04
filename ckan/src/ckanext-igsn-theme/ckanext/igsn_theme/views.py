@@ -345,7 +345,7 @@ def request_new_collection():
         except AttributeError:
             extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
 
-    return toolkit.render('organization/req_new_collection.html', extra_vars=extra_vars)
+    return toolkit.render('contact/req_new_collection.html', extra_vars=extra_vars)
 
 @igsn_theme.route('/organization/request_join_collection', methods=['GET', 'POST'])
 def request_join_collection():
@@ -386,7 +386,7 @@ def request_join_collection():
         except AttributeError:
             extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
 
-    return toolkit.render('organization/req_join_collection.html', extra_vars=extra_vars)
+    return toolkit.render('contact/req_join_collection.html', extra_vars=extra_vars)
 
 # Add the proxy route
 @igsn_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
