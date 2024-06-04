@@ -6,8 +6,8 @@
 {% block contact_form_fields %}
     <input type="hidden" name="subject" value="Collection Creation"> 
 
-    {{ form.input('full_name', label=_('Collection Contact Name'), id='field-name', value=data.full_name,
-                    error=errors.full_name, classes=['control-medium'], is_required=true) }}
+    {{ form.input('name', label=_('Collection Contact Name'), id='field-name', value=data.name,
+                    error=errors.name, classes=['control-medium'], is_required=true) }}
 
     {{ form.input('email', label=_('Collection Contact Email'), id='field-email', type='email',
                     value=data.email, error=errors.email, classes=['control-medium'],
