@@ -17,6 +17,7 @@ import json
 import pandas as pd
 from datetime import date
 import re
+from pprint import pformat
 
 check_access = logic.check_access
 NotAuthorized = logic.NotAuthorized
@@ -65,6 +66,7 @@ class BatchUploadView(MethodView):
         dict: Data extracted from the Excel file for preview.
         """
         try:
+            logger = logging.getLogger(__name__)
             content = uploaded_file.read()
             excel_data = BytesIO(content)
             sheets = ["samples", "authors", "related_resources", "funding"]
@@ -96,11 +98,16 @@ class BatchUploadView(MethodView):
                 raise ValueError(f"Validation error in validate_parent_sample: {str(e)}")
             
             samples_data = self.prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
-            return {
+            
+
+            return_value = {
                 "samples": samples_data,
                 "authors": authors_df.to_dict("records"),
-                "related_resources": related_resources_df.to_dict("records")
-            }
+                "related_resources": related_resources_df.to_dict("records"),
+                "funders": funding_df.to_dict("records")
+
+            }  
+            return return_value
 
         except Exception as e:
             raise ValueError(f"Failed to read Excel file: {str(e)}")
@@ -241,8 +248,11 @@ class BatchUploadView(MethodView):
                         if self.is_cell_empty(row["project_name"]) or self.is_cell_empty(row["project_identifier"]) or self.is_cell_empty(row["project_identifier_type"]):
                             raise ValueError(f"Row for funder_name {row['funder_name']} must include project_name, project_identifier, and project_identifier_type")
 
-            matched_funder_name = funding_df.loc[funding_df["project_identifier"].isin(project_ids), "funder_name"]
-            return matched_funder_name
+            matched_funder = funding_df[funding_df["project_identifier"].isin(project_ids)]
+            return json.dumps(matched_funder.to_dict("records"))
+
+            # matched_funder_name = funding_df.loc[funding_df["project_identifier"].isin(project_ids), "funder_name"]
+            # return matched_funder_name.tolist()
         return "[]"
     
     def validate_samples(self, samples_df):
@@ -575,13 +585,31 @@ igsn_theme.add_url_rule(
     methods=['GET', 'POST']
 )
 
+def convert_to_serializable(obj):
+    """
+    Recursively convert pandas objects to JSON-serializable formats.
+    """
+    if isinstance(obj, pd.DataFrame):
+        return obj.to_dict(orient='records')
+    elif isinstance(obj, pd.Series):
+        return obj.to_dict()
+    elif isinstance(obj, dict):
+        return {k: convert_to_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_to_serializable(i) for i in obj]
+    else:
+        return obj
+
 @igsn_theme.route('/get_preview_data', methods=['GET'])
 def get_preview_data():
     """
     Endpoint to fetch the preview data.
     """
+    logger = logging.getLogger(__name__)
     preview_data = session.get('preview_data', {})
-    return jsonify(preview_data)
+    preview_data_serializable = convert_to_serializable(preview_data)
+    # logger.info("preview_data: %s", pformat(preview_data_serializable))
+    return jsonify(preview_data_serializable)
 
 @igsn_theme.route('/remove_preview_data', methods=['POST'])
 def remove_preview_data():
