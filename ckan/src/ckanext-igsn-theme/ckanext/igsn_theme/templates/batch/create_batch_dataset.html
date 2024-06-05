@@ -106,6 +106,9 @@
         <li class="nav-item">
           <a class="nav-link" id="resources-tab" data-bs-toggle="tab" data-bs-target="#resources">Related Resources</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" id="funders-tab" data-bs-toggle="tab" data-bs-target="#funders">Funders</a>
+        </li>        
       </ul>
       <div class="tab-content active">
         <div class="tab-pane fade show active" id="samples" role="tabpanel" aria-labelledby="samples-tab">
@@ -129,6 +132,13 @@
           <p>No data is defined yet for Related Resources.</p>
           {% endif %}
         </div>
+        <div class="tab-pane fade" id="funders" role="tabpanel" aria-labelledby="funders-tab">
+          {% if preview_data.funders %}
+          <table id="fundersTable" class="display" width="100%"></table>
+          {% else %}
+          <p>No data is defined yet for Funder.</p>
+          {% endif %}
+        </div>        
       </div>
     </div>
     {% endif %}

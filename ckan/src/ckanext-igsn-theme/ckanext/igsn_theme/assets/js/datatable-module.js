@@ -16,13 +16,17 @@ ckan.module('datatable-module', function ($, _) {
             });
         },
         setupTable: function (preview_data) {
+            console.log(preview_data)
             var authorsData = preview_data.authors;
             var resourcesData = preview_data.related_resources;
             var samplesData = preview_data.samples;
+            var fundersData = preview_data.funders;
+
             sampleExcludedColumns = ["owner_org", "notes", "location_data", "location_choice", "related_resources_urls", "author_emails"];
-            sampleJsonColumns = ['author', 'related_resource'];
-            sampleJsonColumnsTitle = ['author_name', 'related_resource_title'];
+            sampleJsonColumns = ['author', 'related_resource', 'funder'];
+            sampleJsonColumnsTitle = ['author_name', 'related_resource_title', 'funder_name'];
             this.setupDataTable('#authorsTable', authorsData);
+            this.setupDataTable('#fundersTable', fundersData);
             this.setupDataTable('#resourcesTable', resourcesData);
             this.setupDataTable('#samplesTable', samplesData, true, sampleExcludedColumns, sampleJsonColumns, sampleJsonColumnsTitle);
             $('.collapsible-header').click(function () {
