@@ -4,26 +4,33 @@
 {% endblock %}
 
 {% block contact_form_fields %}
-    <input type="hidden" name="subject" value="Collection Creation"> 
-
-    {{ form.input('name', label=_('Collection Contact Name'), id='field-name', value=data.name,
+    {% set subject = "Collection Creation" %}
+    {% set name_label = _('Collection Contact Name') %}
+    {% set email_label = _('Collection Contact Email') %}
+    {% set full_name_label = _('Full Name of the Collection') %}
+    {% set short_name_label = _('Short Name of the Collection') %}
+    {% set description_label = _('Description') %}
+    
+  
+    <input type="hidden" name="subject" value="{{ subject }}"> 
+    <input type="hidden" name="content" value="{{ data.content }}"> 
+    
+    {{ form.input('name', label=name_label, id='field-name', value=data.name,
                     error=errors.name, classes=['control-medium'], is_required=true) }}
-
-    {{ form.input('email', label=_('Collection Contact Email'), id='field-email', type='email',
+                    
+    {{ form.input('email', label=email_label, id='field-email', type='email',
                     value=data.email, error=errors.email, classes=['control-medium'],
                     is_required=true) }}    
-
-    {{ form.input('collection_full_name', label=_('Full Name of the Collection'), id='field-collection_full_name',
+                    
+    {{ form.input('collection_full_name', label=full_name_label, id='field-collection_full_name',
                 value=data.collection_full_name, error=errors.collection_full_name, classes=['control-medium'],
                 is_required=true) }}
-
-    {{ form.input('collection_short_name', label=_('Short Name of the Collection'), id='field-collection_short_name',
+                
+    {{ form.input('collection_short_name', label=short_name_label, id='field-collection_short_name',
                 value=data.collection_short_name, error=errors.collection_short_name, classes=['control-medium'],
                 is_required=true) }}
-
-    {{ form.textarea('content', label=_('Description'), id='field-content',
-                        value=data.content, error=errors.content,
+                
+    {{ form.textarea('description', label=description_label, id='field-description',
+                        value=data.description, error=errors.description,
                         placeholder=_('Brief description?'), is_required=true) }}
-
-
 {% endblock %}

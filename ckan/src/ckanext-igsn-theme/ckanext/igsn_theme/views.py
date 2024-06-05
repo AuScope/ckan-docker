@@ -1,4 +1,4 @@
-from flask import Blueprint, request, Response, render_template, redirect, url_for, session , jsonify
+from flask import Blueprint, request, Response, render_template, redirect, url_for, session , jsonify, render_template_string
 from flask.views import MethodView
 import requests
 import os
@@ -327,6 +327,10 @@ def request_new_collection():
     }
     try:
         if toolkit.request.method == 'POST':
+            email_body = generate_new_collection_email_body(request)
+            request.values = request.values.copy()
+            request.values['content'] = email_body
+            
             if contact_plugin_available:
                 result = _helpers.submit()
                 if result.get('success', False):
@@ -340,10 +344,10 @@ def request_new_collection():
                 return toolkit.redirect_to('/organization')
         else:
             try:
-                extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
+                extra_vars['data']['name'] = g.userobj.fullname or g.userobj.name
                 extra_vars['data']['email'] = g.userobj.email
             except AttributeError:
-                extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
+                extra_vars['data']['name'] = extra_vars['data']['email'] = None
 
         return toolkit.render('contact/req_new_collection.html', extra_vars=extra_vars)
 
@@ -371,7 +375,12 @@ def request_join_collection():
     }
     try: 
         if toolkit.request.method == 'POST':
-            if contact_plugin_available:
+
+            email_body = generate_join_collection_email_body(request, org_id,org_name)
+            request.values = request.values.copy()
+            request.values['content'] = email_body
+
+            if contact_plugin_available:               
                 result = _helpers.submit()
                 if result.get('success', False):
                     return toolkit.render('contact/success.html')
@@ -384,13 +393,13 @@ def request_join_collection():
                 return toolkit.redirect_to('/organization')
         else:
             try:
-                extra_vars['data']['full_name'] = g.userobj.fullname or g.userobj.name
+                extra_vars['data']['name'] = g.userobj.fullname or g.userobj.name
                 extra_vars['data']['email'] = g.userobj.email
                 extra_vars['data']['collection_id'] = org_id
                 extra_vars['data']['collection_name'] = org_name
 
             except AttributeError:
-                extra_vars['data']['full_name'] = extra_vars['data']['email'] = None
+                extra_vars['data']['name'] = extra_vars['data']['email'] = None
 
         return toolkit.render('contact/req_join_collection.html', extra_vars=extra_vars)
     except Exception as e:
@@ -398,8 +407,64 @@ def request_join_collection():
         logger = logging.getLogger(__name__)
         logger.error('An error occurred while processing your request: {}'.format(str(e)))
         return toolkit.abort(500, toolkit._('Internal server error'))
+ 
 
+def generate_new_collection_email_body(request):
+    data = {
+        'name': request.values.get('name'),
+        'email': request.values.get('email'),
+        'collection_full_name': request.values.get('collection_full_name'),
+        'collection_short_name': request.values.get('collection_short_name'),
+        'description': request.values.get('description')
+    }    
+    email_body_template = """
+    Hello,
+
+    A new collection request has been submitted. Here are the details:
+
+    Contact Name: {{ data.name }}
+    Contact Email: {{ data.email }}
     
+    Collection Details:
+    - Full Name: {{ data.collection_full_name }}
+    - Short Name: {{ data.collection_short_name }}
+    
+    Description of the Collection:
+    {{ data.description }}
+
+    Best regards,
+    [Your Organization Name]
+    """
+    return render_template_string(email_body_template, data=data)
+
+def generate_join_collection_email_body(request,org_id,org_name):
+    data = {
+        'name': request.values.get('name'),
+        'email': request.values.get('email'),
+        'description': request.values.get('description'),
+        'collection_id': org_id,
+        'collection_name': org_name
+    }
+
+    email_body_template = """
+    Hello,
+
+    You have received a new request to join the collection. Below are the details of the request:
+
+    Contact Name: {{ data.name }}
+    Contact Email: {{ data.email }}
+
+    Description of Request:
+    {{ data.description }}
+
+    Collection Details:
+    - Collection ID: {{ data.collection_id }}
+    - Collection Name: {{ data.collection_name }}
+
+    """
+    return render_template_string(email_body_template, data=data)
+
+
 # Add the proxy route
 @igsn_theme.route('/api/proxy/fetch_epsg', methods=['GET'])
 def fetch_epsg():
@@ -415,6 +480,3 @@ def fetch_epsg():
 
 def get_blueprints():
     return [igsn_theme]
-
-
-
