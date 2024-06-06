@@ -33,8 +33,8 @@ def organization_list_for_user(next_action, context, data_dict):
 
 @tk.chained_action
 def package_create(next_action, context, data_dict):
-    # logger = logging.getLogger(__name__)
-    # logger.info("data_dict: %s", pformat(data_dict))
+    logger = logging.getLogger(__name__)
+    logger.info("package_create data_dict: %s", pformat(data_dict))
     
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
@@ -87,9 +87,14 @@ def generate_parent_related_resource(data_dict):
         new_index = highest_index + 1
         
         data_dict[f'related_resource-{new_index}-related_resource_type'] = "PhysicalObject"
-        data_dict[f'related_resource-{new_index}-related_resource_url'] = parent.get('doi')
         data_dict[f'related_resource-{new_index}-related_resource_title'] = parent.get('title')
         data_dict[f'related_resource-{new_index}-relation_type'] = "IsDerivedFrom"
+
+        doi_value = parent.get('doi')
+        if doi_value:
+            if 'https' not in doi_value:
+                doi_value = "https://doi.org/" + doi_value           
+            data_dict[f'related_resource-{new_index}-related_resource_url'] = doi_value
 
 # We do not need user_create customization here.
 # Users do not need to be a part of an organization by default.
