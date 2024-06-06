@@ -71,9 +71,13 @@ this.ckan.module('jstree-view-module', function (jquery) {
                     }
                 },
                 error: function (xhr) {
-                    console.error('Error fetching children:', xhr.statusText);
-                    $('#tree').jstree(true).set_type(packageId, "leaf");
-                }
+                    if (xhr.status === 404) {
+                        $('#tree').jstree(true).set_type(packageId, "leaf");
+                    } else {
+                        console.error('Error fetching children:', xhr.statusText);
+                        $('#tree').jstree(true).set_type(packageId, "leaf");
+                    }
+                },
             });
         },
 
