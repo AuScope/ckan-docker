@@ -31,7 +31,7 @@ dataset_fields:
 - field_name: sample_number
   label: Sample Number
   required: true
-  help_text: ""
+  help_text: "The sample's name, code or number to be registered"
   groupBy: About Sample
 
 - field_name: parent
@@ -430,7 +430,7 @@ dataset_fields:
         - value: datapaper
           label: DataPaper
         - value: dataset
-          label: Dataset
+          label: "Dataset "
         - value: dissertation
           label: Dissertation
         - value: event
