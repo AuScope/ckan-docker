@@ -83,6 +83,8 @@ def package_search(next_action, context, data_dict):
 
 @tk.chained_action
 def user_create(next_action, context, data_dict):
+    email = data_dict.get('email', '').lower()
+    data_dict['email'] = email
     user = ckan_user_create(context, data_dict)
     # TODO: get from config
     org_name = 'auscope'
@@ -106,9 +108,17 @@ def user_create(next_action, context, data_dict):
     return user
 
 
+@tk.chained_action
+def user_invite(next_action, context, data_dict):
+    email = data_dict.get('email', '').lower()
+    data_dict['email'] = email
+    return next_action(context, data_dict)
+
+
 def get_actions():
     return {
         'user_create': user_create,
+        'user_invite': user_invite,
         'auscope_theme_get_sum': auscope_theme_get_sum,
         'organization_list_for_user': organization_list_for_user,
         'package_create': package_create,
