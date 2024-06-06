@@ -7,6 +7,10 @@ on:
         description: 'Release Type (patch/minor/major)'
         required: true
         default: 'patch'
+      appName:
+        description: 'Application Name (data/sample)'
+        required: true
+        default: 'data'
     branches:
       - master
       - release/*
@@ -104,8 +108,8 @@ jobs:
       - name: Pull 'latest' Docker image
         run: docker pull ghcr.io/auscope/auscope-ckan:latest
 
-      - name: Tag Docker image with new version
-        run: docker tag ghcr.io/auscope/auscope-ckan:latest ghcr.io/auscope/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
+      - name: Tag Docker image with new version and AppName
+        run: docker tag ghcr.io/auscope/auscope-ckan:latest ghcr.io/auscope/auscope-ckan:${{ github.event.inputs.AppName }}-${{ needs.prepare-release.outputs.new-version }}
 
       - name: Push Docker image with new version
-        run: docker push ghcr.io/auscope/auscope-ckan:${{ needs.prepare-release.outputs.new-version }}
+        run: docker push ghcr.io/auscope/auscope-ckan:${{ github.event.inputs.AppName }}-${{ needs.prepare-release.outputs.new-version }}
