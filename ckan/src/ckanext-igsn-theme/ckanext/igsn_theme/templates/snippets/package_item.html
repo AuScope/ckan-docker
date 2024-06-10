@@ -8,9 +8,9 @@
     <td><a href="/organization/{{ package.organization.name }}">{{ package.organization.title }}</a></td>
     <td>{{ package.num_resources }}</td>
     <td>{% for tag in package.tags %}
-          <span class="badge">{{ tag.name }}</span>{% endfor %}
+          <span class="badge" title="{{ tag.name }}">{{ tag.name|truncate(20) }}</span>{% endfor %}
     </td>
-    <td>{{ package.notes|truncate(80) }}</td>
+    <td title="{{ package.notes }}">{{ package.notes|truncate(150) }}</td>
     <td>
     {% if parent_id %}
         {% set pkg = h.get_package(parent_id) %}  {# Attempt to fetch the package details by ID #}
