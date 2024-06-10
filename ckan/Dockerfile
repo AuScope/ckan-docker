@@ -69,7 +69,7 @@ RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=c
 RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
 
 ### Zip preview ###
-RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview"
+RUN pip install -e "git+https://github.com/AuScope/ckanext-zippreview.git#egg=ckanext-zippreview"
 
 ### DCAT plugins ###
 RUN pip install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
