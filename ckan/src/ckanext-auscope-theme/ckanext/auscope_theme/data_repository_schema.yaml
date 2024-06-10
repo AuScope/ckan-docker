@@ -107,7 +107,7 @@ dataset_fields:
     - field_name: author_identifier
       label: Author Identifier
       display_snippet: URL
-      help_text: Uniquely identifies an individual or legal entity, according to identifier schemes. Please specify the absolute URL, e.g. https:&#47;&#47;:&#47;&#47;orcid.org/0000-0003-0870-3192
+      help_text: Uniquely identifies an individual or legal entity, according to identifier schemes. Please specify the absolute URL, e.g. https:&#47;&#47;orcid.org/0000-0003-0870-3192
 
     - field_name: author_email
       label: Author Email
@@ -306,7 +306,7 @@ dataset_fields:
     - field_name: project_identifier
       label: Project Identifier
       display_snippet: URL
-      help_text: The code assigned by the funder to a sponsored grant or project of the dataset. Please specify the absolute URL, e.g. https:&#47;&#47;://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/IM240100006
+      help_text: The code assigned by the funder to a sponsored grant or project of the dataset. Please specify the absolute URL, e.g. https:&#47;&#47;dataportal.arc.gov.au/NCGP/Web/Grant/Grant/IM240100006
 
     - field_name: project_name
       label: Project Name
