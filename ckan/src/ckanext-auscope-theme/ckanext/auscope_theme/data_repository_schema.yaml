@@ -63,7 +63,8 @@ dataset_fields:
       label: Author Affiliation Identifier
       required: true    
       display_snippet: None
-      help_text: The persistent identifier of the affiliated entity. Please specify the absolute URL, e.g. https:&#47;&#47;ror.org/03qn8fb07
+      help_text: "The persistent identifier of the affiliated entity. Please specify the absolute URL, e.g. <code> https://ror.org/03qn8fb07</code>"
+      help_allow_html: true
 
     - field_name: author_affiliation_identifier_type
       label: Author Affiliation Identifier Type
@@ -107,8 +108,9 @@ dataset_fields:
     - field_name: author_identifier
       label: Author Identifier
       display_snippet: URL
-      help_text: Uniquely identifies an individual or legal entity, according to identifier schemes. Please specify the absolute URL, e.g. https:&#47;&#47;:&#47;&#47;orcid.org/0000-0003-0870-3192
-
+      help_text: "Uniquely identifies an individual or legal entity, according to identifier schemes. Please specify the absolute URL, e.g. <code>https://orcid.org/0000-0003-0870-3192</code>"
+      help_allow_html: true
+      
     - field_name: author_email
       label: Author Email
       required: true
@@ -279,7 +281,8 @@ dataset_fields:
     - field_name: funder_identifier
       label: Funder Identifier
       display_snippet: URL
-      help_text: 'Unique identifier of the funding entity. Please specify the absolute URL, e.g. http:&#47;&#47;dx.doi.org/10.13039/501100000923'
+      help_text: "Unique identifier of the funding entity. Please specify the absolute URL, e.g. <code> http://dx.doi.org/10.13039/501100000923 </code>"
+      help_allow_html: true
 
     - field_name: funder_identifier_type
       label: Funder Identifier Scheme
@@ -306,7 +309,8 @@ dataset_fields:
     - field_name: project_identifier
       label: Project Identifier
       display_snippet: URL
-      help_text: The code assigned by the funder to a sponsored grant or project of the dataset. Please specify the absolute URL, e.g. https:&#47;&#47;://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/IM240100006
+      help_text: "The code assigned by the funder to a sponsored grant or project of the dataset. Please specify the absolute URL, e.g. <code> https://dataportal.arc.gov.au/NCGP/Web/Grant/Grant/IM240100006</code>"
+      help_allow_html: true
 
     - field_name: project_name
       label: Project Name
