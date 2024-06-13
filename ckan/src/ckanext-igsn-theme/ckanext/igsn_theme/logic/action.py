@@ -33,8 +33,8 @@ def organization_list_for_user(next_action, context, data_dict):
 
 @tk.chained_action
 def package_create(next_action, context, data_dict):
-    logger = logging.getLogger(__name__)
-    logger.info("package_create data_dict: %s", pformat(data_dict))
+    # logger = logging.getLogger(__name__)
+    # logger.info("package_create data_dict: %s", pformat(data_dict))
     
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
@@ -52,8 +52,17 @@ def package_create(next_action, context, data_dict):
     data_dict['private'] = False
     data_dict['name'] = generate_sample_name(data_dict)
     generate_parent_related_resource(data_dict)
-    created_package = next_action(context, data_dict)
-    return created_package
+    return next_action(context, data_dict)
+
+@tk.chained_action
+def package_update(next_action, context, data_dict):
+    logger = logging.getLogger(__name__)
+    logger.info("package_update data_dict: %s", pformat(data_dict))
+    
+    data_dict['name'] = generate_sample_name(data_dict)
+    update_parent_related_resource(data_dict)
+    return next_action(context, data_dict)
+
 
 def generate_sample_name(data_dict):
     
@@ -86,7 +95,46 @@ def generate_parent_related_resource(data_dict):
         
         new_index = highest_index + 1
         
-        data_dict[f'related_resource-{new_index}-related_resource_type'] = "PhysicalObject"
+        data_dict[f'related_resource-{new_index}-related_resource_type'] = "physicalobject"
+        data_dict[f'related_resource-{new_index}-related_resource_title'] = parent.get('title')
+        data_dict[f'related_resource-{new_index}-relation_type'] = "IsDerivedFrom"
+
+        doi_value = parent.get('doi')
+        if doi_value:
+            if 'https' not in doi_value:
+                doi_value = "https://doi.org/" + doi_value           
+            data_dict[f'related_resource-{new_index}-related_resource_url'] = doi_value
+
+def update_parent_related_resource(data_dict):
+    parent_id = data_dict.get('parent')    
+    if parent_id:
+        parent = tk.get_action('package_show')({}, {'id': parent_id})
+        
+        keys_to_delete = []
+        related_resource_indices = [key.split('-')[1] for key in data_dict.keys() if key.startswith('related_resource-') and '-related_resource_type' in key]
+        
+        for index in related_resource_indices:
+            resource_type_key = f'related_resource-{index}-related_resource_type'
+            relation_type_key = f'related_resource-{index}-relation_type'
+            
+            if (data_dict.get(resource_type_key) == 'physicalobject' and data_dict.get(relation_type_key) == 'IsDerivedFrom'):
+                keys_to_delete.extend([key for key in data_dict.keys() if key.startswith(f'related_resource-{index}-')])
+        
+        for key in keys_to_delete:
+            del data_dict[key]
+        
+        highest_index = -1
+        for key in data_dict.keys():
+            if key.startswith('related_resource-'):
+                parts = key.split('-')
+                if len(parts) > 1 and parts[1].isdigit():
+                    index = int(parts[1])
+                    if index > highest_index:
+                        highest_index = index
+        
+        new_index = highest_index + 1
+        
+        data_dict[f'related_resource-{new_index}-related_resource_type'] = "physicalobject"
         data_dict[f'related_resource-{new_index}-related_resource_title'] = parent.get('title')
         data_dict[f'related_resource-{new_index}-relation_type'] = "IsDerivedFrom"
 
@@ -182,5 +230,6 @@ def get_actions():
         'user_invite': user_invite,
         'create_package_relationship' : create_package_relationship,
         'update_package_relationship' : update_package_relationship,
-        'delete_package_relationship' : delete_package_relationship
+        'delete_package_relationship' : delete_package_relationship,
+        'package_update' : package_update,
     }
