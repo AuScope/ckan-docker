@@ -159,6 +159,13 @@ def user_invite(next_action, context, data_dict):
     data_dict['email'] = email
     return next_action(context, data_dict)
 
+@tk.chained_action
+def package_search(next_action, context, data_dict):
+    """
+    Overwrite package_search so that it will ignore auth so all results are returned
+    """
+    context['ignore_auth'] = True
+    return next_action(context, data_dict)
 
 def create_package_relationship(context, pkg_dict):
     if 'parent' in pkg_dict and pkg_dict['parent']:
@@ -232,4 +239,5 @@ def get_actions():
         'update_package_relationship' : update_package_relationship,
         'delete_package_relationship' : delete_package_relationship,
         'package_update' : package_update,
+        'package_search': package_search,
     }

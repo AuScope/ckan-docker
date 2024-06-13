@@ -9,3 +9,11 @@ def igsn_theme_get_sum():
         "left": [not_empty, convert_int],
         "right": [not_empty, convert_int]
     }
+
+@tk.chained_action
+def before_dataset_search(search_params):
+    """
+    Force private datasets appear in search results
+    """
+    search_params['include_private'] = 'True'
+    return search_params

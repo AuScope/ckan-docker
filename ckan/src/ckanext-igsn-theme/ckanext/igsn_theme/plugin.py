@@ -10,7 +10,7 @@ from ckanext.igsn_theme import helpers
 
 # import ckanext.igsn_theme.cli as cli
 from ckanext.igsn_theme.logic import (
-    action, auth, validators
+    action, schema, auth, validators
 )
 
 import logging
@@ -91,6 +91,9 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     def after_dataset_delete(self, context, pkg_dict):
         return action.delete_package_relationship(context, pkg_dict)
 
+    def before_dataset_search(self, *args, **kwargs):
+        return schema.before_dataset_search(*args, **kwargs)
+    
     # IAuthFunctions
 
     def get_auth_functions(self):

@@ -107,11 +107,18 @@ def package_show(next_auth, context, data_dict):
 
     if package and package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
-        if user_role == 'member' and package.private and package.creator_user_id != user.id:
+        if user_role == 'member' and package.private and hasattr(user, 'id') and package.creator_user_id != user.id:       
             return {'success': False, 'msg': 'This dataset is private.'}
 
     return next_auth(context, data_dict)
 
+
+@tk.chained_auth_function
+def package_list(next_auth, context, data_dict):
+    """
+    Let any user bring up a package list
+    """
+    return {'success': True}
 
 def get_auth_functions():
     return {
@@ -120,4 +127,5 @@ def get_auth_functions():
         "package_update": package_update,
         "package_delete": package_delete,
         "package_show": package_show,
+        "package_list": package_list,
     }
