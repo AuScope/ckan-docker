@@ -1,4 +1,4 @@
-from flask import Blueprint, request, Response
+from flask import Blueprint, request, Response, render_template
 import requests
 
 
@@ -46,6 +46,11 @@ def fetch_epsg():
         return Response(response.content, content_type=response.headers['Content-Type'], status=response.status_code)
     else:
         return {"error": "Failed to fetch EPSG codes"}, 502
+
+@auscope_theme.route('/declaration', methods=['GET'])
+def declaration():
+    return render_template('declaration/declaration.html')
+
 
 def get_blueprints():
     return [auscope_theme]
