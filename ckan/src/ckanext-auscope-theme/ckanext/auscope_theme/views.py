@@ -51,6 +51,9 @@ def fetch_epsg():
 def declaration():
     return render_template('declaration/declaration.html')
 
+@auscope_theme.route('/citation-guide', methods=['GET'])
+def citation_guide():
+    return render_template('citation-guide/citation-guide.html')
 
 def get_blueprints():
     return [auscope_theme]
