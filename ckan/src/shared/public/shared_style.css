@@ -818,3 +818,8 @@ body {
     word-wrap: break-word;
 }
 
+.citation-guide-note em {
+  font-size: 0.85rem !important; 
+  line-height: 1.4 !important;   
+  color: #7e7caa !important;   
+}
