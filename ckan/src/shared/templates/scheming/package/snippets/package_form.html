@@ -97,7 +97,7 @@ entity_type='dataset', object_type=dataset_type -%}
       </button>
     </h4>
   </div>
-  <div id="collapse{{ loop.index }}" class="collapse {{ 'show' if loop.first else '' }}"
+  <div id="collapse{{ loop.index }}" class="collapse {{ 'show' if loop.index<=2 else '' }}"
     aria-labelledby="heading{{ loop.index }}">
     <div class="card-body">
       {%- for field in group_fields %}
