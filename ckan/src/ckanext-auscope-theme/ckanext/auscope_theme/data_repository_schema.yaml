@@ -5,6 +5,16 @@ about_url: https://github.com/AuScope/ckan-docker
 
 dataset_fields:
 
+- field_name: declaration
+  label: Data Deposit Declaration
+  required: true
+  form_snippet: dataset_declaration.html
+  display_snippet: null
+  help_allow_html: true
+  help_text: You must accept the <a href="/declaration" target="_blank">Data Deposit Declaration</a> to submit a dataset.
+  validators: declaration_validator
+  groupBy: Declaration
+
 # field_name conflicts with documentation (identifier)
 - field_name: doi
   label: DataCite DOI Identifier
