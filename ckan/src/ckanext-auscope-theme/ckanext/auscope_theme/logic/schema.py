@@ -163,7 +163,6 @@ def send_admin_dataset_notification(context, pkg_dict):
     dataset_title = pkg_dict['title']
     subject = 'AuScope Data Repository - Dataset Submitted "{dataset_title}"'.format(dataset_title=dataset_title)
     recipient_name = 'AuScope Data Repository admin'
-    #recipient_email = config.get('ckan_sysadmin_email')
     recipient_email = os.environ.get('CKAN_SYSADMIN_EMAIL')
     mailer.mail_recipient(recipient_name, recipient_email, subject, body)
 
