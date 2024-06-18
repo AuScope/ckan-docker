@@ -8,27 +8,25 @@
 
 {% block primary %}
   <article class="module" role="main">
-    <div class="module-content">
+    <div class="module-content citation-guide">
       {% block about %}
         <h1 class="page-heading">{{ _('Referencing and Citing the AuScope Data Repository and Its Datasets') }}</h1>
-        <p>Please use the following format to acknowledge both the AuScope Data Repository and each individual dataset in any academic literature reports etc.</p>
+        <p>Please use the following format to acknowledge both the AuScope Data Repository and each individual dataset in any academic literature, reports, etc.</p>
         
         <h3>Citing Repository</h3>
         <ul>
-          <li><strong>References:</strong> Devaraju A., Woodman S., Taherifar N., Motevalli Soumehsaraei B., Fazio V., Bradley S., Wyborn L., Klump J., Farrington R. (2024). AuScope Data Repository. <a href="https://www.re3data.org/repository/r3d100014363" target="_blank">https://www.re3data.org/repository/r3d100014363</a></li>
-          <li><strong>In-text citation:</strong> “XX data from the AuScope Data Repository (Devaraju et al. 2024)…”</li>
-          <li><strong>Acknowledgements:</strong> Data was obtained from the AuScope Data Repository (<a href="https://repository.data.auscope.org.au/" target="_blank">https://repository.data.auscope.org.au/</a>) funded by AuScope and supported by the Australian Government through the National Collaborative Research Infrastructure Strategy (NCRIS).</li>        
+          <li><strong>References:</strong> Devaraju, A., Woodman, S., Taherifar, N., Motevalli Soumehsaraei, B., Fazio, V., Bradley, S., Wyborn, L., Klump, J., Farrington, R. (2024), AuScope Data Repository. Registry of Research Data Repositories(re3data.org). <a href="http://doi.org/10.17616/R31NJNKR " target="_blank">http://doi.org/10.17616/R31NJNKR </a></li>
+          <li><strong>In-text citation:</strong> “XX data from the AuScope Data Repository (Devaraju et al., 2024)…”</li>
+          <li><strong>Acknowledgements:</strong> Data was obtained from the AuScope Data Repository (<a href="https://repository.data.auscope.org.au/" target="_blank">https://repository.data.auscope.org.au/</a>), funded by AuScope and supported by the Australian Government through the National Collaborative Research Infrastructure Strategy (NCRIS).</li>        
         </ul>
         
         <h3>Citing Dataset</h3>
-        <p>The repository will automatically generate citations for each dataset it publishes using the Datacite Citation format. The citation is located on the metadata page of each dataset.</p>
+        <p>The repository will automatically generate citations for each dataset it publishes using the <a href="https://datacite-metadata-schema.readthedocs.io/en/4.5/introduction/citation/" target="_blank">Datacite Citation </a> format. The citation is located on the metadata page of each dataset. </p>
         <ul>
-          <li><strong>References:</strong> Graeme Beardsmore, Joe Hamad (2024): Gippsland and Murray Basin Fiber Optic Distributed Temperature Sensing Data. AuScope. (Dataset). <a href="https://doi.org/10.82669/meq3cwju" target="_blank">https://doi.org/10.82669/meq3cwju</a></li>
-          <li><strong>In-text citation:</strong> “The data showed the temperature range (Beardsmore et al. 2024)…”</li>
-          <li><strong>Data Availability Statement:</strong> Datasets used in this study are available via the AuScope Data Repository (<a href="https://repository.data.auscope.org.au/" target="_blank">https://repository.data.auscope.org.au/</a>). The datasets used are (Beardsmore et al. 2024); (Smith and Jones 2020); …</li>
-        </ul>
-        
-        <p class="citation-guide-note"><em>*Note: The DOI (10.82669/meq3cwju) above is shown for demo only; therefore it is not actionable.</em></p>
+          <li><strong>References:</strong> James R. Austin (2024): Cloncurry METAL: multimodal integrated mineral system characterisation data. AuScope. (Dataset). <a href="https://doi.org/10.60623/e4z8agwk" target="_blank">https://doi.org/10.60623/e4z8agwk</a></li>
+          <li><strong>In-text citation:</strong> “The data represents complex mineral system (Austin, JR., 2024)…”</li>
+          <li><strong>Data Availability Statement:</strong> Datasets used in this study are available via the AuScope Data Repository (<a href="https://repository.data.auscope.org.au/" target="_blank">https://repository.data.auscope.org.au/</a>). The datasets used are (Austin, JR 2024); (Smith and Jones 2020); …</li>
+        </ul>       
       {% endblock %}
     </div>
   </article>
