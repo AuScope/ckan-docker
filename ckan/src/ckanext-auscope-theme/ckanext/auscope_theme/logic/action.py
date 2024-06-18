@@ -107,6 +107,12 @@ def user_create(next_action, context, data_dict):
     )
     return user
 
+@tk.chained_action
+def user_invite(next_action, context, data_dict):
+    email = data_dict.get('email', '').lower()
+    data_dict['email'] = email
+    return next_action(context, data_dict)
+
 
 @tk.chained_action
 def user_invite(next_action, context, data_dict):
