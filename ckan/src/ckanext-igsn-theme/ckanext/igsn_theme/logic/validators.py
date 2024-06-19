@@ -10,7 +10,10 @@ import logging
 
 from ckan.logic.validators import owner_org_validator as ckan_owner_org_validator
 from ckan.authz import users_role_for_group_or_org
+from pprint import pformat
 
+import geojson
+from shapely.geometry import shape, mapping
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -98,6 +101,25 @@ def location_validator(field, schema):
         if elevation and elevation is not missing:
             if vertical_datum is missing:
                 add_error(vertical_datum_key, missing_error)
+
+        log = logging.getLogger(__name__)
+        try:
+            log.debug("location_data: %s", location_data)
+            
+            geom = shape(location_data['features'][0]['geometry'])
+            log.debug("WKT for spatial field: %s", geom.wkt)
+            
+            geojson_geom = geojson.dumps(mapping(geom))
+            log.debug("GeoJSON for spatial field: %s", geojson_geom)
+            
+            data['spatial',] = geojson_geom
+
+
+            log.debug("Data after setting spatial: %s", pformat(data))
+
+        except Exception as e:
+            log.error("Error processing GeoJSON: %s", e)
+            add_error(location_data_key, f"Error processing GeoJSON: {e}")
 
     return validator
 
