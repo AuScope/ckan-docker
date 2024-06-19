@@ -22,6 +22,7 @@
   - [15. Replacing DataPusher with XLoader](#15-replacing-datapusher-with-xloader)
   - [Copying and License](#copying-and-license)
 - [Github Pipeline](#github-pipeline)
+  - [Branches](#branches)
 
 
 ## 1.  Overview
@@ -282,3 +283,9 @@ http://www.fsf.org/licensing/licenses/agpl-3.0.html
 # Github Pipeline
 
 There are Build and Release pipelines for this repository. See .github/workflows for more details.
+
+## Branches
+
+- dev-data: commit to this branch to build "data-latest" tag images for Data Repository Dev instance.
+- dev-sample: commit to this branch to build "sample-latest" tag images for Sample Repository Dev instance.
+- master: this branch is used for production releases.
