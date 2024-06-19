@@ -1,22 +1,28 @@
 # Docker Compose setup for CKAN
 
 
-* [Overview](#overview)
-* [Installing Docker](#installing-docker)
-* [docker compose vs docker-compose](#docker-compose-vs-docker-compose)
-* [Install CKAN plus dependencies](#install-ckan-plus-dependencies)
-* [Development mode](#development-mode)
-   * [Create an extension](#create-an-extension)
-* [CKAN images](#ckan-images)
-   * [Extending the base images](#extending-the-base-images)
-   * [Applying patches](#applying-patches)
-* [Debugging with pdb](#pdb)
-* [Datastore and Datapusher](#Datastore-and-datapusher)
-* [NGINX](#nginx)
-* [The ckanext-envvars extension](#envvars)
-* [The CKAN_SITE_URL parameter](#CKAN_SITE_URL)
-* [Changing the base image](#Changing-the-base-image)
-* [Replacing DataPusher with XLoader](#Replacing-DataPusher-with-XLoader)
+- [Docker Compose setup for CKAN](#docker-compose-setup-for-ckan)
+  - [1.  Overview](#1--overview)
+  - [2.  Installing Docker](#2--installing-docker)
+  - [3.  docker compose *vs* docker-compose](#3--docker-compose-vs-docker-compose)
+  - [4.  Install (build and run) CKAN plus dependencies](#4--install-build-and-run-ckan-plus-dependencies)
+      - [Base mode](#base-mode)
+      - [Development mode](#development-mode)
+        - [Create an extension](#create-an-extension)
+  - [5. CKAN images](#5-ckan-images)
+  - [6. Extending the base images](#6-extending-the-base-images)
+  - [7. Applying patches](#7-applying-patches)
+  - [8. pdb](#8-pdb)
+  - [9. Datastore and datapusher](#9-datastore-and-datapusher)
+  - [10. NGINX](#10-nginx)
+  - [11. envvars](#11-envvars)
+  - [12. CKAN\_SITE\_URL](#12-ckan_site_url)
+  - [13. Manage new users](#13-manage-new-users)
+  - [14. Changing the base image](#14-changing-the-base-image)
+  - [15. Replacing DataPusher with XLoader](#15-replacing-datapusher-with-xloader)
+  - [Copying and License](#copying-and-license)
+- [Github Pipeline](#github-pipeline)
+  - [Branches](#branches)
 
 
 ## 1.  Overview
@@ -273,3 +279,13 @@ It is open and licensed under the GNU Affero General Public License (AGPL) v3.0
 whose full text may be found at:
 
 http://www.fsf.org/licensing/licenses/agpl-3.0.html
+
+# Github Pipeline
+
+There are Build and Release pipelines for this repository. See .github/workflows for more details.
+
+## Branches
+
+- dev-data: commit to this branch to build "data-latest" tag images for Data Repository Dev instance.
+- dev-sample: commit to this branch to build "sample-latest" tag images for Sample Repository Dev instance.
+- master: this branch is used for production releases.

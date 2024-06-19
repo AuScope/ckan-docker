@@ -576,7 +576,7 @@ dataset_fields:
 - field_name: primary_contact_email
   label: Primary Contact Email
   required: true
-  default: auscope.doi@csiro.au
+  default: help@data.auscope.org.au
   display_snippet: email.html
   # display_email_name_field: primary_contact_name
   help_text: Email of the primary contact
