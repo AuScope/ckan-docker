@@ -1,0 +1,19 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  {{ h.build_nav_icon(dataset_type ~ '.read', _('Dataset'),  id=pkg.name, icon='sitemap') }}
+{% endblock %}
+
+{% block secondary_content %}
+
+  {% block secondary_help_content %}{% endblock %}
+
+  {% block package_organization %}
+    {{ super() }}
+  {% endblock %}
+
+  {% block sample_family_info %}
+    {% snippet 'package/snippets/sample_family_info.html', pkg=pkg, am_following=am_following %}
+  {% endblock %}
+
+{% endblock %}

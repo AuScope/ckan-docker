@@ -7,7 +7,6 @@ volumes:
   minio-data:
 
 services:
-
   ckan-dev:
     container_name: ckan-dev
     build:
@@ -16,7 +15,7 @@ services:
       args:
         - TZ=${TZ}
     env_file:
-      - .env.dev
+      - .env.local
     depends_on:
       db:
         condition: service_healthy
@@ -93,4 +92,3 @@ services:
     volumes:
       - minio-data:/data
     command: server /data
-

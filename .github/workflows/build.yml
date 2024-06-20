@@ -29,6 +29,8 @@ jobs:
       - name: Set dynamic tag
         id: set-tag
         run: |
+          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          echo "COMMIT_SHA=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_ENV
           if [[ "${{ github.ref }}" == "refs/heads/dev-sample" ]]; then
             echo "::set-output name=tag::ghcr.io/auscope/auscope-ckan-dev:sample-latest"
           elif [[ "${{ github.ref }}" == "refs/heads/dev-data" ]]; then
@@ -44,3 +46,9 @@ jobs:
           file: ./ckan/Dockerfile # Consider using a separate Dockerfile for dev if needed
           tags: ${{ steps.set-tag.outputs.tag }}
           push: true
+          build-args: |
+            BRANCH_NAME=${{ env.BRANCH_NAME }}
+            COMMIT_SHA=${{ env.COMMIT_SHA }}
+          labels: |
+            branch=${{ env.BRANCH_NAME }}
+            commit_sha=${{ env.COMMIT_SHA }}

@@ -1,0 +1,24 @@
+scheming_version: 2
+organization_type: organization
+
+fields:
+
+  - field_name: title
+    label: Full Name 
+    required: true
+    preset: title
+    help_text: "The full name should include appropriate elements that would help find and distinguish a collection."
+
+  - field_name: name
+    label: Short Name 
+    required: true
+    validators: not_empty unicode_safe name_validator group_name_validator
+
+  - field_name: description
+    label: Description
+    preset: markdown
+    required: true
+
+  - field_name: image_url
+    label: Image
+    preset: organization_url_upload

@@ -1,6 +1,13 @@
 FROM ckan/ckan-base:2.10.1
 #FROM ckan/ckan-base:2.9.9
 
+ARG BRANCH_NAME
+ARG COMMIT_SHA
+
+LABEL branch="$BRANCH_NAME"
+LABEL commit_sha="$COMMIT_SHA"
+
+
 # Set up environment variables
 ENV APP_DIR=/srv/app
 ENV TZ=UTC
@@ -36,10 +43,6 @@ RUN if ! [ /usr/share/zoneinfo/${TZ} -ef /etc/localtime ]; then \
 ### Pages ###
 #RUN  pip3 install -e git+https://github.com/ckan/ckanext-pages.git#egg=ckanext-pages
 
-### DCAT ###
-#RUN  pip3 install -e git+https://github.com/ckan/ckanext-dcat.git@v0.0.6#egg=ckanext-dcat && \
-#     pip3 install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/v0.0.6/requirements.txt
-
 ### Spatial extension ###
 RUN apk add python3-dev libxml2-dev libxslt-dev geos geos-dev proj proj-dev proj-util py3-shapely
 RUN pip install --upgrade pip
@@ -71,6 +74,10 @@ RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=cka
 ### Zip preview ###
 RUN pip install -e "git+https://github.com/AuScope/ckanext-zippreview.git@master#egg=ckanext-zippreview"
 
+### DCAT plugins ###
+RUN pip install -r "https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt"
+RUN pip install -e "git+https://github.com/AuScope/ckanext-dcat.git@auscope_customise#egg=ckanext-dcat"
+
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime
 
@@ -100,7 +107,8 @@ COPY src/shared/templates /shared/templates
 
 RUN pip install $APP_DIR/src_extensions/ckanext-oidc-pkce && \
   pip install $APP_DIR/src_extensions/ckanext-auscope-theme && \
-  pip install $APP_DIR/src_extensions/ckanext-igsn-theme
+  pip install $APP_DIR/src_extensions/ckanext-igsn-theme && \
+  pip install pandas openpyxl requests python-multipart
 
 RUN chmod +x ${APP_DIR}/start_ckan.sh
 # RUN chmod +x ${APP_DIR}/start_ckan_development.sh

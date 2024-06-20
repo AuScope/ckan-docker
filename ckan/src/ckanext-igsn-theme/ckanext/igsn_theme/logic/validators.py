@@ -8,6 +8,10 @@ import ckan.lib.navl.dictization_functions as df
 from ckanext.scheming.validation import scheming_validator, register_validator
 import logging
 
+from ckan.logic.validators import owner_org_validator as ckan_owner_org_validator
+from ckan.authz import users_role_for_group_or_org
+
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -47,7 +51,7 @@ def location_validator(field, schema):
             for key in [location_data_key]:
                 data[key] = None
             return
-        
+
         # Check if location_data needs parsing or is already a dict
         if isinstance(location_data, str):
             try:
@@ -58,8 +62,8 @@ def location_validator(field, schema):
         elif not isinstance(location_data, dict):
             add_error(location_data_key, invalid_error)
             return
-                
-          
+
+
         features = location_data.get('features', [])
         if not features:
             add_error(location_data_key, missing_error)
@@ -87,14 +91,14 @@ def location_validator(field, schema):
 
         if location_choice is missing and field.get('required', False):
             add_error(location_choice_key, missing_error)
-        
+
         if epsg_code is missing:
             add_error(epsg_code_key, missing_error)
 
         if elevation and elevation is not missing:
             if vertical_datum is missing:
                 add_error(vertical_datum_key, missing_error)
-                
+
     return validator
 
 def is_valid_latitude(lat):
@@ -110,7 +114,7 @@ def is_valid_longitude(lng):
         return -180 <= lng <= 180
     except (ValueError, TypeError):
         return False
-    
+
 def is_valid_bounding_box(bbox):
     try:
         # If bbox is a list with one element, extract the string
@@ -129,14 +133,26 @@ def is_valid_bounding_box(bbox):
                min_lat < max_lat and min_lng < max_lng
     except (ValueError, TypeError):
         return False
-    
+
 def composite_not_empty_subfield(key, subfield_label, value, errors):
-    ''' Function equivalent to ckan.lib.navl.validators.not_empty
-         but for subfields (custom message including subfield)
+    '''
+    Validates that a specified subfield is not empty. If the subfield is empty,
+    appends a custom error message that includes the subfield label.
+    
+    Parameters:
+        key (tuple): The key in the data dictionary that corresponds to the main field.
+        subfield_label (str): The label of the subfield to be included in the error message.
+        value (str): The value of the subfield to validate.
+        errors (dict): A dictionary where validation errors are collected.
     '''
     if not value or value is missing:
-        errors[key].append(_('Missing value at required subfield ' + subfield_label))
-        raise StopOnError
+        if key not in errors:
+            errors[key] = []
+        
+        if errors[key] and "Missing value at required subfields:" in errors[key][-1]:
+            errors[key][-1] += f", {subfield_label}"
+        else:
+            errors[key].append(f"Missing value at required subfields: {subfield_label}")
 
 
 def composite_all_empty(field, item):
@@ -153,12 +169,12 @@ def author_validator(key, item, index, field, errors):
 
     author_identifier = item.get(author_identifier_key, "")
     author_identifier_type = item.get(author_identifier_type_key, "")
-    
+
     if author_identifier and author_identifier is not missing:
         for subfield in field['subfields']:
             if subfield.get('field_name') == 'author_identifier_type':
                 author_identifier_type_label = subfield.get('label', 'Default Label') + " " + str(index)
-                break  
+                break
         composite_not_empty_subfield(key,  author_identifier_type_label , author_identifier_type, errors)
 
 def funder_validator(key, item, index, field, errors):
@@ -167,13 +183,33 @@ def funder_validator(key, item, index, field, errors):
 
     funder_identifier = item.get(funder_identifier_key, "")
     funder_identifier_type = item.get(funder_identifier_type_key, "")
-    
+
     if funder_identifier and funder_identifier is not missing:
         for subfield in field['subfields']:
             if subfield.get('field_name') == 'funder_identifier_type':
                 funder_identifier_type_label = subfield.get('label', 'Default Label') + " " + str(index)
-                break  
+                break
         composite_not_empty_subfield(key,  funder_identifier_type_label , funder_identifier_type, errors)
+
+def project_validator(key, item, index, field, errors):
+    project_name_key = f'project_name'
+    project_identifier_key = f'project_identifier'
+    project_identifier_type_key = f'project_identifier_type'
+
+    project_name = item.get(project_name_key, "")
+    project_identifier = item.get(project_identifier_key, "")
+    project_identifier_type = item.get(project_identifier_type_key, "")
+    
+    if project_name and project_name is not missing:
+        for subfield in field['subfields']:
+            if subfield.get('field_name') == 'project_identifier':
+                project_identifier_label = subfield.get('label', 'Default Label') + " " + str(index)
+            if subfield.get('field_name') == 'project_identifier_type':
+                project_identifier_type_label = subfield.get('label', 'Default Label') + " " + str(index)                
+
+        composite_not_empty_subfield(key,  project_identifier_label , project_identifier, errors)           
+        composite_not_empty_subfield(key,  project_identifier_type_label , project_identifier_type, errors)
+
 @scheming_validator
 @register_validator
 def composite_repeating_validator(field, schema):
@@ -226,10 +262,11 @@ def composite_repeating_validator(field, schema):
 
                             subfield_value = item.get(schema_subfield.get('field_name', ''), "")
                             composite_not_empty_subfield(key, subfield_label , subfield_value, errors)
-                    
+
                     # Call custom author and funder validation for each item
                     author_validator(key , item, index, field, errors)        
                     funder_validator(key , item, index, field, errors)        
+                    project_validator(key , item, index, field, errors)        
 
                 # remove empty elements from list
                 clean_list = []
@@ -254,9 +291,23 @@ def igsn_theme_required(value):
         raise tk.Invalid(tk._("Required"))
     return value
 
+def owner_org_validator(key, data, errors, context):
+    owner_org = data.get(key)
+
+    if owner_org is not tk.missing and owner_org is not None and owner_org != '':
+        if context.get('auth_user_obj', None) is not None:
+            username = context['auth_user_obj'].name
+        else:
+            username = context['user']
+        role = users_role_for_group_or_org(owner_org, username)
+        if role == 'member':
+            return
+    ckan_owner_org_validator(key, data, errors, context)
+
 def get_validators():
     return {
         "igsn_theme_required": igsn_theme_required,
         "location_validator": location_validator,
-        "composite_repeating_validator": composite_repeating_validator
+        "composite_repeating_validator": composite_repeating_validator,
+        "owner_org_validator": owner_org_validator,
     }

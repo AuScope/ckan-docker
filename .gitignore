@@ -12,4 +12,7 @@ local/*
 .vscode/
 .env.dev
 *kill*
+
 .env.local
+
+__pycache__/

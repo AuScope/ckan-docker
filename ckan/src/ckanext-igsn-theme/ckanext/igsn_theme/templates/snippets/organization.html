@@ -1,0 +1,40 @@
+{% ckan_extends %}
+
+{% block info %}
+  <div class="module module-narrow module-shallow context-info">
+    {% if has_context_title %}
+      <h2 class="module-heading"><i class="fa fa-building"></i> {{ h.humanize_entity_type('organization', organization.type, 'sidebar label') or _('Organization') }}</h2>
+    {% endif %}
+    <section class="module-content">
+      {% block inner %}
+        {% block image %}        
+        {% endblock %}
+
+        {% block heading %}
+          <h1 class="heading">{{organization.title or organization.name }}
+            {% if organization.state == 'deleted' %}
+              [{{ _('Deleted') }}]
+            {% endif %}
+          </h1>
+          <p class="read-more">
+            {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
+          </p>          
+        {% endblock %}     
+
+        {% block description %}
+        <!-- {% if organization.description %}
+          <p class="description">
+            {{ h.markdown_extract(organization.description, 100) }}
+          </p>
+          <p class="read-more">
+            {% link_for _('read more'), named_route=organization.type ~ '.about', id=organization.name %}
+          </p>
+        {% else %}
+          <p class="empty">{{ h.humanize_entity_type('organization', organization.type, 'no description') or _('There is no description for this organization') }}</p>
+        {% endif %} -->
+        {% endblock %}    
+
+      {% endblock %}
+    </section>
+  </div>
+  {% endblock %}
