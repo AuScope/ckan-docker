@@ -144,6 +144,13 @@ ckan config-tool $CKAN_INI "ckanext.doi.test_mode = True" # Set to False for pro
 
 ckan config-tool $CKAN_INI "licenses_group_url= $CKAN__LICENSES_GROUP_URL"
 
+
+ckan config-tool $CKAN_INI "ckanext.spatial.default_map_provider = $CKANEXT__SPATIAL__DEFAULT__MAP__PROVIDER"
+ckan config-tool $CKAN_INI "ckanext.spatial.common_map.type = $CKANEXT__SPATIAL__COMMON__MAP__TYPE"
+ckan config-tool $CKAN_INI "ckanext.spatial.common_map.custom_url = $CKANEXT__SPATIAL__COMMON__MAP_CUSTOM__URL"
+ckan config-tool $CKAN_INI "ckanext.spatial.common_map.attribution = $CKANEXT__SPATIAL__COMMON__MAP_ATTRIBUTION"
+ckan config-tool $CKAN_INI "ckanext.spatial.search_backend=$CKANEXT__SPATIAL__SEARCH__BACKEND"
+
 # Run the prerun script to init CKAN and create the default admin user
 echo "python3 prerun"
 python3 prerun.py
