@@ -1,0 +1,48 @@
+{% set intro = g.site_intro_text %}
+
+<div class="module-promotion card box">
+  <div>
+    {% if intro %}
+      {{ h.render_markdown(intro) }}
+    {% else %}
+      <h1 class="page-heading">{{ _("Quick Start") }}</h1>      
+      <p>To register your samples with a new collection in the repository:</p>
+      <ol>
+        <li>Log in via (AAF)</li>
+        <li>Submit a <a href="{{ h.url_for('igsn_theme.request_new_collection') }}">request</a> to create a sample collection</li>
+        <li>You will be notified via email after the collection is created</li>
+        <li>Select your <a href="{{ h.url_for('organization.index') }}">collection</a> and choose 
+          <span class="badge">Add Sample</span> / 
+          <span class="badge">Batch Upload Sample</span>
+        </li>
+      </ol>
+      
+      <p>To register your samples with an existing collection in the repository:</p>
+      <ol>
+        <li>Log in via (AAF)</li>
+        <li>Select your <a href="{{ h.url_for('organization.index') }}">collection-of-interest</a></li>
+        <li>Click 
+          <span class="badge">Add Sample</span> / 
+          <span class="badge">Batch Upload Sample</span>
+        </li>
+      </ol>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  .badge {
+    display: inline-block;
+    padding: 0.25em 0.4em;
+    font-size: 75%;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    background-color: var(--color-aus-royal-blue);
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+</style>

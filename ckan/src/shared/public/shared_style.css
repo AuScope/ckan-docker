@@ -787,6 +787,12 @@ body {
     border-bottom: none;
 }
 
+.context-info .image img, .context-info .image a {
+    display: block;
+    width: 200px;
+    height: 100%;
+    border-radius: 4px;
+}
 
 .leaflet-draw-toolbar a {
   background-image: url('/base/vendor/leaflet-draw/images/spritesheet.png') !important;
