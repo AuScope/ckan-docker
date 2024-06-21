@@ -220,16 +220,26 @@ def resource_view_delete(next_auth, context, data_dict):
 
 
 @tk.chained_auth_function
+@tk.auth_allow_anonymous_access
 def package_show(next_auth, context, data_dict):
-    user = context.get('auth_user_obj')
     package = get_package_object(context, data_dict)
 
+    # All public packages available to everyone
+    if package and not package.private:
+        return {'success': True}
+
+    user = context.get('auth_user_obj')
+    # No access to anonymous user for a private package
+    if user is None:
+        return {'success': False}
+
+    # Admins, editors and collaborators should be able to access private packages
     if package and package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
         if (user_role != 'admin' and user_role != 'editor') and package.private and hasattr(user, 'id') and package.creator_user_id != user.id \
                 and not authz.user_is_collaborator_on_dataset(user.id, package.id):
             return {'success': False, 'msg': 'This dataset is private.'}
-
+    
     return next_auth(context, data_dict)
 
 
