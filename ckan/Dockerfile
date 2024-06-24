@@ -54,7 +54,7 @@ RUN pip install -r /tmp/spatial-reqs.txt
 RUN pip install -e "git+https://github.com/AuScope/ckanext-doi.git@auscope_customise#egg=ckanext-doi"
 
 ### ISO19115 extension ###
-RUN pip install -e "git+https://github.com/AuScope/ckanext-iso19115.git@auscope_data_repo_customise#egg=ckanext-iso19115"
+RUN pip install -e "git+https://github.com/AuScope/ckanext-iso19115.git@AusDataRepo-208-Refine-Linkage-URL#egg=ckanext-iso19115"
 
 ### Contact extension ###
 RUN pip install ckanext-contact
