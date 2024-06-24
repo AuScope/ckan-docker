@@ -80,8 +80,31 @@ def create_package_relationship(context, pkg_dict):
             })
         except Exception as e:
             logger.error('Failed to create package relationship: {}'.format(str(e)))
+            
+def generate_parent_related_resource(data_dict):
+    parent_id = data_dict.get('parent')    
+    if parent_id:
+        parent = tk.get_action('package_show')({}, {'id': parent_id})   
+        highest_index = -1
+        for key in data_dict.keys():
+            if key.startswith('related_resource-'):
+                parts = key.split('-')
+                if len(parts) > 1 and parts[1].isdigit():
+                    index = int(parts[1])
+                    if index > highest_index:
+                        highest_index = index
+        
+        new_index = highest_index + 1
+        
+        data_dict[f'related_resource-{new_index}-related_resource_type'] = "PhysicalObject"
+        data_dict[f'related_resource-{new_index}-related_resource_title'] = parent.get('title')
+        data_dict[f'related_resource-{new_index}-relation_type'] = "IsDerivedFrom"
 
-
+        doi_value = parent.get('doi')
+        if doi_value:
+            if 'https' not in doi_value:
+                doi_value = "https://doi.org/" + doi_value           
+            data_dict[f'related_resource-{new_index}-related_resource_url'] = doi_value
 def update_package_relationship(context, pkg_dict):
     """
     Updates the parent relationship of a package.

@@ -6,12 +6,14 @@ from werkzeug.utils import secure_filename
 from ckan.plugins.toolkit import get_action, h
 import ckan.plugins.toolkit as toolkit
 from ckan.common import g
-
+from ckan.model import Session
 from ckan.common import _, current_user
 import ckan.lib.base as base
 import ckan.logic as logic
 import logging
-
+from ckanext.igsn_theme.logic import (
+    action, 
+)
 from io import BytesIO
 import json
 import pandas as pd
@@ -93,9 +95,9 @@ class BatchUploadView(MethodView):
                 raise ValueError(f"Validation error in validate_related_resources: {str(e)}")
             
             try:
-                self.validate_parent_sample(samples_df)
+                self.validate_parent(samples_df)
             except Exception as e:
-                raise ValueError(f"Validation error in validate_parent_sample: {str(e)}")
+                raise ValueError(f"Validation error in validate_parent: {str(e)}")
             
             samples_data = self.prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
             
@@ -176,7 +178,6 @@ class BatchUploadView(MethodView):
         return dfs
     
     def prepare_samples_data(self, samples_df, authors_df, related_resources_df, funding_df, org_id):
-        existing_sample_names = self.get_sample_names()
         samples_data = []
         for _, row in samples_df.iterrows():
             sample = row.to_dict()
@@ -189,7 +190,7 @@ class BatchUploadView(MethodView):
             sample['owner_org'] = org_id
             sample['notes'] = sample['description']
             sample['location_choice'] = 'noLocation'
-            sample['parent_sample'] = sample['parent_sample']
+            sample['parent'] = row['parent']
             
             if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
                 if not self.is_numeric(sample['point_latitude']) or not self.is_numeric(sample['point_longitude']):
@@ -388,15 +389,15 @@ class BatchUploadView(MethodView):
             invalid_relations = related_resources_df[~related_resources_df['relation_type'].isin(valid_relation_types)]['relation_type'].unique()
             raise ValueError(f"Invalid relation_type. Must be one of: {', '.join(valid_relation_types)}. Found invalid types: {', '.join(invalid_relations)}")
 
-    def validate_parent_sample(self, samples_df):
+    def validate_parent(self, samples_df):
         sample_numbers = samples_df["sample_number"].tolist()
 
         for index, row in samples_df.iterrows():
-            parent_sample = row["parent_sample"]
-            if self.is_cell_empty(parent_sample):
+            parent = row["parent"]
+            if self.is_cell_empty(parent):
                 continue
-            if pd.notna(parent_sample) and parent_sample not in sample_numbers:
-                raise ValueError(f"Row {index}: parent_sample {parent_sample} does not exist in sample_number column")
+            if pd.notna(parent) and parent not in sample_numbers:
+                raise ValueError(f"Row {index}: parent {parent} does not exist in sample_number column")
 
     
     def validate_epsg(self, samples_df):
@@ -468,18 +469,35 @@ class BatchUploadView(MethodView):
     def is_cell_empty(self, cell):
         return pd.isna(cell) or (isinstance(cell, str) and cell.strip() == '')
     
-    def get_sample_names(self):
+    def set_parent_sample(self):
         """
         get all the sample names for this collection for validate parent sample
         """
         package_list = get_action('package_list')(context={}, data_dict={})
-        # print('==================================: ', package_list)
-        # package_list is ['ckan-api-test-3069', 'ckan-api-test-5308', 'ckan-api-test-9611'] need to get the package details
-        existing_sample_names = []
+
+        sample_with_parent_list = []
+        parent_package_id = None
         for package in package_list:
             package_details = get_action('package_show')(context={}, data_dict={'id': package})
-            existing_sample_names.append(package_details['name'])
-        return existing_sample_names
+            parent = package_details.get('parent')
+            if parent:
+                sample_with_parent_list.append(package_details)
+        for sample_with_parent in sample_with_parent_list:
+            
+            parent_value = sample_with_parent['parent']
+            for package in package_list:
+                package_details = get_action('package_show')(context={}, data_dict={'id': package})
+                if parent_value.lower() in package_details['name'].lower():
+                    sample_with_parent['parent'] = package_details['id']
+                    # toolkit.get_action('package_relationship_create')(context, {
+                    #   'subject': sample_with_parent['id'],
+                    #   'object': package_details['id'],
+                    #   'type': 'child_of',
+                    #   'comment': 'Creating a child_of relationship'
+                    # })
+                    action.create_package_relationship(context={}, pkg_dict=sample_with_parent)
+                    action.generate_parent_related_resource(data_dict=sample_with_parent)
+        # return sample_with_parent_list
     def get(self):
         """
         Handles the GET request to show the batch upload form.
@@ -492,14 +510,16 @@ class BatchUploadView(MethodView):
         """
         Handles the POST request to upload and process the batch dataset file or submit a URL.
         """
+        self.set_parent_sample()
         context = self._prepare()
         org_id = request.args.get('group')
         uploaded_file = request.files.get('file')
         save_option = request.form.get('save')
         preview_option = request.form.get('preview')
+        update_option = request.form.get('update')
         preview_data={}
         file_name=''
-
+      
         if not org_id:
             h.flash_error(_('No collection is selected.'), 'error')
             return redirect(url_for('igsn_theme.batch_upload')) 
@@ -515,7 +535,6 @@ class BatchUploadView(MethodView):
                 if file_extension not in self.ALLOWED_EXTENSIONS:
                     h.flash_error(_('Please upload an Excel file (.xlsx or .xls).'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))       
-                           
                 preview_data = self.process_excel(uploaded_file, org_id)
                 session['preview_data'] = preview_data  
                 session['file_name'] = file_name  
@@ -525,11 +544,9 @@ class BatchUploadView(MethodView):
             elif save_option == 'Save':
                 preview_data = session.get('preview_data', {})
                 file_name = session.get('file_name', '')
-
                 if not preview_data or not preview_data.get('samples'):
                     h.flash_error(_('Please generate a preview first.'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))
-                
                 data = preview_data['samples']
                 successful_creations = 0
                 unsuccessful_creations = 0
@@ -541,7 +558,6 @@ class BatchUploadView(MethodView):
                     except Exception as e:
                         unsuccessful_creations += 1
                         sample_data['status'] = "error"
-                
                 if unsuccessful_creations == 0:
                     session.pop('preview_data', None)  
                     session.pop('file_name', None)  
@@ -553,6 +569,9 @@ class BatchUploadView(MethodView):
                 else:
                     h.flash_error(f"Successfully created {successful_creations} samples. {unsuccessful_creations} samples failed to create.")
                     return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
+            elif update_option == 'Update':
+                print('Update option is selected')
+                self.set_parent_sample()
             else:
                 h.flash_error(_('Invalid action'), 'error')
                 return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
