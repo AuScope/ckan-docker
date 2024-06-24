@@ -24,7 +24,7 @@
 .stages li {
   line-height: 27px;
   counter-increment: none;
-  width: 100%; 
+  width: 100%;
   background-color: transparent;
   float: left;
   padding: 10px 20px;
@@ -32,3 +32,17 @@
   z-index: 0;
 }
 
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.375rem;
+  background-color: #2e2b8a; /* Primary blue */
+  color: white; /* Text color */
+  margin-right: 5px; /* Space between badges */
+}

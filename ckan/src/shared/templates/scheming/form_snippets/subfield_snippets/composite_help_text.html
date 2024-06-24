@@ -1,0 +1,16 @@
+{% macro envidat_info(text='', inline=false, classes=[]) %}
+  {%- if text -%}
+    <div class="info-block {{ " " ~ classes | join(' ') }}">
+      <i class="fa fa-info-circle"></i>
+      {{ text|safe if field.get('help_allow_html', false) else text|e }}
+    </div>
+  {%- endif -%}
+{% endmacro %}
+
+{%- if field.help_text -%}
+    {%- set text = h.scheming_language_text(field.help_text) %}
+    {{- envidat_info(
+        text=text,
+        inline=field.get('help_inline', false), classes=["composite-subfield-info"]
+        ) -}}
+{%- endif -%}

@@ -14,17 +14,24 @@ dataset_fields:
   help_text: Persistent identifier (DOI) of the physical sample
   groupBy: About Sample
 
-- field_name: title
-  label: Title
-  required: true
-  preset: title
-  help_text: "The title should include appropriate elements that would help find and distinguish a physical sample. The exact syntax is at the discretion of the sample provider. Appropriate elements might include: (a) The basic form of the object that is registered. For example, polished section, core, pulp, solution, dredge haul in a box, lot, or piece of material. (b) The material or materials that compose the sample. For example, water, granite, or tissue. (c) Local sample identifiers"
-  groupBy: About Sample
+# - field_name: title
+#   label: Title
+#   required: true
+#   preset: title
+#   help_text: "The title should include appropriate elements that would help find and distinguish a physical sample. The exact syntax is at the discretion of the sample provider. Appropriate elements might include: (a) The basic form of the object that is registered. For example, polished section, core, pulp, solution, dredge haul in a box, lot, or piece of material. (b) The material or materials that compose the sample. For example, water, granite, or tissue. (c) Local sample identifiers"
+#   groupBy: About Sample
 
 - field_name: name
   label: URL
   preset: dataset_slug
-  form_placeholder: eg. my-dataset
+  form_snippet: hidden_field.html
+  form_placeholder: eg. my-dataset  
+  groupBy: About Sample
+
+- field_name: sample_number
+  label: Sample Number
+  required: true
+  help_text: "The sample's name, code or number to be registered"
   groupBy: About Sample
 
 - field_name: parent
@@ -423,7 +430,7 @@ dataset_fields:
         - value: datapaper
           label: DataPaper
         - value: dataset
-          label: Dataset
+          label: "Dataset "
         - value: dissertation
           label: Dissertation
         - value: event

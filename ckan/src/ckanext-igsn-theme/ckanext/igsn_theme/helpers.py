@@ -61,10 +61,12 @@ def current_date():
 
 def get_package(package_id):
     """Retrieve package details given an ID or return None if not found."""
-    context = {'user': toolkit.c.user or toolkit.c.author}
+    context = {'ignore_auth': True}
     try:
         return toolkit.get_action('package_show')(context, {'id': package_id})
     except NotFound:
+        return None
+    except toolkit.NotAuthorized:
         return None
     
 

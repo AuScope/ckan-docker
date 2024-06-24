@@ -20,7 +20,6 @@ auscope_theme-css:
   contents:
     - /shared/public/base/vendor/leaflet/leaflet.css
     - /shared/public/base/vendor/leaflet-draw/leaflet.draw.css
-    - /shared/public/base/vendor/jstree/themes/default/style.min.css
 
     - /shared/public/shared_style.css      
     - css/auscope_theme.css

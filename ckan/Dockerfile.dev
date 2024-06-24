@@ -47,6 +47,9 @@ RUN pip install -r /tmp/spatial-reqs.txt
 ### DOI extension ###
 RUN pip install -e "git+https://github.com/AuScope/ckanext-doi.git@auscope_customise#egg=ckanext-doi"
 
+### ISO19115 extension ###
+RUN pip install -e "git+https://github.com/AuScope/ckanext-iso19115.git@auscope_data_repo_customise#egg=ckanext-iso19115"
+
 ### Contact extension ###
 RUN pip install ckanext-contact
 
@@ -63,11 +66,12 @@ RUN pip install -e "git+https://github.com/open-data/ckanext-repeating.git#egg=c
 RUN pip install -e "git+https://github.com/EnviDat/ckanext-composite.git#egg=ckanext-composite"
 
 ### Zip preview ###
-RUN pip install -e "git+https://github.com/datagovau/ckanext-zippreview.git#egg=ckanext-zippreview"
+RUN pip install -e "git+https://github.com/AuScope/ckanext-zippreview.git@master#egg=ckanext-zippreview"
+
 
 ### DCAT plugins - used for exposing schema.org descriptions to search engines ###
-RUN pip install -r https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt
-RUN pip install -e git+https://github.com/AuScope/ckanext-dcat.git@auscope_customise#egg=ckanext-dcat
+RUN pip install -r "https://raw.githubusercontent.com/ckan/ckanext-dcat/master/requirements.txt"
+RUN pip install -e "git+https://github.com/AuScope/ckanext-dcat.git@auscope_customise#egg=ckanext-dcat"
 
 # Clone the extension(s) your are writing for your own project in the `src` folder
 # to get them mounted in this image at runtime

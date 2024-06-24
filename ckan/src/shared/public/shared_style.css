@@ -817,3 +817,14 @@ body {
   margin: -14px 0 0 -14px; 
   font: normal;
 }
+
+.form-group .info-block code  {
+    font-size: 0.875em;
+    color: #6e6e6e;
+    word-wrap: break-word;
+}
+
+.citation-guide a {
+  color: #0563C1; 
+}
+

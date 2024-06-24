@@ -1,0 +1,34 @@
+{#
+    Display a table of dataset items.
+
+    datasets - A list of datasets.
+
+    Example:
+
+    {% snippet 'snippets/package_list.html', packages=c.datasets %}
+
+    #}
+    {% block package_list %}
+    {% if packages %}
+    <table class="table table-hover" >
+      <thead>
+        <tr>
+          <th>{{ _('Sample') }}</th>
+          <th>{{ _('Collection') }}</th>
+          <th>{{ _('No. of Resources') }}</th>
+          <th>{{ _('Keywords') }}</th>
+          <th>{{ _('Description') }}</th>
+          <th>{{ _('Parent') }}</th>
+          <!-- <ch>{{ _('Modified Date') }}</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        {% block package_list_inner %}
+	      {% for package in packages %}
+	        {% snippet 'snippets/package_item.html', package=package, item_class=item_class, hide_resources=hide_resources %}
+	      {% endfor %}
+	    {% endblock %}
+      </tbody>
+    </table>
+    {% endif %}
+{% endblock %}
