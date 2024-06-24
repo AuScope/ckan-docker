@@ -5,6 +5,7 @@ from ckan.logic.validators import owner_org_validator as default_owner_org_valid
 import logging
 from pprint import pformat
 import re
+import ckan.model as model
 
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
@@ -167,6 +168,20 @@ def package_search(next_action, context, data_dict):
     context['ignore_auth'] = True
     return next_action(context, data_dict)
 
+@tk.chained_action
+def package_show(next_action, context, data_dict):
+    """
+    Override package_show to ignore auth if the package is public
+    """
+    package_id = data_dict.get('id')
+    
+    if package_id:
+        package = model.Package.get(package_id)
+        if package and not package.private:
+            context['ignore_auth'] = True
+            
+    return next_action(context, data_dict)
+
 def create_package_relationship(context, pkg_dict):
     if 'parent' in pkg_dict and pkg_dict['parent']:
         logger = logging.getLogger(__name__)
@@ -240,4 +255,5 @@ def get_actions():
         'delete_package_relationship' : delete_package_relationship,
         'package_update' : package_update,
         'package_search': package_search,
+        'package_show': package_show
     }
