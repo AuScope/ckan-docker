@@ -317,6 +317,11 @@ dataset_fields:
   preset: json_object
   groupBy: Spatial & Temporal
 
+- field_name: spatial
+  label: Spatial
+  preset: json_object
+  groupBy: Spatial & Temporal
+
 - field_name: elevation
   label: Elevation (m)
   help_text: The measurement of height above or below mean sea level in meters

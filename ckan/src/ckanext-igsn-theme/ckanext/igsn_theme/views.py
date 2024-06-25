@@ -432,8 +432,6 @@ def generate_new_collection_email_body(request):
     Description of the Collection:
     {{ data.description }}
 
-    Best regards,
-    [Your Organization Name]
     """
     return render_template_string(email_body_template, data=data)
 
