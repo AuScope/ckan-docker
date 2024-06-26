@@ -85,7 +85,6 @@
           onclick="removePreviewData()">Remove</button>
         <button class="btn btn-primary" name="preview" value="Preview" type="submit" style="top: 0px;"> Upload & Preview
         </button>
-        <button class="btn btn-primary" type="submit" name="update" value="Update">Update Parent</button>
       </span>
     </div>
   </div>
@@ -156,9 +155,6 @@
       </button>
       {% endif %}
       {% endblock %}
-    <!-- {% block update_button %}
-    <button class="btn btn-primary" type="button" onclick="updateParentSample()">Update Parent</button>
-    {% endblock %} -->
     </div>
     {% endblock %}
 
@@ -191,21 +187,4 @@
       }
     });
   }
-//   function updateParentSample() {
-//     fetch('/update_parent', {
-//         method: 'POST',
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.status === 'success') {
-//             alert('Parent sample updated successfully');
-//         } else {
-//             alert('Failed to update parent sample');
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//         alert('An error occurred while updating parent sample');
-//     });
-// }
 </script>

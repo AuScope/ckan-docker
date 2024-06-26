@@ -46,6 +46,11 @@ dataset_fields:
   display_snippet: null
   groupBy: About Sample
 
+- field_name: parent_sample
+  form_snippet: hidden_field.html
+  display_snippet: null
+  groupBy: About Sample
+
 - field_name: author
   label: Authors
   preset: composite_repeating

@@ -176,7 +176,7 @@ class BatchUploadView(MethodView):
                 dfs[sheet] = pd.DataFrame()
                 print(f"Error processing sheet {sheet}: {str(e)}")
         return dfs
-    
+          
     def prepare_samples_data(self, samples_df, authors_df, related_resources_df, funding_df, org_id):
         samples_data = []
         for _, row in samples_df.iterrows():
@@ -190,8 +190,8 @@ class BatchUploadView(MethodView):
             sample['owner_org'] = org_id
             sample['notes'] = sample['description']
             sample['location_choice'] = 'noLocation'
-            sample['parent'] = row['parent']
-            
+            sample['parent_sample'] = sample['parent_sample']
+
             if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
                 if not self.is_numeric(sample['point_latitude']) or not self.is_numeric(sample['point_longitude']):
                     raise ValueError("Latitude and Longitude must be numeric.")
@@ -393,11 +393,11 @@ class BatchUploadView(MethodView):
         sample_numbers = samples_df["sample_number"].tolist()
 
         for index, row in samples_df.iterrows():
-            parent = row["parent"]
+            parent = row["parent_sample"]
             if self.is_cell_empty(parent):
                 continue
-            if pd.notna(parent) and parent not in sample_numbers:
-                raise ValueError(f"Row {index}: parent {parent} does not exist in sample_number column")
+            # if pd.notna(parent) and parent not in sample_numbers:
+            #     raise ValueError(f"Row {index}: parent_sample {parent} does not exist in sample_number column")
 
     
     def validate_epsg(self, samples_df):
@@ -468,36 +468,85 @@ class BatchUploadView(MethodView):
             return False
     def is_cell_empty(self, cell):
         return pd.isna(cell) or (isinstance(cell, str) and cell.strip() == '')
-    
-    def set_parent_sample(self):
-        """
-        get all the sample names for this collection for validate parent sample
-        """
-        package_list = get_action('package_list')(context={}, data_dict={})
 
-        sample_with_parent_list = []
-        parent_package_id = None
-        for package in package_list:
-            package_details = get_action('package_show')(context={}, data_dict={'id': package})
-            parent = package_details.get('parent')
-            if parent:
-                sample_with_parent_list.append(package_details)
-        for sample_with_parent in sample_with_parent_list:
-            
-            parent_value = sample_with_parent['parent']
-            for package in package_list:
-                package_details = get_action('package_show')(context={}, data_dict={'id': package})
-                if parent_value.lower() in package_details['name'].lower():
-                    sample_with_parent['parent'] = package_details['id']
-                    # toolkit.get_action('package_relationship_create')(context, {
-                    #   'subject': sample_with_parent['id'],
-                    #   'object': package_details['id'],
-                    #   'type': 'child_of',
-                    #   'comment': 'Creating a child_of relationship'
-                    # })
-                    action.create_package_relationship(context={}, pkg_dict=sample_with_parent)
-                    action.generate_parent_related_resource(data_dict=sample_with_parent)
-        # return sample_with_parent_list
+    def set_parent_sample(self, context):
+        """
+        Sets the parent sample for each created sample.
+        The 'parent_sample' field can be a DOI or a sample number.
+        """
+        preview_data = session.get('preview_data', {})
+        samples = preview_data.get('samples', [])
+
+        created_samples = session.get('created_samples', [])
+        log = logging.getLogger(__name__)
+        for sample in samples:
+            log.info(f"set_parent_sample sample : {sample}")
+
+            parent_sample = sample.get('parent_sample')
+            if not parent_sample:
+                continue
+
+            log.info(f"set_parent_sample parent_sample : {parent_sample}")
+
+            # Attempt to find the parent sample by DOI or sample number
+            parent_package = self.find_parent_package(parent_sample, context, samples, created_samples)
+            if not parent_package:
+                continue
+
+            log.info(f"parent_package : {parent_package}")
+
+            # Update the sample with the parent sample ID
+            sample_id = self.get_created_sample_id(sample)
+            log.info(f"sample_id : {sample_id}")
+
+            if 'id' not in parent_package:
+                parent_package['id'] = self.get_created_sample_id(parent_package)
+
+            log.info(f"parent_package['id'] : {parent_package['id']}")
+
+            if sample_id and 'id' in parent_package:
+                try:
+                    existing_sample = toolkit.get_action('package_show')(context, {'id': sample_id})
+                    existing_sample['parent'] = parent_package['id']
+                    toolkit.get_action('package_update')(context, existing_sample)
+                except Exception as e:
+                    log.error(f"Failed to update sample {sample_id} with parent sample {parent_package['id']}: {e}")
+
+    def find_parent_package(self, parent_sample, context, preview_samples, created_samples):
+        """
+        Finds the parent package based on DOI or sample number.
+        """
+        # Attempt to find by DOI
+        try:
+            package = toolkit.get_action('package_search')(context, {'q': f'doi:{parent_sample}'})
+            if package['results']:
+                return package['results'][0]
+        except Exception as e:
+            log.warning(f"Failed to find parent package by DOI {parent_sample}: {e}")
+
+        # Attempt to find by sample number within preview_data
+        for sample in preview_samples:
+            if sample.get('sample_number') == parent_sample:
+                # Check if the sample has been created and has an ID
+                for created_sample in created_samples:
+                    if created_sample['sample_number'] == sample.get('sample_number'):
+                        return created_sample
+
+        log.warning(f"Parent sample {parent_sample} not found by DOI or sample number.")
+        return None
+
+    def get_created_sample_id(self, preview_sample):
+        """
+        Finds the created sample ID corresponding to the preview sample.
+        """
+        created_samples = session.get('created_samples', [])
+        for created_sample in created_samples:
+            if created_sample['sample_number'] == preview_sample.get('sample_number'):
+                return created_sample['id']
+        return None
+
+
+    
     def get(self):
         """
         Handles the GET request to show the batch upload form.
@@ -510,34 +559,34 @@ class BatchUploadView(MethodView):
         """
         Handles the POST request to upload and process the batch dataset file or submit a URL.
         """
-        self.set_parent_sample()
         context = self._prepare()
         org_id = request.args.get('group')
         uploaded_file = request.files.get('file')
         save_option = request.form.get('save')
         preview_option = request.form.get('preview')
         update_option = request.form.get('update')
-        preview_data={}
-        file_name=''
-      
+        preview_data = {}
+        file_name = ''
+        
         if not org_id:
             h.flash_error(_('No collection is selected.'), 'error')
-            return redirect(url_for('igsn_theme.batch_upload')) 
+            return redirect(url_for('igsn_theme.batch_upload'))
 
         try:
             if preview_option == 'Preview':
                 if not uploaded_file:
                     h.flash_error(_('No file provided.'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))
-                
+
                 file_name = secure_filename(uploaded_file.filename)
                 file_extension = os.path.splitext(file_name)[1].lower()
                 if file_extension not in self.ALLOWED_EXTENSIONS:
                     h.flash_error(_('Please upload an Excel file (.xlsx or .xls).'), 'error')
-                    return redirect(url_for('igsn_theme.batch_upload', group=org_id))       
+                    return redirect(url_for('igsn_theme.batch_upload', group=org_id))
+
                 preview_data = self.process_excel(uploaded_file, org_id)
-                session['preview_data'] = preview_data  
-                session['file_name'] = file_name  
+                session['preview_data'] = preview_data
+                session['file_name'] = file_name
 
                 return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
             
@@ -547,34 +596,55 @@ class BatchUploadView(MethodView):
                 if not preview_data or not preview_data.get('samples'):
                     h.flash_error(_('Please generate a preview first.'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))
+
                 data = preview_data['samples']
+                created_sample_ids = []
                 successful_creations = 0
                 unsuccessful_creations = 0
+
                 for sample_data in data:
                     try:
-                        get_action('package_create')(context, sample_data)
+                        created_sample = get_action('package_create')(context, sample_data)
+                        created_sample_ids.append({
+                            'id': created_sample['id'],
+                            'sample_number': sample_data.get('sample_number')
+                        })
                         successful_creations += 1
                         sample_data['status'] = "created"
                     except Exception as e:
                         unsuccessful_creations += 1
                         sample_data['status'] = "error"
+                        # Rollback: delete all successfully created samples
+                        for sample in created_sample_ids:
+                            try:
+                                get_action('package_delete')(context, {'id': sample['id']})
+                            except Exception as delete_exception:
+                                # Log the exception, but continue with the rollback
+                                log.error(f"Failed to delete sample {sample['id']}: {delete_exception}")
+                        break
+
                 if unsuccessful_creations == 0:
-                    session.pop('preview_data', None)  
-                    session.pop('file_name', None)  
+                    # Store the created samples in the session for later use
+                    session['created_samples'] = created_sample_ids
+                    # All samples were created successfully
+                    self.set_parent_sample(context)
+                    session.pop('preview_data', None)
+                    session.pop('file_name', None)
+                    session.pop('created_samples', None)
                     h.flash_success(_('Successfully processed your submission'))
                     return render_template('batch/new.html', group=org_id, preview_data={}, file_name='')
+                
                 elif successful_creations == 0:
-                        h.flash_error(_('Failed to create any samples.'), 'error')
-                        return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
-                else:
-                    h.flash_error(f"Successfully created {successful_creations} samples. {unsuccessful_creations} samples failed to create.")
+                    h.flash_error(_('Failed to create any samples.'), 'error')
                     return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
-            elif update_option == 'Update':
-                print('Update option is selected')
-                self.set_parent_sample()
+                else:
+                    h.flash_error(f"Successfully created {successful_creations} samples. {unsuccessful_creations} samples failed to create and have been rolled back.")
+                    return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
+
             else:
                 h.flash_error(_('Invalid action'), 'error')
                 return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
+
             
         except NotAuthorized:
             base.abort(403, _('Unauthorized to read package'))
@@ -624,10 +694,8 @@ def get_preview_data():
     """
     Endpoint to fetch the preview data.
     """
-    logger = logging.getLogger(__name__)
     preview_data = session.get('preview_data', {})
     preview_data_serializable = convert_to_serializable(preview_data)
-    # logger.info("preview_data: %s", pformat(preview_data_serializable))
     return jsonify(preview_data_serializable)
 
 @igsn_theme.route('/remove_preview_data', methods=['POST'])
@@ -652,6 +720,9 @@ def request_new_collection():
         'errors': {},
         'error_summary': {},
     }
+
+    logger = logging.getLogger(__name__)
+
     try:
         if toolkit.request.method == 'POST':
             email_body = generate_new_collection_email_body(request)
@@ -680,7 +751,6 @@ def request_new_collection():
 
     except Exception as e:
         toolkit.h.flash_error(toolkit._('An error occurred while processing your request.'))
-        logger = logging.getLogger(__name__)
         logger.error('An error occurred while processing your request: {}'.format(str(e)))
         return toolkit.abort(500, toolkit._('Internal server error'))
 
@@ -700,6 +770,8 @@ def request_join_collection():
         'errors': {},
         'error_summary': {},
     }
+    logger = logging.getLogger(__name__)
+
     try: 
         if toolkit.request.method == 'POST':
 
@@ -731,7 +803,6 @@ def request_join_collection():
         return toolkit.render('contact/req_join_collection.html', extra_vars=extra_vars)
     except Exception as e:
         toolkit.h.flash_error(toolkit._('An error occurred while processing your request.'))
-        logger = logging.getLogger(__name__)
         logger.error('An error occurred while processing your request: {}'.format(str(e)))
         return toolkit.abort(500, toolkit._('Internal server error'))
  

@@ -6,6 +6,7 @@ import logging
 from pprint import pformat
 import re
 import ckan.model as model
+import json
 
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
@@ -57,8 +58,8 @@ def package_create(next_action, context, data_dict):
 
 @tk.chained_action
 def package_update(next_action, context, data_dict):
-    logger = logging.getLogger(__name__)
-    logger.info("package_update data_dict: %s", pformat(data_dict))
+    # logger = logging.getLogger(__name__)
+    # logger.info("package_update data_dict: %s", pformat(data_dict))
     
     data_dict['name'] = generate_sample_name(data_dict)
     update_parent_related_resource(data_dict)
@@ -107,23 +108,39 @@ def generate_parent_related_resource(data_dict):
             data_dict[f'related_resource-{new_index}-related_resource_url'] = doi_value
 
 def update_parent_related_resource(data_dict):
-    parent_id = data_dict.get('parent')    
+    logger = logging.getLogger(__name__)
+
+    parent_id = data_dict.get('parent')
+
     if parent_id:
-        parent = tk.get_action('package_show')({}, {'id': parent_id})
-        
+        try:
+            parent = tk.get_action('package_show')({}, {'id': parent_id})
+        except Exception as e:
+            logger.error(f"Error fetching parent package: {e}")
+            return
+
         keys_to_delete = []
         related_resource_indices = [key.split('-')[1] for key in data_dict.keys() if key.startswith('related_resource-') and '-related_resource_type' in key]
-        
+
         for index in related_resource_indices:
             resource_type_key = f'related_resource-{index}-related_resource_type'
             relation_type_key = f'related_resource-{index}-relation_type'
-            
-            if (data_dict.get(resource_type_key) == 'physicalobject' and data_dict.get(relation_type_key) == 'IsDerivedFrom'):
+
+            if data_dict.get(resource_type_key) == 'physicalobject' and data_dict.get(relation_type_key) == 'IsDerivedFrom':
                 keys_to_delete.extend([key for key in data_dict.keys() if key.startswith(f'related_resource-{index}-')])
-        
+
         for key in keys_to_delete:
             del data_dict[key]
-        
+
+        if 'related_resource' in data_dict:
+            try:
+                related_resources = json.loads(data_dict['related_resource'])
+            except json.JSONDecodeError as e:
+                logger.error(f"Error decoding JSON string for related_resource: {e}")
+                related_resources = []
+        else:
+            related_resources = []
+
         highest_index = -1
         for key in data_dict.keys():
             if key.startswith('related_resource-'):
@@ -132,18 +149,34 @@ def update_parent_related_resource(data_dict):
                     index = int(parts[1])
                     if index > highest_index:
                         highest_index = index
-        
+
         new_index = highest_index + 1
-        
-        data_dict[f'related_resource-{new_index}-related_resource_type'] = "physicalobject"
-        data_dict[f'related_resource-{new_index}-related_resource_title'] = parent.get('title')
-        data_dict[f'related_resource-{new_index}-relation_type'] = "IsDerivedFrom"
+        new_resource = {
+            'related_resource_type': 'physicalobject',
+            'related_resource_title': parent.get('title'),
+            'relation_type': 'IsDerivedFrom',
+            'related_resource_url': None
+        }
 
         doi_value = parent.get('doi')
         if doi_value:
             if 'https' not in doi_value:
-                doi_value = "https://doi.org/" + doi_value           
-            data_dict[f'related_resource-{new_index}-related_resource_url'] = doi_value
+                doi_value = "https://doi.org/" + doi_value
+            new_resource['related_resource_url'] = doi_value
+
+        if related_resources:
+            related_resources.append(new_resource)
+            data_dict['related_resource'] = json.dumps(related_resources)
+        else:
+            data_dict[f'related_resource-{new_index}-related_resource_type'] = new_resource['related_resource_type']
+            data_dict[f'related_resource-{new_index}-related_resource_title'] = new_resource['related_resource_title']
+            data_dict[f'related_resource-{new_index}-relation_type'] = new_resource['relation_type']
+            if new_resource['related_resource_url']:
+                data_dict[f'related_resource-{new_index}-related_resource_url'] = new_resource['related_resource_url']
+
+    else:
+        logger.warning("No parent ID provided")
+
 
 # We do not need user_create customization here.
 # Users do not need to be a part of an organization by default.
@@ -168,20 +201,6 @@ def package_search(next_action, context, data_dict):
     context['ignore_auth'] = True
     return next_action(context, data_dict)
 
-@tk.chained_action
-def package_show(next_action, context, data_dict):
-    """
-    Override package_show to ignore auth if the package is public
-    """
-    package_id = data_dict.get('id')
-    
-    if package_id:
-        package = model.Package.get(package_id)
-        if package and not package.private:
-            context['ignore_auth'] = True
-            
-    return next_action(context, data_dict)
-
 def create_package_relationship(context, pkg_dict):
     if 'parent' in pkg_dict and pkg_dict['parent']:
         logger = logging.getLogger(__name__)
@@ -195,31 +214,7 @@ def create_package_relationship(context, pkg_dict):
             })
         except Exception as e:
             logger.error('Failed to create package relationship: {}'.format(str(e)))
-            
-def generate_parent_related_resource(data_dict):
-    parent_id = data_dict.get('parent')    
-    if parent_id:
-        parent = tk.get_action('package_show')({}, {'id': parent_id})   
-        highest_index = -1
-        for key in data_dict.keys():
-            if key.startswith('related_resource-'):
-                parts = key.split('-')
-                if len(parts) > 1 and parts[1].isdigit():
-                    index = int(parts[1])
-                    if index > highest_index:
-                        highest_index = index
-        
-        new_index = highest_index + 1
-        
-        data_dict[f'related_resource-{new_index}-related_resource_type'] = "PhysicalObject"
-        data_dict[f'related_resource-{new_index}-related_resource_title'] = parent.get('title')
-        data_dict[f'related_resource-{new_index}-relation_type'] = "IsDerivedFrom"
 
-        doi_value = parent.get('doi')
-        if doi_value:
-            if 'https' not in doi_value:
-                doi_value = "https://doi.org/" + doi_value           
-            data_dict[f'related_resource-{new_index}-related_resource_url'] = doi_value
 def update_package_relationship(context, pkg_dict):
     """
     Updates the parent relationship of a package.
@@ -231,19 +226,35 @@ def update_package_relationship(context, pkg_dict):
     Returns:
     None
     """
+    logger = logging.getLogger(__name__)
+
     if 'parent' in pkg_dict and pkg_dict['parent']:
-        logger = logging.getLogger(__name__)
         parent_id = pkg_dict['parent']
         package_id = pkg_dict['id']
         relationship_type = 'child_of'
+
         try:
             existing_relationships = tk.get_action('package_relationships_list')(
                 context, {'id': package_id, 'rel': relationship_type}
             )
+
             for rel in existing_relationships:
-                tk.get_action('package_relationship_delete')(context, rel)
+                try:
+                    tk.get_action('package_relationship_delete')(context, {
+                        'subject': package_id,
+                        'object': rel['object'],
+                        'type': relationship_type
+                    })
+                except Exception as e:
+                    logger.error(f"Error while deleting relationship {package_id} child_of {rel['object']}: {str(e)}")
+
+        except tk.ObjectNotFound:
+            logger.info(f"No existing relationships found for package {package_id}")
+
         except Exception as e:
-                logger.error(f"Error while accessing relationships for package {package_id}: {str(e)}")
+            logger.error(f"Error while retrieving relationships for package {package_id}: {str(e)}")
+            return
+
         try:
             tk.get_action('package_relationship_create')(context, {
                 'subject': package_id,
@@ -252,7 +263,7 @@ def update_package_relationship(context, pkg_dict):
                 'comment': 'Updated relationship to new parent'
             })
         except Exception as e:
-            logger.error(f"Failed to create package relationship for package {package_id}: {str(e)}")
+            logger.error(f"Error while creating relationship for package {package_id}: {str(e)}")
 
 
 def delete_package_relationship(context, pkg_dict):
@@ -278,5 +289,4 @@ def get_actions():
         'delete_package_relationship' : delete_package_relationship,
         'package_update' : package_update,
         'package_search': package_search,
-        'package_show': package_show
     }
