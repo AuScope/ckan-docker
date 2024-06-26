@@ -1,11 +1,11 @@
 <div 
-    data-module="parent-sample-selector-module"  
-    {% if data.get('organization', {}).get('id') %}
-        data-module-group="{{ data['organization']['id'] }}"
+    data-module="parent-sample-selector-module"    
+    {% if data.get('owner_org') %}
+        data-module-group="{{ data['owner_org'] }}"
     {% else %}
-        data-module-group="{{ data['group'] }}"
-    {% endif %} 
-    
+        data-module-group="{{ data['group_id'] }}"
+    {% endif %}
+
     class="form-group" id="parent">
     
     <label class="form-label" for="field-parent">Parent Sample</label>

@@ -41,11 +41,6 @@ dataset_fields:
   help_text: Select the parent sample from existing samples.
   groupBy: About Sample
 
-- field_name: parent-name
-  form_snippet: hidden_field.html
-  display_snippet: null
-  groupBy: About Sample
-
 - field_name: author
   label: Authors
   preset: composite_repeating
