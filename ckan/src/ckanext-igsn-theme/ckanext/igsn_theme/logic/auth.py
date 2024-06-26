@@ -102,8 +102,20 @@ def package_delete(next_auth, context, data_dict):
 
 @tk.chained_auth_function
 def package_show(next_auth, context, data_dict):
-    user = context.get('auth_user_obj')
+    """
+    Override package_show authorization to ignore auth if the package is public.
+    """
     package = get_package_object(context, data_dict)
+    package_id = data_dict.get('id')
+    user = context.get('auth_user_obj')
+
+    logger = logging.getLogger(__name__)
+    logger.info('Entering package_show auth override')
+
+    if package:
+        logger.info(f'Package {package_id} found, private: {package.private}')
+        if not package.private:
+            return {'success': True}
 
     if package and package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
