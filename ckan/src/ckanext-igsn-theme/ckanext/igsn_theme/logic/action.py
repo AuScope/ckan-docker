@@ -8,15 +8,6 @@ import re
 import ckan.model as model
 import json
 
-try:
-    import ckanext.dcat.logic.action as dcat_actions
-    dcat_plugin_available = True
-except ImportError:
-    dcat_plugin_available = False
-    log = logging.getLogger(__name__)
-    log.warning("ckanext-dcat plugin is not available. The dcat form functionality will be disabled.")
-
-
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
     tk.check_access(
@@ -287,26 +278,6 @@ def delete_package_relationship(context, pkg_dict):
     except Exception as e:
         logger.error(f"Failed to delete package relationship: {str(e)}")
 
-@tk.chained_action
-def dcat_dataset_show(next_action,context, data_dict):
-    logger = logging.getLogger(__name__)
-
-    if not dcat_plugin_available:
-        raise tk.ObjectNotFound("ckanext-dcat plugin is not available.")
-        
-    logger.info('custom_dcat_dataset_show called with context: %s, data_dict: %s', context, data_dict)
-
-    context['ignore_auth'] = True
-
-    logger.info('Modified context: %s', context)
-    
-    result = next_action(context, data_dict)
-
-    logger.info('Result: %s', result)
-
-    return result
-
-
 def get_actions():
     return {
         'igsn_theme_get_sum': igsn_theme_get_sum,
@@ -319,6 +290,4 @@ def get_actions():
         'delete_package_relationship' : delete_package_relationship,
         'package_update' : package_update,
         'package_search': package_search,
-        'dcat_dataset_show': dcat_dataset_show
-
     }
