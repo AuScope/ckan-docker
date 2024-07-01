@@ -288,7 +288,7 @@ def delete_package_relationship(context, pkg_dict):
         logger.error(f"Failed to delete package relationship: {str(e)}")
 
 @tk.chained_action
-def dcat_dataset_show(context, data_dict):
+def dcat_dataset_show(next_action,context, data_dict):
     logger = logging.getLogger(__name__)
 
     if not dcat_plugin_available:
@@ -300,7 +300,7 @@ def dcat_dataset_show(context, data_dict):
 
     logger.info('Modified context: %s', context)
     
-    result = dcat_actions.dcat_dataset_show(context, data_dict)
+    result = next_action(context, data_dict)
 
     logger.info('Result: %s', result)
 
