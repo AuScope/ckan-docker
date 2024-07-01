@@ -117,6 +117,11 @@ def package_show(next_auth, context, data_dict):
         if not package.private:
             return {'success': True}
 
+    if user:
+        logger.info(f'User {user.name} with ID {user.id} is attempting to access package {package_id}')
+    else:
+        logger.info(f'Anonymous user is attempting to access package {package_id}')
+        
     if package and package.owner_org:
         user_role = authz.users_role_for_group_or_org(package.owner_org, user.name)
         if user_role == 'member' and package.private and hasattr(user, 'id') and package.creator_user_id != user.id:       

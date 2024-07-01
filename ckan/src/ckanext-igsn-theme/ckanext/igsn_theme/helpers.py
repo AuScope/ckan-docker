@@ -32,7 +32,7 @@ def is_creating_or_editing_org():
     return False
 
 def get_search_facets():
-    context = {'user': toolkit.c.user or toolkit.c.author}
+    context = {'ignore_auth': True}
     data_dict = {
         'q': '*:*',
         'facet.field': toolkit.h.facets(),

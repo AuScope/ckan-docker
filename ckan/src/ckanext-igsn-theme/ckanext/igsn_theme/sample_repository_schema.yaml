@@ -69,7 +69,7 @@ dataset_fields:
           label: Personal      
         - value: Organizational
           label: Organizational
-      default: personal
+      default: Personal
       form_include_blank_choice: false      
       help_text: The type of name, e.g. Organizational or Personal
 
@@ -93,7 +93,7 @@ dataset_fields:
           label: ROR
         - value: Other
           label: Other
-      default: ror
+      default: ROR
       form_include_blank_choice: false      
       display_snippet: None
       help_text: The persistent identifier type of the affiliated entity
