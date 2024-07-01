@@ -3,6 +3,7 @@ import ckan.logic as logic
 import ckan.authz as authz
 from datetime import date
 from ckan.logic import NotFound
+import simplejson as json
 
 def igsn_theme_hello():
     return "Hello, igsn_theme!"
@@ -77,6 +78,36 @@ def get_user_role_in_organization(org_id):
     user_role = authz.users_role_for_group_or_org(org_id, toolkit.c.user)
     return user_role
 
+def structured_data(dataset_id, profiles=None, _format='jsonld'):
+    '''
+    Returns a string containing the structured data of the given
+    dataset id and using the given profiles (if no profiles are supplied
+    the default profiles are used).
+
+    This string can be used in the frontend.
+    '''
+    context = {'ignore_auth': True}
+
+    if not profiles:
+        profiles = ['schemaorg']
+
+    data = toolkit.get_action('dcat_dataset_show')(
+        context,
+        {
+            'id': dataset_id,
+            'profiles': profiles,
+            'format': _format,
+        }
+    )
+    # parse result again to prevent UnicodeDecodeError and add formatting
+    try:
+        json_data = json.loads(data)
+        return json.dumps(json_data, sort_keys=True,
+                          indent=4, separators=(',', ': '), cls=json.JSONEncoderForHTML)
+    except ValueError:
+        # result was not JSON, return anyway
+        return data
+    
 def get_helpers():
     return {
         "igsn_theme_hello": igsn_theme_hello,
@@ -87,5 +118,6 @@ def get_helpers():
         "get_search_facets" : get_search_facets,
         'current_date': current_date,        
         "get_package": get_package,
-        "get_user_role_in_organization" : get_user_role_in_organization
+        "get_user_role_in_organization" : get_user_role_in_organization,
+        "structured_data" : structured_data,
     }
