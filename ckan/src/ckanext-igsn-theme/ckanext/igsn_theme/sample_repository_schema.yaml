@@ -319,6 +319,8 @@ dataset_fields:
 
 - field_name: spatial
   label: Spatial
+  form_snippet: null
+  display_snippet: null
   preset: json_object
   groupBy: Spatial & Temporal
 
