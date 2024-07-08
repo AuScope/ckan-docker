@@ -873,5 +873,17 @@ def fetch_epsg():
     else:
         return {"error": "Failed to fetch EPSG codes"}, 502
 
+@igsn_theme.route('/api/proxy/fetch_gcmd', methods=['GET'])
+def fetch_gcmd():
+    page = request.args.get('page', 0)
+    keywords = request.args.get('keywords', '')
+    external_url = f'https://vocabs.ardc.edu.au/repository/api/lda/ardc-curated/gcmd-sciencekeywords/17-5-2023-12-21/concept.json?_page={page}&labelcontains={keywords}'
+   
+    response = requests.get(external_url)   
+    if response.ok:
+        return Response(response.content, content_type=response.headers['Content-Type'], status=response.status_code)
+    else:
+        return {"error": "Failed to fetch gcmd"}, 502
+    
 def get_blueprints():
     return [igsn_theme]

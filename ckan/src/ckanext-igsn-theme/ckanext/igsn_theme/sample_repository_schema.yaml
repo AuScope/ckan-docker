@@ -165,6 +165,21 @@ dataset_fields:
   help_text: Keywords help with the discovery of the physical sample
   groupBy: About Sample
 
+- field_name: gcmd_keywords_code
+  label: GCMD Science Keywords
+  form_snippet: gcmd_field.html
+  display_snippet: gcmd_field.html
+  help_text: Global Change Master Directory (GCMD) science keywords. Choose the keywords that represent the sample or its application.
+  groupBy: About Sample
+
+- field_name: gcmd_keywords
+  label: GCMD Science Keywords 
+  form_snippet: hidden_field.html
+  help_text: Global Change Master Directory (GCMD) science keywords. Choose the keywords that represent the sample or its application.
+  display_snippet: null
+  groupBy: About Sample
+
+
 - field_name: sample_type
   label: Sample Type
   required: true
