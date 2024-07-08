@@ -152,7 +152,7 @@ dataset_fields:
   label: Description
   required: true
   preset: markdown
-  help_text: A summary describing the purpose, nature, and scope of the physical sample. Provide contextual information important to the use of the resource explained, e.g. formats, recommended tools, related resources, or limitations
+  help_text: A summary describing the purpose, nature, and scope of the physical sample. Provide contextual information important to the use of the sample
   groupBy: About Sample
 
 - field_name: user_keywords
@@ -326,7 +326,7 @@ dataset_fields:
 
 - field_name: elevation
   label: Elevation (m)
-  help_text: The measurement of height above or below mean sea level in meters
+  help_text: The elevation of the geographic location specified above mean sea level in meters
   form_snippet: null
   display_snippet: null
   groupBy: Spatial & Temporal
