@@ -9,10 +9,10 @@ this.ckan.module('parent-sample-selector-module', function ($, _) {
     initializeSelect2: function () {
       var self = this;
       this.org_id = this.options.group;
-      console.log(self.org_id);
       this.inputElement.select2({
         placeholder: "Select Parent of Sample",
         minimumInputLength: 0,
+        allowClear: true,
         ajax: {
           url: '/api/3/action/organization_show',
           type: 'GET', 
