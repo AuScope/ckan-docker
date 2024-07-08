@@ -343,20 +343,21 @@ def sample_number_validator(field, schema):
         sample_number = data.get(key)
         owner_org_key = ('owner_org',)
         owner_org = data.get(owner_org_key, missing)
-        current_sample_id = data.get(('id',), None)  
+        current_sample_id = data.get(('id',), None) 
 
         if owner_org is missing:
             add_error(owner_org_key, missing_error)
             return
 
-        if sample_number is missing:
+        if sample_number is missing or sample_number == '':
             add_error(key, missing_error)
             return
 
         try:
             package_search = tk.get_action('package_search')
             search_result = package_search(context, {
-                'q': f'owner_org:{owner_org} sample_number:{sample_number}'
+                'q': f'owner_org:{owner_org} AND sample_number:{sample_number}',
+                'rows': 1000  # Retrieve all potential results
             })
             
             if search_result['count'] > 0:
@@ -367,6 +368,8 @@ def sample_number_validator(field, schema):
                         break  # Stop checking after the first duplicate is found
         except NotFound:
             add_error(key, 'Error checking uniqueness of sample_number')
+        except Exception as e:
+            add_error(key, f'Error querying Solr: {str(e)}')
 
         return
 
