@@ -243,55 +243,6 @@ dataset_fields:
   form_include_blank_choice: false      
   groupBy: About Sample
 
-- field_name: material_type
-  label: Material Type
-  required: true
-  preset: select
-  choices:
-    - value: air
-      label: air
-    - value: equipment
-      label: equipment
-    - value: gas
-      label: gas
-    - value: habitat
-      label: habitat
-    - value: ice
-      label: ice   
-    - value: liquidaqueous
-      label: liquidAqueous
-    - value: liquidorganic
-      label: liquidOrganic
-    - value: mineral
-      label: mineral
-    - value: notapplicable
-      label: notApplicable
-    - value: organism
-      label: organism
-    - value: other
-      label: other
-    - value: particulate
-      label: particulate
-    - value: regolith
-      label: regolith
-    - value: rock
-      label: rock
-    - value: sediment
-      label: sediment
-    - value: snow
-      label: snow
-    - value: soil
-      label: soil
-    - value: tissue
-      label: tissue
-    - value: unknown
-      label: unknown
-    - value: vegetation
-      label: vegetation                                       
-  help_text: A vocabulary for describing the physical medium of a specimen, reference material, or sampled environment.
-  form_include_blank_choice: false 
-  groupBy: About Sample
-
 - field_name: publication_date
   label: Publication Date
   required: true
