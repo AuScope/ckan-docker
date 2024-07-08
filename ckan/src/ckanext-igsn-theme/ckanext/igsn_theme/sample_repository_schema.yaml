@@ -33,7 +33,8 @@ dataset_fields:
 - field_name: sample_number
   label: Sample Number
   required: true
-  help_text: "The sample's name, code or number to be registered"
+  help_text: "Unique sample code or name"
+  validators: sample_number_validator
   groupBy: About Sample
 
 - field_name: parent

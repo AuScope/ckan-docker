@@ -6,15 +6,17 @@ import ckanext.scheming.helpers as sh
 import ckan.lib.navl.dictization_functions as df
 
 from ckanext.scheming.validation import scheming_validator, register_validator
-import logging
+from ckan.logic import NotFound
+
 
 from ckan.logic.validators import owner_org_validator as ckan_owner_org_validator
 from ckan.authz import users_role_for_group_or_org
-from pprint import pformat
 
+from pprint import pformat
 import geojson
 from shapely.geometry import shape, mapping
 
+import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -326,10 +328,50 @@ def owner_org_validator(key, data, errors, context):
             return
     ckan_owner_org_validator(key, data, errors, context)
 
+@scheming_validator
+@register_validator
+def sample_number_validator(field, schema):
+    def validator(key, data, errors, context):
+        missing_error = _("Missing value")
+        invalid_error = _("Invalid value")
+
+        def add_error(key, error_message):
+            errors[key] = errors.get(key, [])
+            errors[key].append(error_message)
+
+        sample_number = data.get(key)
+        owner_org_key = ('owner_org',)
+        owner_org = data.get(owner_org_key, missing)
+
+        if owner_org is missing:
+            add_error(owner_org_key, missing_error)
+            return
+
+        if sample_number is missing:
+            add_error(key, missing_error)
+            return
+
+        try:
+            package_search = tk.get_action('package_search')
+            search_result = package_search(context, {
+                'q': f'owner_org:{owner_org} sample_number:{sample_number}',
+                'rows': 1
+            })
+            if search_result['count'] > 0:
+                org_name= tk.get_action('organization_show')({}, {'id': owner_org})['name']
+                add_error(key, f'sample_number "{sample_number}" already exists in collection "{org_name}"')
+        except NotFound:
+            add_error(key, 'Error checking uniqueness of sample_number')
+
+        return
+
+    return validator
+
 def get_validators():
     return {
         "igsn_theme_required": igsn_theme_required,
         "location_validator": location_validator,
         "composite_repeating_validator": composite_repeating_validator,
         "owner_org_validator": owner_org_validator,
+        "sample_number_validator" : sample_number_validator
     }
