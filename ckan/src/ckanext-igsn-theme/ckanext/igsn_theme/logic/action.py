@@ -71,16 +71,14 @@ def package_update(next_action, context, data_dict):
 def generate_sample_name(data_dict):
     
     owner_org=data_dict['owner_org']
-    material_type = data_dict['material_type']
     sample_type = data_dict['sample_type']
     sample_number = data_dict['sample_number']
     org_name= tk.get_action('organization_show')({}, {'id': owner_org})['name']
     org_name = org_name.replace(' ', '_')
-    material_type = material_type.replace(' ', '_')
     sample_type = sample_type.replace(' ', '_')
     sample_number = sample_number.replace(' ', '_')
     
-    name = f"{org_name}-{material_type}-Sample-{sample_type}-{sample_number}"
+    name = f"{org_name}-{sample_type}-Sample-{sample_number}"
     name = re.sub(r'[^a-z0-9-_]', '', name.lower())
     return name
 

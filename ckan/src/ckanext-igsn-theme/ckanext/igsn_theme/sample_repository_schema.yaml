@@ -14,12 +14,14 @@ dataset_fields:
   help_text: Persistent identifier (DOI) of the physical sample
   groupBy: About Sample
 
-# - field_name: title
-#   label: Title
-#   required: true
-#   preset: title
-#   help_text: "The title should include appropriate elements that would help find and distinguish a physical sample. The exact syntax is at the discretion of the sample provider. Appropriate elements might include: (a) The basic form of the object that is registered. For example, polished section, core, pulp, solution, dredge haul in a box, lot, or piece of material. (b) The material or materials that compose the sample. For example, water, granite, or tissue. (c) Local sample identifiers"
-#   groupBy: About Sample
+- field_name: title
+  label: Title
+  preset: title
+  form_placeholder: The title will be automatically generated using the collection name, sample type, and sample number
+  form_attrs:
+    disabled: true
+  help_text: "The title should include appropriate elements that would help find and distinguish a physical sample. The exact syntax is at the discretion of the sample provider. Appropriate elements might include: (a) The short collection name, (b) The basic form of the object that is registered. For example, polished section, core, pulp, solution, dredge haul in a box, lot, or piece of material, and (c) Local sample identifiers. Suggestion naming convention : [ShortCollectionName] - [Sample Type] Sample [SampleNumber], e.g. MRIWA557 - Core Sample GXAC0216-84"
+  groupBy: About Sample
 
 - field_name: name
   label: URL

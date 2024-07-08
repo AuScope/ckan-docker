@@ -118,11 +118,10 @@ class BatchUploadView(MethodView):
         
         org_name= self.get_organization_name(org_id)
         org_name = org_name.replace(' ', '_')
-        material_type = material_type.replace(' ', '_')
         sample_type = sample_type.replace(' ', '_')
         sample_number = sample_number.replace(' ', '_')
         
-        name = f"{org_name}-{material_type}-Sample-{sample_type}-{sample_number}"
+        name = f"{org_name}-{sample_type}-Sample-{sample_number}"
         name = re.sub(r'[^a-z0-9-_]', '', name.lower())
         return name    
 
