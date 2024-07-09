@@ -257,14 +257,6 @@ dataset_fields:
   display_snippet: fields_of_research_field.html
   groupBy: About Sample
 
-- field_name: publication_date
-  label: Publication Date
-  required: true
-  form_snippet: date_field.html  
-  preset: date
-  help_text: The date the physical sample is published through the repository
-  groupBy: About Sample   
-
 - field_name: locality
   label: Locality
   help_text: The locality or named place where the physical sample was collected
@@ -603,6 +595,14 @@ dataset_fields:
   display_snippet: null  
   help_text: The type of the persistent identifier represents the data publisher
   groupBy: Supporting Metadata   
+
+- field_name: publication_date
+  label: Publication Date
+  required: true
+  form_snippet: date_field.html  
+  preset: date
+  help_text: The date the physical sample is published through the repository
+  groupBy: About Sample   
 
 - field_name: credit
   label: Credit

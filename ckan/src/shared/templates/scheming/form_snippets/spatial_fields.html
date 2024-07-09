@@ -4,6 +4,7 @@
 {% set dataset_type = dataset_type or 'dataset' %}
 {%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
 {%- set elevation = h.scheming_field_by_name(schema.dataset_fields , 'elevation') -%}
+{%- set epsg = h.scheming_field_by_name(schema.dataset_fields , 'epsg_code') -%}
 
 <div class="form-group" id="location_data_coordinates" style="display: none;">
     <label for="field-location_data">Location data</label>
@@ -77,8 +78,7 @@
             <span class="error-block">{{ error }}</span>
         {% endfor %}
     {% endif %}
-    <div class="info-block ">
-        <i class="fa fa-info-circle"></i>
-         A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and longitude. 
-    </div>
+    
+    {%- snippet 'scheming/form_snippets/help_text.html', field=epsg -%}
+
 </div>
