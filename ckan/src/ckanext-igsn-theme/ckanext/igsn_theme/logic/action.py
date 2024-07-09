@@ -7,6 +7,8 @@ from pprint import pformat
 import re
 import ckan.model as model
 import json
+from datetime import datetime
+from ckan.logic.auth import get_package_object
 
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
@@ -52,7 +54,10 @@ def package_create(next_action, context, data_dict):
         ]
 
     data_dict['name'] = generate_sample_name(data_dict)    
-    generate_parent_related_resource(data_dict)
+    manage_parent_related_resource(data_dict)
+
+    if data_dict['private'] == 'False':
+        data_dict['publication_date'] = datetime.now()
 
     logger.info("package_create after data_dict: %s", pformat(data_dict))
 
@@ -64,12 +69,89 @@ def package_update(next_action, context, data_dict):
     # logger.info("package_update data_dict: %s", pformat(data_dict))
     
     data_dict['name'] = generate_sample_name(data_dict)
-    update_parent_related_resource(data_dict)
+    manage_parent_related_resource(data_dict)
+
+    package = get_package_object(context, {'id': data_dict['id']})
+    
+    # If package being made public for first time, set publication date
+    if package.private and data_dict['private'] == 'False' and \
+            (not data_dict['publication_date'] or data_dict['publication_date'] == ''):
+        data_dict['publication_date'] = datetime.now()
+        
     return next_action(context, data_dict)
 
+logger = logging.getLogger(__name__)
+
+def manage_parent_related_resource(data_dict):
+    parent_id = data_dict.get('parent')
+
+    if not parent_id:
+        logger.warning("No parent ID provided")
+        return
+
+    try:
+        parent = tk.get_action('package_show')({}, {'id': parent_id})
+    except Exception as e:
+        logger.error(f"Error fetching parent package: {e}")
+        return
+
+    # Collect existing related resources from JSON string
+    related_resources = []
+    if 'related_resource' in data_dict:
+        try:
+            related_resources = json.loads(data_dict['related_resource'])
+        except json.JSONDecodeError as e:
+            logger.error(f"Error decoding JSON string for related_resource: {e}")
+
+    # Collect existing related resources from individual keys
+    related_resource_indices = [key.split('-')[1] for key in data_dict.keys() if key.startswith('related_resource-') and '-related_resource_type' in key]
+    for index in related_resource_indices:
+        resource = {
+            'related_resource_title': data_dict.get(f'related_resource-{index}-related_resource_title'),
+            'related_resource_type': data_dict.get(f'related_resource-{index}-related_resource_type'),
+            'related_resource_url': data_dict.get(f'related_resource-{index}-related_resource_url'),
+            'relation_type': data_dict.get(f'related_resource-{index}-relation_type')
+        }
+        # Exclude empty entries
+        if any(resource.values()):
+            related_resources.append(resource)
+
+    # Remove duplicates
+    unique_related_resources = {frozenset(item.items()): item for item in related_resources}.values()
+    related_resources = list(unique_related_resources)
+
+    related_resources = [res for res in related_resources if not (res.get('related_resource_type') == 'PhysicalObject' and res.get('relation_type') == 'IsDerivedFrom')]
+
+    # Add new related resource
+    new_resource = {
+        'related_resource_type': 'PhysicalObject',
+        'related_resource_title': parent.get('title'),
+        'relation_type': 'IsDerivedFrom',
+        'related_resource_url': None
+    }
+    doi_value = parent.get('doi')
+    if doi_value:
+        if 'https' not in doi_value:
+            doi_value = "https://doi.org/" + doi_value
+        new_resource['related_resource_url'] = doi_value
+
+    related_resources.append(new_resource)
+
+    for key in list(data_dict.keys()):
+        if key.startswith('related_resource-'):
+            del data_dict[key]
+
+    for i, resource in enumerate(related_resources):
+        data_dict[f'related_resource-{i}-related_resource_type'] = resource['related_resource_type']
+        data_dict[f'related_resource-{i}-related_resource_title'] = resource['related_resource_title']
+        data_dict[f'related_resource-{i}-relation_type'] = resource['relation_type']
+        if resource['related_resource_url']:
+            data_dict[f'related_resource-{i}-related_resource_url'] = resource['related_resource_url']
+
+    # Update the JSON string for related resources
+    data_dict['related_resource'] = json.dumps(related_resources)
 
 def generate_sample_name(data_dict):
-    
     owner_org=data_dict['owner_org']
     sample_type = data_dict['sample_type']
     sample_number = data_dict['sample_number']
@@ -81,102 +163,6 @@ def generate_sample_name(data_dict):
     name = f"{org_name}-{sample_type}-Sample-{sample_number}"
     name = re.sub(r'[^a-z0-9-_]', '', name.lower())
     return name
-
-def generate_parent_related_resource(data_dict):
-    parent_id = data_dict.get('parent')    
-    if parent_id:
-        parent = tk.get_action('package_show')({}, {'id': parent_id})        
-        highest_index = -1
-        for key in data_dict.keys():
-            if key.startswith('related_resource-'):
-                parts = key.split('-')
-                if len(parts) > 1 and parts[1].isdigit():
-                    index = int(parts[1])
-                    if index > highest_index:
-                        highest_index = index
-        
-        new_index = highest_index + 1
-        
-        data_dict[f'related_resource-{new_index}-related_resource_type'] = "physicalobject"
-        data_dict[f'related_resource-{new_index}-related_resource_title'] = parent.get('title')
-        data_dict[f'related_resource-{new_index}-relation_type'] = "IsDerivedFrom"
-
-        doi_value = parent.get('doi')
-        if doi_value:
-            if 'https' not in doi_value:
-                doi_value = "https://doi.org/" + doi_value           
-            data_dict[f'related_resource-{new_index}-related_resource_url'] = doi_value
-
-def update_parent_related_resource(data_dict):
-    logger = logging.getLogger(__name__)
-
-    parent_id = data_dict.get('parent')
-
-    if parent_id:
-        try:
-            parent = tk.get_action('package_show')({}, {'id': parent_id})
-        except Exception as e:
-            logger.error(f"Error fetching parent package: {e}")
-            return
-
-        keys_to_delete = []
-        related_resource_indices = [key.split('-')[1] for key in data_dict.keys() if key.startswith('related_resource-') and '-related_resource_type' in key]
-
-        for index in related_resource_indices:
-            resource_type_key = f'related_resource-{index}-related_resource_type'
-            relation_type_key = f'related_resource-{index}-relation_type'
-
-            if data_dict.get(resource_type_key) == 'physicalobject' and data_dict.get(relation_type_key) == 'IsDerivedFrom':
-                keys_to_delete.extend([key for key in data_dict.keys() if key.startswith(f'related_resource-{index}-')])
-
-        for key in keys_to_delete:
-            del data_dict[key]
-
-        if 'related_resource' in data_dict:
-            try:
-                related_resources = json.loads(data_dict['related_resource'])
-            except json.JSONDecodeError as e:
-                logger.error(f"Error decoding JSON string for related_resource: {e}")
-                related_resources = []
-        else:
-            related_resources = []
-
-        highest_index = -1
-        for key in data_dict.keys():
-            if key.startswith('related_resource-'):
-                parts = key.split('-')
-                if len(parts) > 1 and parts[1].isdigit():
-                    index = int(parts[1])
-                    if index > highest_index:
-                        highest_index = index
-
-        new_index = highest_index + 1
-        new_resource = {
-            'related_resource_type': 'physicalobject',
-            'related_resource_title': parent.get('title'),
-            'relation_type': 'IsDerivedFrom',
-            'related_resource_url': None
-        }
-
-        doi_value = parent.get('doi')
-        if doi_value:
-            if 'https' not in doi_value:
-                doi_value = "https://doi.org/" + doi_value
-            new_resource['related_resource_url'] = doi_value
-
-        if related_resources:
-            related_resources.append(new_resource)
-            data_dict['related_resource'] = json.dumps(related_resources)
-        else:
-            data_dict[f'related_resource-{new_index}-related_resource_type'] = new_resource['related_resource_type']
-            data_dict[f'related_resource-{new_index}-related_resource_title'] = new_resource['related_resource_title']
-            data_dict[f'related_resource-{new_index}-relation_type'] = new_resource['relation_type']
-            if new_resource['related_resource_url']:
-                data_dict[f'related_resource-{new_index}-related_resource_url'] = new_resource['related_resource_url']
-
-    else:
-        logger.warning("No parent ID provided")
-
 
 # We do not need user_create customization here.
 # Users do not need to be a part of an organization by default.
@@ -287,5 +273,5 @@ def get_actions():
         'update_package_relationship' : update_package_relationship,
         'delete_package_relationship' : delete_package_relationship,
         'package_update' : package_update,
-        'package_search': package_search,
+        # 'package_search': package_search,
     }
