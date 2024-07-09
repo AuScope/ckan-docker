@@ -243,6 +243,20 @@ dataset_fields:
   form_include_blank_choice: false      
   groupBy: About Sample
 
+- field_name: fields_of_research_code
+  label: Fields of Research Code
+  form_snippet: fields_of_research_field.html
+  display_snippet: null
+  help_text: The area(s) of study relevant to the physical sample or the sample application, based on the ANZSRC Fields of Research (FoR) 2020
+  groupBy: About Sample
+
+- field_name: fields_of_research
+  label: Fields of Research
+  form_snippet: hidden_field.html
+  help_text: The classification code used for the subject term in ANZSRC Fields of Research (FoR) 2020
+  display_snippet: fields_of_research_field.html
+  groupBy: About Sample
+
 - field_name: publication_date
   label: Publication Date
   required: true
