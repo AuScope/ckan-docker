@@ -12,39 +12,33 @@ this.ckan.module('parent-sample-selector-module', function ($, _) {
       this.inputElement.select2({
         placeholder: "Select Parent of Sample",
         minimumInputLength: 0,
-        allowClear: true,
         ajax: {
-          url: '/api/3/action/organization_show',
-          type: 'GET', 
+          url: '/api/3/action/package_search',
           dataType: 'json',
           quietMillis: 500,
-          data: function (params) {
-            self.searchTerm = params || '';
+          data: function (term, page) {
             return {
-              id: self.org_id,
-              include_datasets: 'true'
+              q: term,
+              fq: 'owner_org:' + self.org_id,
+              rows : 1000
             };
           },
-          processResults: function (data) {
+          results: function (data, page) {
             if (!data.success) {
               return { results: [] };
             }
-            var searchTerm = self.searchTerm.toLowerCase();
-            var filteredResults = data.result.packages.filter(function (item) {
-              return item.title.toLowerCase().includes(searchTerm);
-            });
             return {
-              results: filteredResults.map(function (item) {
+              results: data.result.results.map(function (item) {
                 return { id: item.id, text: item.title };
               })
             };
           },
           cache: true
         },
-        templateResult: function (item) { return item.text; },
-        templateSelection: function (item) { return item.text; },
+        formatResult: function (item) { return item.text; },
+        formatSelection: function (item) { return item.text; },
         dropdownCssClass: "bigdrop",
-        escapeMarkup: function (m) { return m; } 
+        escapeMarkup: function (m) { return m; } // we do not want to escape markup since we are displaying html in results
       })
     },
 
@@ -60,7 +54,7 @@ this.ckan.module('parent-sample-selector-module', function ($, _) {
           success: function (data) {
             if (data.success && data.result) {
               var item = data.result;
-              var dataForSelect2 = new Option(item.title, item.id, true, true);
+              var dataForSelect2 = { id: item.id, text: item.title };
               self.inputElement.select2('data', dataForSelect2, true);
             }
           }
