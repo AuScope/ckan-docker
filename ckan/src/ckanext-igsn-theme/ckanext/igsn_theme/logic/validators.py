@@ -15,6 +15,7 @@ from ckan.authz import users_role_for_group_or_org
 from pprint import pformat
 import geojson
 from shapely.geometry import shape, mapping
+from datetime import datetime
 
 import logging
 logger = logging.getLogger(__name__)
@@ -37,14 +38,10 @@ def location_validator(field, schema):
 
         location_choice_key = ('location_choice',)
         location_data_key = ('location_data',)
-        elevation_key = ('elevation',)
-        vertical_datum_key = ('vertical_datum',)
         epsg_code_key = ('epsg_code',)
 
         location_choice = data.get(location_choice_key, missing)
         location_data = data.get(location_data_key, missing)
-        elevation = data.get(elevation_key, missing)
-        vertical_datum = data.get(vertical_datum_key, missing)
         epsg_code = data.get(epsg_code_key, missing)
 
         def add_error(key, error_message):
@@ -99,10 +96,6 @@ def location_validator(field, schema):
 
         if epsg_code is missing:
             add_error(epsg_code_key, missing_error)
-
-        if elevation and elevation is not missing:
-            if vertical_datum is missing:
-                add_error(vertical_datum_key, missing_error)
 
         log = logging.getLogger(__name__)
         try:
@@ -375,11 +368,60 @@ def sample_number_validator(field, schema):
 
     return validator
 
+from datetime import datetime
+
+@scheming_validator
+@register_validator
+def acquisition_date_validator(field, schema):
+    """
+    A validator to ensure the acquisition_start_date is today or before,
+    and that the acquisition_end_date is later than the start date.
+    """
+    def validator(key, data, errors, context):
+
+        def add_error(key, error_message):
+            errors[key] = errors.get(key, [])
+            errors[key].append(error_message)
+
+        acquisition_start_date_key = ('acquisition_start_date',)
+        acquisition_end_date_key = ('acquisition_end_date',)
+
+        acquisition_start_date_str = data.get(acquisition_start_date_key, missing)
+        acquisition_end_date_str = data.get(acquisition_end_date_key, missing)
+
+        if ((acquisition_start_date_str is missing and acquisition_end_date_str is missing) or
+                (acquisition_start_date_str is None and acquisition_end_date_str is None) or
+                (not acquisition_start_date_str.strip() and not acquisition_end_date_str.strip())):
+            return
+
+        try:
+            acquisition_start_date = datetime.strptime(acquisition_start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            add_error(acquisition_start_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
+            return
+
+        try:
+            acquisition_end_date = datetime.strptime(acquisition_end_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            add_error(acquisition_end_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
+            return
+
+        if acquisition_start_date > datetime.now().date():
+            add_error(acquisition_start_date_key, 'Acquisition start date must be today or before.')
+            return
+
+        if acquisition_start_date > acquisition_end_date:
+            add_error(acquisition_end_date_key, 'Acquisition end date must be later than the start date.')
+            return
+
+    return validator
+
 def get_validators():
     return {
         "igsn_theme_required": igsn_theme_required,
         "location_validator": location_validator,
         "composite_repeating_validator": composite_repeating_validator,
         "owner_org_validator": owner_org_validator,
-        "sample_number_validator" : sample_number_validator
+        "sample_number_validator" : sample_number_validator,
+        "acquisition_date_validator" : acquisition_date_validator
     }
