@@ -114,7 +114,7 @@ class BatchUploadView(MethodView):
         except Exception as e:
             raise ValueError(f"Failed to read Excel file: {str(e)}")
         
-    def generate_sample_name(self,org_id, material_type, sample_type, sample_number):
+    def generate_sample_name(self,org_id, sample_type, sample_number):
         
         org_name= self.get_organization_name(org_id)
         org_name = org_name.replace(' ', '_')
@@ -186,6 +186,7 @@ class BatchUploadView(MethodView):
 
             sample['user_keywords'] = self.validate_user_keywords(sample['user_keywords'])
             sample['publication_date'] = date.today().isoformat()
+            sample['private']=False
             sample['owner_org'] = org_id
             sample['notes'] = sample['description']
             sample['location_choice'] = 'noLocation'
@@ -197,16 +198,15 @@ class BatchUploadView(MethodView):
                 sample['location_choice'] = 'point'
                 coordinates = [(sample['point_latitude'], sample['point_longitude'])]
                 sample['location_data'] = self.generate_location_geojson(coordinates)
-
+            sample['epsg'] = self.get_epsg_name(sample['epsg_code'])
             defaults = {
-                "publisher_identifier_type": "ror",
+                "publisher_identifier_type": "ROR",
                 "publisher_identifier": "https://ror.org/04s1m4564",
                 "publisher": "AuScope",
-                "resource_type": "physicalobject",
+                "resource_type": "PhysicalObject",
             }
             sample.update(defaults)
-            sample["name"] = self.generate_sample_name(org_id, sample['material_type'], sample['sample_type'], sample['sample_number'])
-
+            sample["name"] = self.generate_sample_name(org_id, sample['sample_type'], sample['sample_number'])
             samples_data.append(sample)
 
         return samples_data
@@ -256,7 +256,7 @@ class BatchUploadView(MethodView):
         return "[]"
     
     def validate_samples(self, samples_df):
-        samples_columns_to_check = ['sample_number', 'description', 'user_keywords', 'sample_type', 'material_type', 'author_emails']
+        samples_columns_to_check = ['sample_number', 'description', 'user_keywords', 'sample_type', 'author_emails']
         self.check_required_fields(samples_df, samples_columns_to_check)
         self.check_unique_sample_number(samples_df)
         self.validate_epsg(samples_df)
@@ -350,21 +350,10 @@ class BatchUploadView(MethodView):
 
     def validate_related_resources(self, related_resources_df):
         required_fields = ['related_resource_type', 'related_resource_url', 'related_resource_title', 'relation_type']
-        valid_resource_types = [
-            "Audiovisual", "Book", "BookChapter", "Collection", "ComputationalNotebook",
-            "ConferencePaper", "ConferenceProceeding", "DataPaper", "Dataset", "Dissertation",
-            "Event", "Image", "InteractiveResource", "Journal", "JournalArticle", "Model",
-            "OutputManagementPlan", "PeerReview", "PhysicalObject", "Preprint", "Report",
-            "Service", "Software", "Sound", "Standard", "Text", "Workflow", "Other"
-        ]
+        valid_resource_types = ["Audiovisual", "Book", "BookChapter", "Collection", "ComputationalNotebook", "ConferencePaper", "ConferenceProceeding", "DataPaper", "Dataset", "Dissertation", "Event", "Image", "Instrument", "InteractiveResource", "Journal", "JournalArticle", "Model", "Other", "OutputManagementPlan", "PeerReview", "PhysicalObject", "Preprint", "Report", "Service", "Software", "Sound", "Standard", "StudyRegistration", "Text", "Workflow"]
+
         valid_relation_types = [
-            "IsCitedBy", "IsSupplementTo", "IsContinuedBy", "IsDescribedBy", "HasMetadata",
-            "HasVersion", "IsNewVersionOf", "IsPartOf", "IsReferencedBy", "IsDocumentedBy",
-            "IsCompiledBy", "IsVariantFormOf", "IsIdenticalTo", "IsReviewedBy", "IsDerivedFrom",
-            "Requires", "IsObsoletedBy", "Cites", "IsSupplementedBy", "Continues",
-            "Describes", "IsMetadataFor", "IsVersionOf", "PreviousVersionOf", "HasPart",
-            "References", "Documents", "Compiles", "IsOriginalFormOf", "Reviews",
-            "IsSourceOf", "IsRequiredBy", "Obsoletes"
+            "IsCitedBy", "Cites", "IsSupplementTo", "IsSupplementedBy", "IsContinuedBy", "Continues","IsNewVersionOf", "IsPreviousVersionOf","IsPartOf","HasPart","IsPublishedIn","IsReferencedBy","References","IsDocumentedBy","Documents","IsCompiledBy","Compiles","IsVariantFormOf",    "IsOriginalFormOf","IsIdenticalTo","HasMetadata", "IsMetadataFor","Reviews","IsReviewedBy","IsDerivedFrom","IsSourceOf","Describes","IsDescribedBy","HasVersion","IsVersionOf","Requires","IsRequiredBy","Obsoletes","IsObsoletedBy","Collects","IsCollectedBy"
         ]
         
         # Check for any missing required fields in any of the related resources entries
@@ -435,7 +424,14 @@ class BatchUploadView(MethodView):
         if not invalid_epsg.empty:
             invalid_codes = invalid_epsg['epsg_code'].unique()
             raise ValueError(f"Invalid EPSG codes detected. Valid codes are: {', '.join(map(str, valid_epsg_codes))}. Found invalid codes: {', '.join(map(str, invalid_codes))}")
-
+    def get_epsg_name(self, epsg_code):
+        external_url = f'https://apps.epsg.org/api/v1/CoordRefSystem/?includeDeprecated=false&pageSize=50&page={0}&keywords={epsg_code}'
+        response = requests.get(external_url)
+        if response.ok:
+            espg_data = json.loads(response.content.decode('utf-8'))
+            return espg_data['Results'][0]['Name']
+        else:
+            return None
         
     def is_url(self, url: str) -> bool:
         """
@@ -611,6 +607,7 @@ class BatchUploadView(MethodView):
                         successful_creations += 1
                         sample_data['status'] = "created"
                     except Exception as e:
+                        log.error(f"Failed to create sample: {str(e)}")
                         unsuccessful_creations += 1
                         sample_data['status'] = "error"
                         # Rollback: delete all successfully created samples
