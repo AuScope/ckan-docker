@@ -669,19 +669,19 @@ dataset_fields:
 - field_name: sample_repository_contact_name
   label: Sample Repository Contact Name
   required: true
-  # default: AuScope Sample Repository
+  form_snippet: sample_contact_name.html
+  form_attrs:
+    disabled: true  
   help_text: A primary contact can be approached by users requesting further information of the physical sample and its access
-  # form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
 
 - field_name: sample_repository_contact_email
   label: Sample Repository Contact Email
   required: true
-  # default: help@data.auscope.org.au
   display_snippet: email.html
-  # display_email_name_field: primary_contact_name
+  form_snippet: sample_contact_email.html
+  display_email_name_field: sample_repository_contact_name
   help_text: Email of the primary sample repository contact
-  # form_snippet: hidden_field.html
   groupBy: Supporting Metadata   
 
 

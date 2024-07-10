@@ -9,6 +9,7 @@ import ckan.model as model
 import json
 from datetime import datetime
 from ckan.logic.auth import get_package_object
+import pandas as pd
 
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
@@ -46,6 +47,7 @@ def package_create(next_action, context, data_dict):
         schema = context['schema']
     else:
         schema = package_plugin.create_package_schema()
+    
     # Replace owner_org_validator
     if 'owner_org' in schema:
         schema['owner_org'] = [
@@ -56,8 +58,25 @@ def package_create(next_action, context, data_dict):
     data_dict['name'] = generate_sample_name(data_dict)    
     manage_parent_related_resource(data_dict)
 
-    if data_dict['private'] == 'False':
+    if 'private' in data_dict and data_dict['private'] == 'False':
         data_dict['publication_date'] = datetime.now()
+
+
+    # This is a temporary solution for the batch upload problem and needs to be addressed in the batch upload process
+    if 'acquisition_start_date' in data_dict:
+        acquisition_start_date = data_dict['acquisition_start_date']
+        if isinstance(acquisition_start_date, pd.Timestamp):
+            acquisition_start_date = acquisition_start_date.strftime('%Y-%m-%d')
+        acquisition_start_date = acquisition_start_date.strip()
+        data_dict['acquisition_start_date'] = acquisition_start_date
+
+    if 'acquisition_end_date' in data_dict:
+        acquisition_end_date = data_dict['acquisition_end_date']
+        if isinstance(acquisition_end_date, pd.Timestamp):
+            acquisition_end_date = acquisition_end_date.strftime('%Y-%m-%d')
+        acquisition_end_date = acquisition_end_date.strip()
+        data_dict['acquisition_end_date'] = acquisition_end_date
+
 
     logger.info("package_create after data_dict: %s", pformat(data_dict))
 

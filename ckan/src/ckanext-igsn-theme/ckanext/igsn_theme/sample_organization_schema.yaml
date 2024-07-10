@@ -14,6 +14,14 @@ fields:
     required: true
     validators: not_empty unicode_safe name_validator group_name_validator
 
+  - field_name: contact_name
+    label: Contact Name 
+    required: true
+
+  - field_name: contact_email
+    label: Contact Email 
+    required: true
+
   - field_name: related_dataset_title
     label: Related Dataset Title
     help_text: Enter the short title that represents the related dataset
