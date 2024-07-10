@@ -186,6 +186,7 @@ class BatchUploadView(MethodView):
 
             sample['user_keywords'] = self.validate_user_keywords(sample['user_keywords'])
             sample['publication_date'] = date.today().isoformat()
+            sample['private']=False
             sample['owner_org'] = org_id
             sample['notes'] = sample['description']
             sample['location_choice'] = 'noLocation'
@@ -199,10 +200,10 @@ class BatchUploadView(MethodView):
                 sample['location_data'] = self.generate_location_geojson(coordinates)
             sample['epsg'] = self.get_epsg_name(sample['epsg_code'])
             defaults = {
-                "publisher_identifier_type": "ror",
+                "publisher_identifier_type": "ROR",
                 "publisher_identifier": "https://ror.org/04s1m4564",
                 "publisher": "AuScope",
-                "resource_type": "physicalobject",
+                "resource_type": "PhysicalObject",
             }
             sample.update(defaults)
             sample["name"] = self.generate_sample_name(org_id, sample['sample_type'], sample['sample_number'])
