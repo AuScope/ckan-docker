@@ -14,6 +14,20 @@ fields:
     required: true
     validators: not_empty unicode_safe name_validator group_name_validator
 
+  - field_name: related_dataset_title
+    label: Related Dataset Title
+    help_text: Enter the short title that represents the related dataset
+
+  - field_name: related_dataset_url
+    label: Related Dataset URL
+    display_snippet: URL
+    help_text: Associated dataset related to the collection
+
+  - field_name: description
+    label: Description
+    preset: markdown
+    required: true  
+
   - field_name: is_culturally_sensitive
     label: Is culturally sensitive?
     required: true
@@ -24,23 +38,3 @@ fields:
         label: "No"
       - value: sensitive
         label: "Yes"
-
-  - field_name: related_dataset_url
-    label: Related Dataset URL
-    required: true
-    display_snippet: URL
-    help_text: Associated dataset related to the collection
-
-  - field_name: related_dataset_title
-    label: Related Dataset Title
-    required: true
-    help_text: Enter the short title that represents the related dataset
-
-  - field_name: description
-    label: Description
-    preset: markdown
-    required: true  
-
-  - field_name: image_url
-    label: Image
-    preset: organization_url_upload    

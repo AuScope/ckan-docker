@@ -812,12 +812,15 @@ def generate_new_collection_email_body(request):
         'email': request.values.get('email'),
         'collection_full_name': request.values.get('collection_full_name'),
         'collection_short_name': request.values.get('collection_short_name'),
+        'is_culturally_sensitive': request.values.get('is_culturally_sensitive'),
+        'related_dataset_title': request.values.get('related_dataset_title'),
+        'related_dataset_url': request.values.get('related_dataset_url'),
         'description': request.values.get('description')
     }    
     email_body_template = """
-    Hello,
+    Dear AuScope Sample Repository admin,
 
-    A new collection request has been submitted. Here are the details:
+    A new collection request has been submitted. Below are the details of the request:
 
     Contact Name: {{ data.name }}
     Contact Email: {{ data.email }}
@@ -825,9 +828,16 @@ def generate_new_collection_email_body(request):
     Collection Details:
     - Full Name: {{ data.collection_full_name }}
     - Short Name: {{ data.collection_short_name }}
+    - Culturally Sensitive: {{ data.is_culturally_sensitive}}
+    - Related Dataset Title: {{ data.related_dataset_title }}
+    - Related Dataset URL: {{ data.related_dataset_url }}
     
     Description of the Collection:
     {{ data.description }}
+
+    Please take the necessary steps to process this request.
+
+    Thank you.
 
     """
     return render_template_string(email_body_template, data=data)
@@ -842,9 +852,9 @@ def generate_join_collection_email_body(request,org_id,org_name):
     }
 
     email_body_template = """
-    Hello,
+    Dear AuScope Sample Repository admin,
 
-    You have received a new request to join the collection. Below are the details of the request:
+    A new request to join the collection has been submitted. Below are the details of the request:
 
     Contact Name: {{ data.name }}
     Contact Email: {{ data.email }}
@@ -856,6 +866,10 @@ def generate_join_collection_email_body(request,org_id,org_name):
     - Collection ID: {{ data.collection_id }}
     - Collection Name: {{ data.collection_name }}
 
+    Please take the necessary steps to process this request.
+
+    Thank you.
+    
     """
     return render_template_string(email_body_template, data=data)
 
