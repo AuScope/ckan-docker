@@ -670,8 +670,6 @@ dataset_fields:
   label: Sample Repository Contact Name
   required: true
   form_snippet: sample_contact_name.html
-  form_attrs:
-    disabled: true  
   help_text: A primary contact can be approached by users requesting further information of the physical sample and its access
   groupBy: Supporting Metadata   
 
