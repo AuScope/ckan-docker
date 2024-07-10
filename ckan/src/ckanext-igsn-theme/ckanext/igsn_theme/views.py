@@ -187,11 +187,15 @@ class BatchUploadView(MethodView):
             sample['user_keywords'] = self.validate_user_keywords(sample['user_keywords'])
             sample['publication_date'] = date.today().isoformat()
             sample['private']=False
-            sample['owner_org'] = org_id
             sample['notes'] = sample['description']
             sample['location_choice'] = 'noLocation'
             sample['parent_sample'] = sample['parent_sample']
 
+            org = toolkit.get_action('organization_show')({}, {'id': org_id})
+            sample['owner_org'] = org_id
+            sample['sample_repository_contact_name'] = org.get('contact_name', '')
+            sample['sample_repository_contact_email'] = org.get('contact_email', '')
+            
             if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
                 if not self.is_numeric(sample['point_latitude']) or not self.is_numeric(sample['point_longitude']):
                     raise ValueError("Latitude and Longitude must be numeric.")
@@ -607,9 +611,12 @@ class BatchUploadView(MethodView):
                         successful_creations += 1
                         sample_data['status'] = "created"
                     except Exception as e:
-                        log.error(f"Failed to create sample: {str(e)}")
+                        error_message = str(e)
+                        log.error(f"Failed to create sample: {error_message}")
                         unsuccessful_creations += 1
                         sample_data['status'] = "error"
+                        sample_data['log'] = error_message
+
                         # Rollback: delete all successfully created samples
                         for sample in created_sample_ids:
                             try:
@@ -618,6 +625,14 @@ class BatchUploadView(MethodView):
                                 # Log the exception, but continue with the rollback
                                 log.error(f"Failed to delete sample {sample['id']}: {delete_exception}")
                         break
+
+                for sample_data in data:
+                    if 'status' not in sample_data:
+                        sample_data['status'] = "error"
+                    if 'type' not in sample_data:
+                        sample_data['type'] = "NA"
+                    if 'log' not in sample_data:
+                        sample_data['log'] = ""
 
                 if unsuccessful_creations == 0:
                     # Store the created samples in the session for later use
