@@ -828,3 +828,6 @@ body {
   color: #0563C1; 
 }
 
+.select2-search-choice-close{
+    left: 0px !important;
+}

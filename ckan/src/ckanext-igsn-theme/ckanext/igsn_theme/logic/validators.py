@@ -6,12 +6,18 @@ import ckanext.scheming.helpers as sh
 import ckan.lib.navl.dictization_functions as df
 
 from ckanext.scheming.validation import scheming_validator, register_validator
-import logging
+from ckan.logic import NotFound
+
 
 from ckan.logic.validators import owner_org_validator as ckan_owner_org_validator
 from ckan.authz import users_role_for_group_or_org
 
+from pprint import pformat
+import geojson
+from shapely.geometry import shape, mapping
+from datetime import datetime
 
+import logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
@@ -32,14 +38,10 @@ def location_validator(field, schema):
 
         location_choice_key = ('location_choice',)
         location_data_key = ('location_data',)
-        elevation_key = ('elevation',)
-        vertical_datum_key = ('vertical_datum',)
         epsg_code_key = ('epsg_code',)
 
         location_choice = data.get(location_choice_key, missing)
         location_data = data.get(location_data_key, missing)
-        elevation = data.get(elevation_key, missing)
-        vertical_datum = data.get(vertical_datum_key, missing)
         epsg_code = data.get(epsg_code_key, missing)
 
         def add_error(key, error_message):
@@ -95,9 +97,24 @@ def location_validator(field, schema):
         if epsg_code is missing:
             add_error(epsg_code_key, missing_error)
 
-        if elevation and elevation is not missing:
-            if vertical_datum is missing:
-                add_error(vertical_datum_key, missing_error)
+        log = logging.getLogger(__name__)
+        try:
+            log.debug("location_data: %s", location_data)
+            
+            geom = shape(location_data['features'][0]['geometry'])
+            log.debug("WKT for spatial field: %s", geom.wkt)
+            
+            geojson_geom = geojson.dumps(mapping(geom))
+            log.debug("GeoJSON for spatial field: %s", geojson_geom)
+            
+            data['spatial',] = geojson_geom
+
+
+            log.debug("Data after setting spatial: %s", pformat(data))
+
+        except Exception as e:
+            log.error("Error processing GeoJSON: %s", e)
+            add_error(location_data_key, f"Error processing GeoJSON: {e}")
 
     return validator
 
@@ -304,10 +321,107 @@ def owner_org_validator(key, data, errors, context):
             return
     ckan_owner_org_validator(key, data, errors, context)
 
+
+@scheming_validator
+@register_validator
+def sample_number_validator(field, schema):
+    def validator(key, data, errors, context):
+        missing_error = _("Missing value")
+        invalid_error = _("Invalid value")
+
+        def add_error(key, error_message):
+            errors[key] = errors.get(key, [])
+            errors[key].append(error_message)
+
+        sample_number = data.get(key)
+        owner_org_key = ('owner_org',)
+        owner_org = data.get(owner_org_key, missing)
+        current_sample_id = data.get(('id',), None) 
+
+        if owner_org is missing:
+            add_error(owner_org_key, missing_error)
+            return
+
+        if sample_number is missing or sample_number == '':
+            add_error(key, missing_error)
+            return
+
+        try:
+            package_search = tk.get_action('package_search')
+            search_result = package_search(context, {
+                'q': f'owner_org:{owner_org} AND sample_number:{sample_number}',
+                'rows': 1000  # Retrieve all potential results
+            })
+            
+            if search_result['count'] > 0:
+                for result in search_result['results']:
+                    if result['id'] != current_sample_id:
+                        org_name = tk.get_action('organization_show')({}, {'id': owner_org})['name']
+                        add_error(key, f'sample_number "{sample_number}" already exists in collection "{org_name}"')
+                        break  # Stop checking after the first duplicate is found
+        except NotFound:
+            add_error(key, 'Error checking uniqueness of sample_number')
+        except Exception as e:
+            add_error(key, f'Error querying Solr: {str(e)}')
+
+        return
+
+    return validator
+
+from datetime import datetime
+
+@scheming_validator
+@register_validator
+def acquisition_date_validator(field, schema):
+    """
+    A validator to ensure the acquisition_start_date is today or before,
+    and that the acquisition_end_date is later than the start date.
+    """
+    def validator(key, data, errors, context):
+
+        def add_error(key, error_message):
+            errors[key] = errors.get(key, [])
+            errors[key].append(error_message)
+
+        acquisition_start_date_key = ('acquisition_start_date',)
+        acquisition_end_date_key = ('acquisition_end_date',)
+
+        acquisition_start_date_str = data.get(acquisition_start_date_key, missing)
+        acquisition_end_date_str = data.get(acquisition_end_date_key, missing)
+
+        if ((acquisition_start_date_str is missing and acquisition_end_date_str is missing) or
+                (acquisition_start_date_str is None and acquisition_end_date_str is None) or
+                (not acquisition_start_date_str.strip() and not acquisition_end_date_str.strip())):
+            return
+
+        try:
+            acquisition_start_date = datetime.strptime(acquisition_start_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            add_error(acquisition_start_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
+            return
+
+        try:
+            acquisition_end_date = datetime.strptime(acquisition_end_date_str, "%Y-%m-%d").date()
+        except ValueError:
+            add_error(acquisition_end_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
+            return
+
+        if acquisition_start_date > datetime.now().date():
+            add_error(acquisition_start_date_key, 'Acquisition start date must be today or before.')
+            return
+
+        if acquisition_start_date > acquisition_end_date:
+            add_error(acquisition_end_date_key, 'Acquisition end date must be later than the start date.')
+            return
+
+    return validator
+
 def get_validators():
     return {
         "igsn_theme_required": igsn_theme_required,
         "location_validator": location_validator,
         "composite_repeating_validator": composite_repeating_validator,
         "owner_org_validator": owner_org_validator,
+        "sample_number_validator" : sample_number_validator,
+        "acquisition_date_validator" : acquisition_date_validator
     }

@@ -91,6 +91,9 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     def after_dataset_delete(self, context, pkg_dict):
         return action.delete_package_relationship(context, pkg_dict)
 
+    def after_dataset_show(self, *args, **kwargs):
+        return schema.after_dataset_show(*args, **kwargs)
+    
     def before_dataset_search(self, *args, **kwargs):
         return schema.before_dataset_search(*args, **kwargs)
     

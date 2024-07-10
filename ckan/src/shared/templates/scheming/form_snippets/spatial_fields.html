@@ -1,3 +1,11 @@
+
+{% import 'macros/form.html' as form %}
+
+{% set dataset_type = dataset_type or 'dataset' %}
+{%- set schema = h.scheming_get_dataset_schema(dataset_type) -%}
+{%- set elevation = h.scheming_field_by_name(schema.dataset_fields , 'elevation') -%}
+{%- set epsg = h.scheming_field_by_name(schema.dataset_fields , 'epsg_code') -%}
+
 <div class="form-group" id="location_data_coordinates" style="display: none;">
     <label for="field-location_data">Location data</label>
     <input type="text" class="form-control" id="field-location_data" name="location_data" value="{{ (data['location_data'] or {}) | tojson | safe }}">
@@ -49,16 +57,15 @@
     </div>
     <div class="form-group" id="elevation_container">
         <label for="field-elevation">Elevation</label>
-        <input type="text" class="form-control" id="field-elevation" name="elevation" value="{{data['elevation']}}" >
+        <input type="number" class="form-control" id="field-elevation" name="elevation" value="{{data['elevation']}}" >
         {% if errors['elevation'] %}
             {% for error in errors['elevation'] %}
                 <span class="error-block">{{ error }}</span>
             {% endfor %}
         {% endif %}
-        <div class="info-block ">
-            <i class="fa fa-info-circle"></i>
-            The measurement of height above or below mean sea level in meters
-        </div>
+
+        {%- snippet 'scheming/form_snippets/help_text.html', field=elevation -%}
+
     </div>    
 </div>
 
@@ -71,8 +78,7 @@
             <span class="error-block">{{ error }}</span>
         {% endfor %}
     {% endif %}
-    <div class="info-block ">
-        <i class="fa fa-info-circle"></i>
-         A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and longitude. 
-    </div>
+    
+    {%- snippet 'scheming/form_snippets/help_text.html', field=epsg -%}
+
 </div>
