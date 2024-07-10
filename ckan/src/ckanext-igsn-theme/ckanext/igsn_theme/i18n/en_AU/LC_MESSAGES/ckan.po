@@ -36,7 +36,7 @@ msgstr "Admin"
 
 #: ckan/authz.py:264
 msgid "Editor"
-msgstr "Editor"
+msgstr "Curator"
 
 #: ckan/authz.py:265
 msgid "Member"
@@ -2190,7 +2190,7 @@ msgid ""
 "but not add new datasets.</p>"
 msgstr ""
 " <p><strong>Admin:</strong> Can add/edit and delete samples, as well as "
-"manage collection members.</p> <p><strong>Editor:</strong> Can add and "
+"manage collection members.</p> <p><strong>Curator:</strong> Can add and "
 "edit samples, but not manage collection members.</p> "
 "<p><strong>Member:</strong> Can view the collection's private samples, "
 "but not add new samples.</p> "
@@ -2611,7 +2611,7 @@ msgid ""
 "as well accessing the dataset if private.</p> <p><strong>Member:</strong> "
 "Members can access the dataset if private, but not edit it.</p>"
 msgstr ""
-"<p><strong>Editor:</strong> Editors can edit the sample and its resources, "
+"<p><strong>Curator:</strong> Curators can edit the sample and its resources, "
 "as well accessing the sample if private.</p> <p><strong>Member:</strong> "
 "Members can access the sample if private, but not edit it.</p>"
 
