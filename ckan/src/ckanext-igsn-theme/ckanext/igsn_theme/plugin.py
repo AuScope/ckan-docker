@@ -48,6 +48,7 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IValidators)
     plugins.implements(plugins.ITranslation)
+    plugins.implements(plugins.IFacets, inherit=True)
 
     # ITranslation
     def i18n_domain(self):
@@ -127,3 +128,8 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     def get_validators(self):
         return validators.get_validators()
 
+
+    def dataset_facets(self, facets_dict, package_type):
+        facets_dict['sample_type'] = toolkit._('Sample Type')
+        facets_dict['locality'] = toolkit._('Locality')
+        return facets_dict
