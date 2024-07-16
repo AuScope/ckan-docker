@@ -270,12 +270,12 @@ msgstr "Extras"
 #: ckan/templates/snippets/context/dataset.html:17 ckan/views/dataset.py:299
 #: ckan/views/group.py:308 ckan/views/home.py:74
 msgid "Tags"
-msgstr "Tags"
+msgstr "Keywords"
 
 #: ckan/logic/converters.py:91 ckan/logic/converters.py:107
 #, python-format
 msgid "Tag vocabulary \"%s\" does not exist"
-msgstr "Tag vocabulary \"%s\" does not exist"
+msgstr "Keywords vocabulary \"%s\" does not exist"
 
 #: ckan/logic/converters.py:141 ckan/logic/converters.py:168
 #: ckan/logic/converters.py:195 ckan/logic/validators.py:196
@@ -418,12 +418,12 @@ msgstr "Group name already exists in database"
 #: ckan/logic/validators.py:436
 #, python-format
 msgid "Tag \"%s\" length is less than minimum %s"
-msgstr "Tag \"%s\" length is less than minimum %s"
+msgstr "Keywords \"%s\" length is less than minimum %s"
 
 #: ckan/logic/validators.py:440
 #, python-format
 msgid "Tag \"%s\" length is more than maximum %i"
-msgstr "Tag \"%s\" length is more than maximum %i"
+msgstr "Keywords \"%s\" length is more than maximum %i"
 
 #: ckan/logic/validators.py:449
 #, python-format
@@ -435,7 +435,7 @@ msgstr ""
 #: ckan/logic/validators.py:459
 #, python-format
 msgid "Tag \"%s\" must not be uppercase"
-msgstr "Tag \"%s\" must not be uppercase"
+msgstr "Keywords \"%s\" must not be uppercase"
 
 #: ckan/logic/validators.py:570
 msgid "User names must be strings"
@@ -489,21 +489,21 @@ msgstr "Cannot change value of key from %s to %s. This key is read-only"
 
 #: ckan/logic/validators.py:696
 msgid "Tag vocabulary was not found."
-msgstr "Tag vocabulary was not found."
+msgstr "Keywords vocabulary was not found."
 
 #: ckan/logic/validators.py:711
 #, python-format
 msgid "Tag %s does not belong to vocabulary %s"
-msgstr "Tag %s does not belong to vocabulary %s"
+msgstr "Keywords %s does not belong to vocabulary %s"
 
 #: ckan/logic/validators.py:721
 msgid "No tag name"
-msgstr "No tag name"
+msgstr "No Keywords name"
 
 #: ckan/logic/validators.py:734
 #, python-format
 msgid "Tag %s already belongs to vocabulary %s"
-msgstr "Tag %s already belongs to vocabulary %s"
+msgstr "Keywords %s already belongs to vocabulary %s"
 
 #: ckan/logic/validators.py:758
 msgid "Please provide a valid URL"
@@ -676,7 +676,7 @@ msgstr "Could not find vocabulary \"%s\""
 #: ckan/logic/action/delete.py:641
 #, python-format
 msgid "Could not find tag \"%s\""
-msgstr "Could not find tag \"%s\""
+msgstr "Could not find Keywords \"%s\""
 
 #: ckan/logic/action/delete.py:656 ckan/logic/action/delete.py:660
 msgid "You must be logged in to unfollow something."
@@ -1405,7 +1405,7 @@ msgstr ""
 
 #: ckan/templates/admin/config.html:19
 msgid "Site Tag Line"
-msgstr "Site Tag Line"
+msgstr "Site Keywords Line"
 
 #: ckan/templates/admin/config.html:24 ckan/templates/macros/autoform.html:62
 msgid "Site logo"
@@ -2020,7 +2020,7 @@ msgstr "Search samples"
 
 #: ckan/templates/home/snippets/search.html:17
 msgid "Popular tags"
-msgstr "Popular tags"
+msgstr "Popular Keywords"
 
 #: ckan/templates/home/snippets/stats.html:5
 msgid "{0} statistics"
@@ -4054,7 +4054,7 @@ msgstr ""
 
 #: ckanext/activity/templates/snippets/activities/added_tag.html:6
 msgid "{actor} added the tag {tag} to the dataset {dataset}"
-msgstr "{actor} added the tag {tag} to the sample {dataset}"
+msgstr "{actor} added the Keywords {tag} to the sample {dataset}"
 
 #: ckanext/activity/templates/snippets/activities/changed_group.html:6
 msgid "{actor} updated the group {group}"
@@ -4135,7 +4135,7 @@ msgstr "{actor} signed up"
 
 #: ckanext/activity/templates/snippets/activities/removed_tag.html:6
 msgid "{actor} removed the tag {tag} from the dataset {dataset}"
-msgstr "{actor} removed the tag {tag} from the sample {dataset}"
+msgstr "{actor} removed the Keywords {tag} from the sample {dataset}"
 
 #: ckanext/activity/templates/snippets/changes/author.html:5
 msgid "Set author of {pkg_link} to {new_author} (previously {old_author})"
@@ -5119,11 +5119,11 @@ msgstr "No groups"
 #: ckanext/stats/templates/ckanext/stats/index.html:114
 #: ckanext/stats/templates/ckanext/stats/index.html:168
 msgid "Top Tags"
-msgstr "Top Tags"
+msgstr "Top Keywords"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:118
 msgid "Tag Name"
-msgstr "Tag Name"
+msgstr "Keywords Name"
 
 #: ckanext/stats/templates/ckanext/stats/index.html:119
 #: ckanext/stats/templates/ckanext/stats/index.html:143
