@@ -22,15 +22,6 @@ fields:
     label: Contact Email 
     required: true
 
-  - field_name: related_dataset_title
-    label: Related Dataset Title
-    help_text: Enter the short title that represents the related dataset
-
-  - field_name: related_dataset_url
-    label: Related Dataset URL
-    display_snippet: URL
-    help_text: Associated dataset related to the collection
-
   - field_name: description
     label: Description
     preset: markdown

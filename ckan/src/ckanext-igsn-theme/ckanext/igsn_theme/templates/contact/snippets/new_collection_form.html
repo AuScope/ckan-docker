@@ -1,4 +1,5 @@
 {% extends "contact/snippets/form.html" %}
+{% import 'macros/form.html' as form %}
 
 {% block contact_form_legend_content %}
 {% endblock %}
@@ -11,7 +12,6 @@
     {% set short_name_label = _('Short Name of the Collection') %}
     {% set description_label = _('Description') %}
     
-  
     <input type="hidden" name="subject" value="{{ subject }}"> 
     <input type="hidden" name="content" value="{{ data.content }}"> 
     
@@ -30,17 +30,16 @@
                 value=data.collection_short_name, error=errors.collection_short_name, classes=['control-medium'],
                 is_required=true) }}
 
-    {{ form.input('related_dataset_title', label='Related Dataset Title', id='field-related_dataset_title',
-                value=data.related_dataset_title, error=errors.related_dataset_title, classes=['control-medium'],
-                is_required=true) }}
-
-    {{ form.input('related_dataset_url', label='Related Dataset URL', id='field-related_dataset_url',
-                value=data.related_dataset_url, error=errors.related_dataset_url, classes=['control-medium'],
-                is_required=true) }}
-
-    {{ form.input('is_culturally_sensitive', label='Is culturally sensitive?', id='field-is_culturally_sensitive',
-                        value=data.is_culturally_sensitive, error=errors.is_culturally_sensitive,
-                        is_required=true) }}
+    <div class="form-group {% if errors.is_culturally_sensitive %}has-error{% endif %}">
+        <label for="field-is_culturally_sensitive">{{ _('Is culturally sensitive?') }}</label>
+        <select name="is_culturally_sensitive" id="field-is_culturally_sensitive" class="form-control" required>
+            <option value="non-sensitive" {% if data.is_culturally_sensitive == 'non-sensitive' %}selected{% endif %}>{{ _('No') }}</option>
+            <option value="sensitive" {% if data.is_culturally_sensitive == 'sensitive' %}selected{% endif %}>{{ _('Yes') }}</option>
+        </select>
+        {% if errors.is_culturally_sensitive %}
+            <span class="help-block">{{ errors.is_culturally_sensitive }}</span>
+        {% endif %}
+    </div>
 
     {{ form.textarea('description', label=description_label, id='field-description',
                         value=data.description, error=errors.description,

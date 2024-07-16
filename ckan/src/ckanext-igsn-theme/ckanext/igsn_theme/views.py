@@ -825,8 +825,6 @@ def generate_new_collection_email_body(request):
         'collection_full_name': request.values.get('collection_full_name'),
         'collection_short_name': request.values.get('collection_short_name'),
         'is_culturally_sensitive': request.values.get('is_culturally_sensitive'),
-        'related_dataset_title': request.values.get('related_dataset_title'),
-        'related_dataset_url': request.values.get('related_dataset_url'),
         'description': request.values.get('description')
     }    
     email_body_template = """
@@ -841,8 +839,6 @@ def generate_new_collection_email_body(request):
     - Full Name: {{ data.collection_full_name }}
     - Short Name: {{ data.collection_short_name }}
     - Culturally Sensitive: {{ data.is_culturally_sensitive}}
-    - Related Dataset Title: {{ data.related_dataset_title }}
-    - Related Dataset URL: {{ data.related_dataset_url }}
     
     Description of the Collection:
     {{ data.description }}
