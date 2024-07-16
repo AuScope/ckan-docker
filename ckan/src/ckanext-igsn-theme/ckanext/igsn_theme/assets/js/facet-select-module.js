@@ -26,7 +26,6 @@ this.ckan.module('facet-select-module', function ($, _) {
 
         updateQueryString: function ($element) {
             var selectedValues = $element.val();
-            var $form = $element.closest('form');
             var url = new URL(window.location.href);
             var params = new URLSearchParams(url.search);
             params.delete($element.attr('name'));
@@ -42,7 +41,7 @@ this.ckan.module('facet-select-module', function ($, _) {
 
             // Hide the select2 container and show loading indicator
             $element.select2('destroy');
-            $form.find('.loading-indicator').show();
+            this.el.find('.loading-indicator').show();
             $element.hide();
 
             // Delay the page reload to ensure the loading indicator is visible
