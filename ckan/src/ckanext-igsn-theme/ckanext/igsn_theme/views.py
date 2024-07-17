@@ -20,6 +20,8 @@ import pandas as pd
 from datetime import date
 import re
 from pprint import pformat
+import ckan.lib.mailer as mailer
+from ckan.common import config
 
 check_access = logic.check_access
 NotAuthorized = logic.NotAuthorized
@@ -740,9 +742,15 @@ def request_new_collection():
             request.values = request.values.copy()
             request.values['content'] = email_body
             
+                                                 
             if contact_plugin_available:
                 result = _helpers.submit()
                 if result.get('success', False):
+                    try:
+                        send_email_to_requester_new_col(request)
+                    except Exception as email_error:
+                        logger.error('An error occurred while sending the email to the requester: {}'.format(str(email_error)))
+
                     return toolkit.render('contact/success.html')
                 else:
                     if result.get('recaptcha_error'):
@@ -793,6 +801,11 @@ def request_join_collection():
             if contact_plugin_available:               
                 result = _helpers.submit()
                 if result.get('success', False):
+                    try:
+                        send_email_to_requester_join_col(request, org_id,org_name)
+                    except Exception as email_error:
+                        logger.error('An error occurred while sending the email to the requester: {}'.format(str(email_error)))
+                    
                     return toolkit.render('contact/success.html')
                 else:
                     if result.get('recaptcha_error'):
@@ -817,6 +830,30 @@ def request_join_collection():
         logger.error('An error occurred while processing your request: {}'.format(str(e)))
         return toolkit.abort(500, toolkit._('Internal server error'))
  
+
+def send_email_to_requester_new_col(request):
+    """
+    Mail a confirmation to the user to create a new collection
+    """
+    collection_full_name= request.values.get('collection_full_name')
+    recipient_email= request.values.get('email')
+    recipient_name= request.values.get('name')
+    body = generate_requester_new_email_body(request)
+    subject = f'AuScope Sample Repository - Request to create collection "{collection_full_name}" has been submitted'
+    mailer.mail_recipient(recipient_name, recipient_email, subject, body)
+
+
+def send_email_to_requester_join_col(request,org_id,org_name):
+    """
+    Mail a confirmation to the user to join a collection
+    """
+    collection_full_name= request.values.get('collection_full_name')
+    recipient_email= request.values.get('email')
+    recipient_name= request.values.get('name')
+    body = generate_requester_join_email_body(request,org_id,org_name)
+    subject = f'AuScope Sample Repository - Request to join the collection has been submitted "{collection_full_name}"'
+    mailer.mail_recipient(recipient_name, recipient_email, subject, body)
+
 
 def generate_new_collection_email_body(request):
     data = {
@@ -880,6 +917,82 @@ def generate_join_collection_email_body(request,org_id,org_name):
     
     """
     return render_template_string(email_body_template, data=data)
+
+def generate_requester_new_email_body(request):
+    """
+    Generates the email body for the requester.
+    """
+    data = {
+        'name': request.values.get('name'),
+        'email': request.values.get('email'),
+        'collection_full_name': request.values.get('collection_full_name'),
+        'collection_short_name': request.values.get('collection_short_name'),
+        'is_culturally_sensitive': request.values.get('is_culturally_sensitive'),
+        'description': request.values.get('description')
+    }    
+        
+    site_title = config.get('ckan.site_title')
+    site_url = config.get('ckan.site_url')
+    return f"""
+Dear {data['name']},
+
+Thank you for submitting a new request to create a new collection. Below are the details of the request:
+
+Contact Name: {data['name']}
+Contact Email: {data['email']}
+
+Collection Details:
+- Full Name: {data['collection_full_name']}
+- Short Name: {data['collection_short_name']}
+- Culturally Sensitive: {data['is_culturally_sensitive']}
+
+Description of the Collection:
+{data['description']}
+
+Our admin will review and contact you with regards to creating your collection.
+
+Kind Regards,
+AuScope Sample Repository
+--
+Message sent by {site_title} ({site_url})
+    """
+
+def generate_requester_join_email_body(request,org_id,org_name):
+    """
+    Generates the email body for the requester.
+    """
+    data = {
+        'name': request.values.get('name'),
+        'email': request.values.get('email'),
+        'description': request.values.get('description'),
+        'collection_id': org_id,
+        'collection_name': org_name
+    }
+        
+    site_title = config.get('ckan.site_title')
+    site_url = config.get('ckan.site_url')
+    return f"""
+Dear {data['name']},
+
+Thank you for submitting a new request to join the collection. Below are the details of the request:
+
+Contact Name: {{ data.name }}
+Contact Email: {{ data.email }}
+
+Description of Request:
+{{ data.description }}
+
+Collection Details:
+- Collection ID: {{ data.collection_id }}
+- Collection Name: {{ data.collection_name }}
+
+Our admin will review and contact you with regards to joining the collection.
+
+Kind Regards,
+AuScope Sample Repository
+--
+Message sent by {site_title} ({site_url})
+    """
 
 
 # Add the proxy route
