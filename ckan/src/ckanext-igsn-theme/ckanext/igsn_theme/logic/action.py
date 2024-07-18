@@ -10,6 +10,8 @@ import json
 from datetime import datetime
 from ckan.logic.auth import get_package_object
 import pandas as pd
+import ckan.lib.mailer as mailer
+from ckan.common import config
 
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
@@ -281,6 +283,87 @@ def delete_package_relationship(context, pkg_dict):
     except Exception as e:
         logger.error(f"Failed to delete package relationship: {str(e)}")
 
+
+@tk.chained_action
+def organization_create(next_action, context, data_dict):
+    logger = logging.getLogger(__name__)
+    try:
+        logger.info("Creating organization: %s", pformat(data_dict))
+
+        # Call the next action to create the organization
+        organization = next_action(context, data_dict)
+
+        # Now proceed to send the email after the organization is created
+        collection_full_name = data_dict.get('title')
+        recipient_email = data_dict.get('contact_email')
+        recipient_name = data_dict.get('contact_name')
+        site_title = tk.config.get('ckan.site_title')
+        site_url = tk.config.get('ckan.site_url')
+
+        subject = f'Collection Created: {collection_full_name}'
+        body = f"""
+        Dear {recipient_name},
+
+        The collection '{collection_full_name}' has been successfully created.
+
+        Kind Regards,
+        AuScope Sample Repository
+        --
+        Message sent by {site_title} ({site_url})
+        """       
+        # Send the email
+        mailer.mail_recipient(recipient_name, recipient_email, subject, body)
+        
+    except Exception as e:
+        logger.error(f'Error during organization creation or email sending: {e}')
+        raise tk.ValidationError({'message': 'There was an error creating the organization and sending the notification email.'})
+
+    return organization
+
+
+@tk.chained_action
+def organization_member_create(next_action, context, data_dict):
+    logger = logging.getLogger(__name__)
+    try:
+        logger.info("Adding member to collection: %s", data_dict)
+
+        member = next_action(context, data_dict)
+
+        collection_id = data_dict.get('id')
+        user_id = data_dict.get('username')
+        user_obj = tk.get_action('user_show')(context, {'id': user_id})
+        collection_obj = tk.get_action('organization_show')(context, {'id': collection_id})
+        recipient_email = user_obj.get('email')
+        recipient_name = user_obj.get('display_name') or user_obj.get('name')
+        collection_name = collection_obj.get('title')
+        site_title = tk.config.get('ckan.site_title')
+        site_url = tk.config.get('ckan.site_url')
+
+        cc_email = collection_obj.get('contact_email')
+
+        subject = f'You have been added to the collection: {collection_name}'
+        body = f"""
+        Dear {recipient_name},
+
+        You have been successfully added to the collection '{collection_name}'.
+
+        Kind Regards,
+        AuScope Sample Repository
+        --
+        Message sent by {site_title} ({site_url})
+        """
+
+        if cc_email and cc_email != recipient_email:
+            mailer.mail_recipient(recipient_name, recipient_email, subject, body, cc=cc_email)
+        else:
+            mailer.mail_recipient(recipient_name, recipient_email, subject, body)
+
+    except Exception as e:
+        logger.error(f'Error sending email after adding member to collection: {e}')
+        raise tk.ValidationError({'message': 'There was an error adding the member to the collection and sending the notification email.'})
+
+    return member
+
 def get_actions():
     return {
         'igsn_theme_get_sum': igsn_theme_get_sum,
@@ -292,5 +375,7 @@ def get_actions():
         'update_package_relationship' : update_package_relationship,
         'delete_package_relationship' : delete_package_relationship,
         'package_update' : package_update,
+        'organization_create' :organization_create,
+        'organization_member_create' :organization_member_create
         # 'package_search': package_search,
     }

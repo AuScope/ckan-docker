@@ -847,11 +847,10 @@ def send_email_to_requester_join_col(request,org_id,org_name):
     """
     Mail a confirmation to the user to join a collection
     """
-    collection_full_name= request.values.get('collection_full_name')
     recipient_email= request.values.get('email')
     recipient_name= request.values.get('name')
     body = generate_requester_join_email_body(request,org_id,org_name)
-    subject = f'AuScope Sample Repository - Request to join the collection has been submitted "{collection_full_name}"'
+    subject = f'AuScope Sample Repository - Request to join the collection has been submitted "{org_name}"'
     mailer.mail_recipient(recipient_name, recipient_email, subject, body)
 
 
@@ -976,15 +975,15 @@ Dear {data['name']},
 
 Thank you for submitting a new request to join the collection. Below are the details of the request:
 
-Contact Name: {{ data.name }}
-Contact Email: {{ data.email }}
+Contact Name: {data['name']}
+Contact Email: {data['email']}
 
 Description of Request:
-{{ data.description }}
+{data['description']}
 
 Collection Details:
-- Collection ID: {{ data.collection_id }}
-- Collection Name: {{ data.collection_name }}
+- Collection ID: { data['collection_id'] }
+- Collection Name: { data['collection_name'] }
 
 Our admin will review and contact you with regards to joining the collection.
 
