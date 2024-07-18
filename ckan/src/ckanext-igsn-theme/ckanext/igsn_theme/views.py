@@ -20,7 +20,7 @@ import pandas as pd
 from datetime import date
 import re
 from pprint import pformat
-import ckan.lib.mailer as mailer
+from ckan.lib.mailer import mail_recipient, MailerException
 from ckan.common import config
 
 check_access = logic.check_access
@@ -782,7 +782,10 @@ def request_join_collection():
         toolkit.abort(403, toolkit._('Unauthorized to send request'))
 
     org_id = toolkit.request.args.get('org_id')
-    org_name = toolkit.request.args.get('org_name')
+    organization = get_action('organization_show')({}, {'id': org_id})
+    org_name = organization['name']
+    contact_email = organization['contact_email']
+    contact_name = organization['contact_name']
 
     extra_vars = {
         'data': {},
@@ -802,7 +805,7 @@ def request_join_collection():
                 result = _helpers.submit()
                 if result.get('success', False):
                     try:
-                        send_email_to_requester_join_col(request, org_id,org_name)
+                        send_email_to_requester_join_col(request, organization)
                     except Exception as email_error:
                         logger.error('An error occurred while sending the email to the requester: {}'.format(str(email_error)))
                     
@@ -840,18 +843,40 @@ def send_email_to_requester_new_col(request):
     recipient_name= request.values.get('name')
     body = generate_requester_new_email_body(request)
     subject = f'AuScope Sample Repository - Request to create collection "{collection_full_name}" has been submitted'
-    mailer.mail_recipient(recipient_name, recipient_email, subject, body)
+    mail_recipient(recipient_name, recipient_email, subject, body)
 
 
-def send_email_to_requester_join_col(request,org_id,org_name):
+def send_email_to_requester_join_col(request, organization):
     """
     Mail a confirmation to the user to join a collection
     """
-    recipient_email= request.values.get('email')
-    recipient_name= request.values.get('name')
-    body = generate_requester_join_email_body(request,org_id,org_name)
+    logger = logging.getLogger(__name__)
+
+    org_name = organization['name']
+    contact_email = organization['contact_email']
+    contact_name = organization['contact_name']
+    
+    recipient_email = request.values.get('email')
+    recipient_name = request.values.get('name')
+    body = generate_requester_join_email_body(request, organization)
     subject = f'AuScope Sample Repository - Request to join the collection has been submitted "{org_name}"'
-    mailer.mail_recipient(recipient_name, recipient_email, subject, body)
+
+    if not recipient_email or not recipient_name:
+        logger.error('Recipient email or name is missing.')
+        return
+
+    try:
+        mail_recipient(recipient_name, recipient_email, subject, body)
+
+        if contact_email and contact_email != recipient_email:
+            mail_recipient(contact_name, contact_email, subject, body)
+
+        logger.info(f'Email sent to {recipient_email} with CC to {contact_email if contact_email != recipient_email else "N/A"}')
+
+    except MailerException as e:
+        logger.error(f'Error during email sending: {e}')
+    except Exception as e:
+        logger.error(f'Unexpected error during email sending: {e}')
 
 
 def generate_new_collection_email_body(request):
@@ -956,10 +981,13 @@ AuScope Sample Repository
 Message sent by {site_title} ({site_url})
     """
 
-def generate_requester_join_email_body(request,org_id,org_name):
+def generate_requester_join_email_body(request,organization):
     """
     Generates the email body for the requester.
     """
+    org_id= organization['id']
+    org_name = organization['name']
+
     data = {
         'name': request.values.get('name'),
         'email': request.values.get('email'),
