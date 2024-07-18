@@ -10,7 +10,7 @@ import json
 from datetime import datetime
 from ckan.logic.auth import get_package_object
 import pandas as pd
-from ckan.lib.mailer import mail_recipient
+from ckan.lib.mailer import mail_recipient, mail_recipient_from
 from ckan.common import config, _
 from ckan.plugins.toolkit import h
 
@@ -366,10 +366,11 @@ def organization_member_create(next_action, context, data_dict):
             Message sent by {site_title} ({site_url})
             """
 
+            headers = {}
             if cc_email and cc_email != recipient_email:
-                mail_recipient(recipient_name, recipient_email, subject, body, cc=cc_email)
-            else:
-                mail_recipient(recipient_name, recipient_email, subject, body)
+                headers['Cc'] = cc_email
+
+            mail_recipient_from(site_title, recipient_name, recipient_email, subject, body, headers=headers)
 
             h.flash_success(_('The member has been added to the collection and the notification email has been sent successfully.'))
 
