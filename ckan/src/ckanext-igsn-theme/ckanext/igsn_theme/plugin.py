@@ -133,3 +133,8 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
         facets_dict['sample_type'] = toolkit._('Sample Type')
         facets_dict['locality'] = toolkit._('Locality')
         return facets_dict
+    
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        facets_dict['sample_type'] = toolkit._('Sample Type')
+        facets_dict['locality'] = toolkit._('Locality')
+        return facets_dict
