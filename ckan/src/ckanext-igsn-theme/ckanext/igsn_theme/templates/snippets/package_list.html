@@ -1,25 +1,13 @@
-{#
-    Display a table of dataset items.
-
-    datasets - A list of datasets.
-
-    Example:
-
-    {% snippet 'snippets/package_list.html', packages=c.datasets %}
-
-    #}
-    {% block package_list %}
-    {% if packages %}
-    <table class="table table-hover" >
+{% block package_list %}
+  {% if packages %}
+    <table class="table table-hover sortable-table">
       <thead>
         <tr>
           <th>{{ _('Sample') }}</th>
           <th>{{ _('Collection') }}</th>
-          <!-- <th>{{ _('No. of Resources') }}</th> -->
           <th>{{ _('Keywords') }}</th>
           <th>{{ _('Description') }}</th>
           <th>{{ _('Parent') }}</th>
-          <!-- <ch>{{ _('Modified Date') }}</th> -->
         </tr>
       </thead>
       <tbody>
@@ -30,5 +18,11 @@
 	    {% endblock %}
       </tbody>
     </table>
-    {% endif %}
+  {% endif %}
 {% endblock %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    $('.sortable-table').DataTable();
+  });
+</script>

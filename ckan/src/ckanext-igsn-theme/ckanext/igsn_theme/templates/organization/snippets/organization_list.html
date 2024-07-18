@@ -9,7 +9,7 @@ Example:
 
 #}
 {% block organization_list %}
-<table class="table table-hover" >
+<table class="table table-hover sortable-table" >
   <thead>
     <tr>
       <th>{{ _('Collection') }}</th>
@@ -28,3 +28,9 @@ Example:
   </tbody>
 </table>
 {% endblock %}
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    $('.sortable-table').DataTable();
+  });
+</script>
