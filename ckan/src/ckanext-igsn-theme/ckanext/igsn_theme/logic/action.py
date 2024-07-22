@@ -5,15 +5,15 @@ from ckan.logic.validators import owner_org_validator as default_owner_org_valid
 import logging
 from pprint import pformat
 import re
-import ckan.model as model
 import json
 from datetime import datetime
 from ckan.logic.auth import get_package_object
 import pandas as pd
-from ckan.lib.mailer import mail_recipient, MailerException
 from ckan.common import  _
 from ckan.plugins.toolkit import h
-
+from ckanext.igsn_theme.logic import (
+    email_notifications
+)
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
     tk.check_access(
@@ -300,30 +300,11 @@ def organization_create(next_action, context, data_dict):
 
     if collection is not None:
         try:
-            collection_full_name = data_dict.get('title')
-            recipient_email = data_dict.get('contact_email')
-            recipient_name = data_dict.get('contact_name')
-            site_title = tk.config.get('ckan.site_title')
-            site_url = tk.config.get('ckan.site_url')
-
-            subject = f'Collection Created: {collection_full_name}'
-            body = f"""
-            Dear {recipient_name},
-
-            The collection '{collection_full_name}' has been successfully created.
-
-            Kind Regards,
-            AuScope Sample Repository
-            --
-            Message sent by {site_title} ({site_url})
-            """       
-            # Send the email
-            mail_recipient(recipient_name, recipient_email, subject, body)
+            email_notifications.organization_create_notify_email(data_dict)
             h.flash_success(_('The collection has been created and the notification email has been sent successfully.'))
         except Exception as e:
             logger.error(f'Error during email sending: {e}')
             h.flash_error(_('The collection has been created but there was an error sending the notification email. Please check the email configuration.'), 'error')
-
     return collection
 
 @tk.chained_action
@@ -339,51 +320,9 @@ def organization_member_create(next_action, context, data_dict):
     except Exception as e:
         logger.error(f'Unexpected error during member addition: {e}')
         raise tk.ValidationError({'error': ['Unexpected error during member addition. Please contact support.']})
-
+    
     if member is not None:
-        try:
-            collection_id = data_dict.get('id')
-            user_id = data_dict.get('username')
-            user_obj = tk.get_action('user_show')(context, {'id': user_id})
-            collection_obj = tk.get_action('organization_show')(context, {'id': collection_id})
-            recipient_email = user_obj.get('email')
-            recipient_name = user_obj.get('display_name') or user_obj.get('name')
-            collection_name = collection_obj.get('title')
-            site_title = tk.config.get('ckan.site_title')
-            site_url = tk.config.get('ckan.site_url')
-
-            cc_email = collection_obj.get('contact_email')
-
-            subject = f'You have been added to the collection: {collection_name}'
-            body = f"""
-            Dear {recipient_name},
-
-            You have been successfully added to the collection '{collection_name}'.
-
-            Kind Regards,
-            AuScope Sample Repository
-            --
-            Message sent by {site_title} ({site_url})
-            """
-
-            if recipient_email and subject and body:
-                try:
-                    mail_recipient(recipient_name, recipient_email, subject, body)
-                    if cc_email and cc_email != recipient_email:
-                        mail_recipient(recipient_name, cc_email, subject, body)
-
-                    h.flash_success(_('The member has been added to the collection and the notification email has been sent successfully.'))
-                except MailerException as e:
-                    logger.error(f'Error during email sending: {e}')
-                    h.flash_error(_('The member has been added to the collection but there was an error sending the notification email. Please check the email configuration.'), 'error')
-            else:
-                logger.error('Email sending failed due to missing recipient email, subject, or body.')
-                h.flash_error(_('The member has been added to the collection but there was an error preparing the notification email.'), 'error')
-
-        except Exception as e:
-            logger.error(f'Unexpected error during email sending: {e}')
-            h.flash_error(_('The member has been added to the collection but there was an unexpected error sending the notification email. Please check the email configuration.'), 'error')
-
+        email_notifications.organization_member_create_notify_email(context, data_dict)
     return member
 
 def get_actions():
