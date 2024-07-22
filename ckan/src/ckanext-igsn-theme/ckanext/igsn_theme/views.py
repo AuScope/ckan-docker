@@ -124,6 +124,16 @@ class BatchUploadView(MethodView):
         name = re.sub(r'[^a-z0-9-_]', '', name.lower())
         return name    
 
+    def generate_sample_title(self,org_id, sample_type, sample_number):
+        
+        org_name= self.get_organization_name(org_id)
+        org_name = org_name
+        sample_type = sample_type
+        sample_number = sample_number
+        
+        title= f"{org_name} - {sample_type} Sample {sample_number}"
+        return title    
+    
     def get_organization_name(self , organization_id):
         try:
             organization = get_action('organization_show')({}, {'id': organization_id})
@@ -209,7 +219,10 @@ class BatchUploadView(MethodView):
                 "resource_type": "PhysicalObject",
             }
             sample.update(defaults)
+            
             sample["name"] = self.generate_sample_name(org_id, sample['sample_type'], sample['sample_number'])
+            sample["title"] = self.generate_sample_title(org_id, sample['sample_type'], sample['sample_number'])
+
             samples_data.append(sample)
 
         return samples_data
@@ -781,8 +794,6 @@ def request_join_collection():
     org_id = toolkit.request.args.get('org_id')
     organization = get_action('organization_show')({}, {'id': org_id})
     org_name = organization['name']
-    contact_email = organization['contact_email']
-    contact_name = organization['contact_name']
 
     extra_vars = {
         'data': {},

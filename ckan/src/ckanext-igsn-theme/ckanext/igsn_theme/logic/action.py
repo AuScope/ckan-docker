@@ -58,7 +58,9 @@ def package_create(next_action, context, data_dict):
             for f in schema['owner_org']
         ]
 
-    data_dict['name'] = generate_sample_name(data_dict)    
+    data_dict['name']  = generate_sample_name(data_dict)   
+    data_dict['title'] = generate_sample_title(data_dict)    
+ 
     manage_parent_related_resource(data_dict)
 
     if 'private' in data_dict and data_dict['private'] == 'False':
@@ -90,7 +92,9 @@ def package_update(next_action, context, data_dict):
     # logger = logging.getLogger(__name__)
     # logger.info("package_update data_dict: %s", pformat(data_dict))
     
-    data_dict['name'] = generate_sample_name(data_dict)
+    data_dict['name']  = generate_sample_name(data_dict)   
+    data_dict['title'] = generate_sample_title(data_dict)   
+    
     manage_parent_related_resource(data_dict)
 
     package = get_package_object(context, {'id': data_dict['id']})
@@ -174,7 +178,7 @@ def manage_parent_related_resource(data_dict):
     data_dict['related_resource'] = json.dumps(related_resources)
 
 def generate_sample_name(data_dict):
-    owner_org=data_dict['owner_org']
+    owner_org = data_dict['owner_org']
     sample_type = data_dict['sample_type']
     sample_number = data_dict['sample_number']
     org_name= tk.get_action('organization_show')({}, {'id': owner_org})['name']
@@ -184,7 +188,21 @@ def generate_sample_name(data_dict):
     
     name = f"{org_name}-{sample_type}-Sample-{sample_number}"
     name = re.sub(r'[^a-z0-9-_]', '', name.lower())
+
     return name
+
+def generate_sample_title(data_dict):
+    owner_org = data_dict['owner_org']
+    sample_type = data_dict['sample_type']
+    sample_number = data_dict['sample_number']
+    org_name= tk.get_action('organization_show')({}, {'id': owner_org})['name']
+    org_name = org_name
+    sample_type = sample_type
+    sample_number = sample_number
+    
+    title= f"{org_name} - {sample_type} Sample {sample_number}"
+
+    return title
 
 # We do not need user_create customization here.
 # Users do not need to be a part of an organization by default.
@@ -320,7 +338,6 @@ def organization_member_create(next_action, context, data_dict):
     except Exception as e:
         logger.error(f'Unexpected error during member addition: {e}')
         raise tk.ValidationError({'error': ['Unexpected error during member addition. Please contact support.']})
-    
     if member is not None:
         email_notifications.organization_member_create_notify_email(context, data_dict)
     return member
