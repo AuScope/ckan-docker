@@ -39,10 +39,12 @@ def location_validator(field, schema):
         location_choice_key = ('location_choice',)
         location_data_key = ('location_data',)
         epsg_code_key = ('epsg_code',)
+        elevation_key = ('elevation',)
 
         location_choice = data.get(location_choice_key, missing)
         location_data = data.get(location_data_key, missing)
         epsg_code = data.get(epsg_code_key, missing)
+        elevation = data.get(elevation_key, missing)
 
         def add_error(key, error_message):
             errors[key] = errors.get(key, [])
@@ -97,6 +99,12 @@ def location_validator(field, schema):
         if epsg_code is missing:
             add_error(epsg_code_key, missing_error)
 
+        if elevation is not missing and elevation is not None and str(elevation).strip():
+            try:
+                elevation = float(elevation)
+            except (ValueError, TypeError):
+                add_error(elevation_key, invalid_error)
+   
         log = logging.getLogger(__name__)
         try:
             log.debug("location_data: %s", location_data)
@@ -171,7 +179,6 @@ def composite_not_empty_subfield(key, subfield_label, value, errors):
         else:
             errors[key].append(f"Missing value at required subfields: {subfield_label}")
 
-
 def composite_all_empty(field, item):
     all_empty = True
     for schema_subfield in field['subfields']:
@@ -181,18 +188,35 @@ def composite_all_empty(field, item):
     return all_empty
 
 def author_validator(key, item, index, field, errors):
-    author_identifier_key = f'author_identifier'
-    author_identifier_type_key = f'author_identifier_type'
+    author_identifier_key = 'author_identifier'
+    author_identifier_type_key = 'author_identifier_type'
+    author_email_key = 'author_email'
+    author_affiliation_identifier_key = 'author_affiliation_identifier'
 
     author_identifier = item.get(author_identifier_key, "")
     author_identifier_type = item.get(author_identifier_type_key, "")
+    author_email = item.get(author_email_key, "")
+    author_affiliation_identifier = item.get(author_affiliation_identifier_key, "")
 
-    if author_identifier and author_identifier is not missing:
+    if author_identifier:
+        tk.get_validator('url_validator')(key, {key: author_identifier}, errors, {})
+        
         for subfield in field['subfields']:
             if subfield.get('field_name') == 'author_identifier_type':
                 author_identifier_type_label = subfield.get('label', 'Default Label') + " " + str(index)
                 break
-        composite_not_empty_subfield(key,  author_identifier_type_label , author_identifier_type, errors)
+        composite_not_empty_subfield(key, author_identifier_type_label, author_identifier_type, errors)
+
+    if author_email:
+        try:
+            tk.get_validator('email_validator')(author_email, {})
+        except tk.ValidationError:
+            errors[author_email_key] = errors.get(author_email_key, [])
+            errors[author_email_key].append(f"Author Email {index} must be a valid email address.")
+
+    if author_affiliation_identifier:
+        tk.get_validator('url_validator')(key, {key: author_affiliation_identifier}, errors, {})
+         
 
 def funder_validator(key, item, index, field, errors):
     funder_identifier_key = f'funder_identifier'
@@ -202,6 +226,7 @@ def funder_validator(key, item, index, field, errors):
     funder_identifier_type = item.get(funder_identifier_type_key, "")
 
     if funder_identifier and funder_identifier is not missing:
+        tk.get_validator('url_validator')(key, {key: funder_identifier}, errors, {})
         for subfield in field['subfields']:
             if subfield.get('field_name') == 'funder_identifier_type':
                 funder_identifier_type_label = subfield.get('label', 'Default Label') + " " + str(index)
@@ -217,6 +242,9 @@ def project_validator(key, item, index, field, errors):
     project_identifier = item.get(project_identifier_key, "")
     project_identifier_type = item.get(project_identifier_type_key, "")
     
+    if project_identifier and project_identifier is not missing:
+        tk.get_validator('url_validator')(key, {key: project_identifier}, errors, {})
+
     if project_name and project_name is not missing:
         for subfield in field['subfields']:
             if subfield.get('field_name') == 'project_identifier':
@@ -226,6 +254,13 @@ def project_validator(key, item, index, field, errors):
 
         composite_not_empty_subfield(key,  project_identifier_label , project_identifier, errors)           
         composite_not_empty_subfield(key,  project_identifier_type_label , project_identifier_type, errors)
+
+def related_resource_validator(key, item, index, field, errors):
+    related_resource_url_key = f'related_resource_url'
+    related_resource_url = item.get(related_resource_url_key, "")
+
+    if related_resource_url and related_resource_url is not missing:
+        tk.get_validator('url_validator')(key, {key: related_resource_url}, errors, {})
 
 @scheming_validator
 @register_validator
@@ -284,6 +319,7 @@ def composite_repeating_validator(field, schema):
                     author_validator(key , item, index, field, errors)        
                     funder_validator(key , item, index, field, errors)        
                     project_validator(key , item, index, field, errors)        
+                    related_resource_validator(key , item, index, field, errors)        
 
                 # remove empty elements from list
                 clean_list = []
@@ -416,6 +452,46 @@ def acquisition_date_validator(field, schema):
 
     return validator
 
+@scheming_validator
+@register_validator
+def depth_validator(field, schema):
+    """
+    A validator to ensure the depth_from is less than depth_to
+    """
+    def validator(key, data, errors, context):
+        missing_error = _("Missing value")
+        invalid_error = _("Invalid value")
+
+        def add_error(key, error_message):
+            errors[key] = errors.get(key, [])
+            errors[key].append(error_message)
+
+        depth_from_key = ('depth_from',)
+        depth_to_key = ('depth_to',)
+
+        depth_from_str = data.get(depth_from_key, missing)
+        depth_to_str = data.get(depth_to_key, missing)
+
+        if all(val is missing or val is None or not str(val).strip() for val in [depth_from_str, depth_to_str]):
+            return
+
+        try:
+            depth_from = float(depth_from_str)
+        except (ValueError, TypeError):
+            add_error(depth_from_key, invalid_error)
+            return
+
+        try:
+            depth_to = float(depth_to_str)
+        except (ValueError, TypeError):
+            add_error(depth_to_key, invalid_error)
+            return
+
+        if depth_from > depth_to:
+            add_error(depth_to_key, _("Depth to must be greater than the depth from."))
+
+    return validator
+
 def get_validators():
     return {
         "igsn_theme_required": igsn_theme_required,
@@ -423,5 +499,6 @@ def get_validators():
         "composite_repeating_validator": composite_repeating_validator,
         "owner_org_validator": owner_org_validator,
         "sample_number_validator" : sample_number_validator,
-        "acquisition_date_validator" : acquisition_date_validator
+        "acquisition_date_validator" : acquisition_date_validator,
+        "depth_validator" : depth_validator
     }

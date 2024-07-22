@@ -8,16 +8,23 @@
 
     class="form-group" id="parent">
     
-    <label class="form-label" for="field-parent">Parent Sample</label>
+    <label class="form-label" for="field-parent">
+        {% if h.scheming_field_required(field) %}
+            <span title="This field is required" class="control-required">*</span>
+        {% endif %}
+        {{ h.scheming_language_text(field.label) }}
+    </label>
+
     <input class="form-control" id="field-parent" name="parent" value="{{data['parent']}}" autocomplete="off">
+   
     {% if errors['parent'] %}
         {% for error in errors['parent'] %}
             <span class="error-block">{{ error }}</span>
         {% endfor %}
     {% endif %}
-    <div class="info-block">
-        <i class="fa fa-info-circle"></i>
-        Select the parent sample from existing samples.
-    </div>
+
+
+    {%- snippet 'scheming/form_snippets/help_text.html', field=field -%}
+
 </div>
 
