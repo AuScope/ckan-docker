@@ -23,19 +23,20 @@ logging.basicConfig(level=logging.INFO)
 
 StopOnError = df.StopOnError
 not_empty = get_validator('not_empty')
-
+missing_error = _("Missing value")
+invalid_error = _("Invalid value")
 # A dictionary to store your validators
 all_validators = {}
 
 
+def add_error(errors, key, error_message):
+    errors[key] = errors.get(key, [])
+    errors[key].append(error_message)
 
 @scheming_validator
 @register_validator
 def location_validator(field, schema):
     def validator(key, data, errors, context):
-        missing_error = _("Missing value")
-        invalid_error = _("Invalid value")
-
         location_choice_key = ('location_choice',)
         location_data_key = ('location_data',)
         epsg_code_key = ('epsg_code',)
@@ -45,10 +46,6 @@ def location_validator(field, schema):
         location_data = data.get(location_data_key, missing)
         epsg_code = data.get(epsg_code_key, missing)
         elevation = data.get(elevation_key, missing)
-
-        def add_error(key, error_message):
-            errors[key] = errors.get(key, [])
-            errors[key].append(error_message)
 
         # Exit the validation for noLocation choice
         if location_choice == 'noLocation':
@@ -61,16 +58,16 @@ def location_validator(field, schema):
             try:
                 location_data = json.loads(location_data)
             except ValueError:
-                add_error(location_data_key, invalid_error)
+                add_error(errors,location_data_key, invalid_error)
                 return
         elif not isinstance(location_data, dict):
-            add_error(location_data_key, invalid_error)
+            add_error(errors,location_data_key, invalid_error)
             return
 
 
         features = location_data.get('features', [])
         if not features:
-            add_error(location_data_key, missing_error)
+            add_error(errors,location_data_key, missing_error)
             return
 
         if location_choice == 'point':
@@ -78,7 +75,7 @@ def location_validator(field, schema):
                 if feature['geometry']['type'] == 'Point':
                     coords = feature['geometry']['coordinates']
                     if not is_valid_longitude(coords[0]) or not is_valid_latitude(coords[1]):
-                        add_error(location_data_key, invalid_error)
+                        add_error(errors,location_data_key, invalid_error)
                         break
 
         elif location_choice == 'area':
@@ -87,23 +84,23 @@ def location_validator(field, schema):
                     for polygon in feature['geometry']['coordinates']:
                         for coords in polygon:
                             if not is_valid_longitude(coords[0]) or not is_valid_latitude(coords[1]):
-                                add_error(location_data_key, invalid_error)
+                                add_error(errors,location_data_key, invalid_error)
                                 return
 
         else:
-            add_error(location_data_key, missing_error)
+            add_error(errors, location_data_key, missing_error)
 
         if location_choice is missing and field.get('required', False):
-            add_error(location_choice_key, missing_error)
+            add_error(errors, location_choice_key, missing_error)
 
         if epsg_code is missing:
-            add_error(epsg_code_key, missing_error)
+            add_error(errors, epsg_code_key, missing_error)
 
         if elevation is not missing and elevation is not None and str(elevation).strip():
             try:
                 elevation = float(elevation)
             except (ValueError, TypeError):
-                add_error(elevation_key, invalid_error)
+                add_error(errors, elevation_key, invalid_error)
    
         log = logging.getLogger(__name__)
         try:
@@ -122,7 +119,7 @@ def location_validator(field, schema):
 
         except Exception as e:
             log.error("Error processing GeoJSON: %s", e)
-            add_error(location_data_key, f"Error processing GeoJSON: {e}")
+            add_error(errors, location_data_key, f"Error processing GeoJSON: {e}")
 
     return validator
 
@@ -362,12 +359,6 @@ def owner_org_validator(key, data, errors, context):
 @register_validator
 def sample_number_validator(field, schema):
     def validator(key, data, errors, context):
-        missing_error = _("Missing value")
-        invalid_error = _("Invalid value")
-
-        def add_error(key, error_message):
-            errors[key] = errors.get(key, [])
-            errors[key].append(error_message)
 
         sample_number = data.get(key)
         owner_org_key = ('owner_org',)
@@ -375,11 +366,11 @@ def sample_number_validator(field, schema):
         current_sample_id = data.get(('id',), None) 
 
         if owner_org is missing:
-            add_error(owner_org_key, missing_error)
+            add_error(errors, owner_org_key, missing_error)
             return
 
         if sample_number is missing or sample_number == '':
-            add_error(key, missing_error)
+            add_error(errors, key, missing_error)
             return
 
         try:
@@ -393,12 +384,12 @@ def sample_number_validator(field, schema):
                 for result in search_result['results']:
                     if result['id'] != current_sample_id:
                         org_name = tk.get_action('organization_show')({}, {'id': owner_org})['name']
-                        add_error(key, f'sample_number "{sample_number}" already exists in collection "{org_name}"')
+                        add_error(errors, key, f'sample_number "{sample_number}" already exists in collection "{org_name}"')
                         break  # Stop checking after the first duplicate is found
         except NotFound:
-            add_error(key, 'Error checking uniqueness of sample_number')
+            add_error(errors, key, 'Error checking uniqueness of sample_number')
         except Exception as e:
-            add_error(key, f'Error querying Solr: {str(e)}')
+            add_error(errors, key, f'Error querying Solr: {str(e)}')
 
         return
 
@@ -415,10 +406,6 @@ def acquisition_date_validator(field, schema):
     """
     def validator(key, data, errors, context):
 
-        def add_error(key, error_message):
-            errors[key] = errors.get(key, [])
-            errors[key].append(error_message)
-
         acquisition_start_date_key = ('acquisition_start_date',)
         acquisition_end_date_key = ('acquisition_end_date',)
 
@@ -433,21 +420,21 @@ def acquisition_date_validator(field, schema):
         try:
             acquisition_start_date = datetime.strptime(acquisition_start_date_str, "%Y-%m-%d").date()
         except ValueError:
-            add_error(acquisition_start_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
+            add_error(errors, acquisition_start_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
             return
 
         try:
             acquisition_end_date = datetime.strptime(acquisition_end_date_str, "%Y-%m-%d").date()
         except ValueError:
-            add_error(acquisition_end_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
+            add_error(errors, acquisition_end_date_key, 'Invalid date format. Please use YYYY-MM-DD.')
             return
 
         if acquisition_start_date > datetime.now().date():
-            add_error(acquisition_start_date_key, 'Acquisition start date must be today or before.')
+            add_error(errors, acquisition_start_date_key, 'Acquisition start date must be today or before.')
             return
 
         if acquisition_start_date > acquisition_end_date:
-            add_error(acquisition_end_date_key, 'Acquisition end date must be later than the start date.')
+            add_error(errors, acquisition_end_date_key, 'Acquisition end date must be later than the start date.')
             return
 
     return validator
@@ -459,12 +446,6 @@ def depth_validator(field, schema):
     A validator to ensure the depth_from is less than depth_to
     """
     def validator(key, data, errors, context):
-        missing_error = _("Missing value")
-        invalid_error = _("Invalid value")
-
-        def add_error(key, error_message):
-            errors[key] = errors.get(key, [])
-            errors[key].append(error_message)
 
         depth_from_key = ('depth_from',)
         depth_to_key = ('depth_to',)
@@ -478,17 +459,72 @@ def depth_validator(field, schema):
         try:
             depth_from = float(depth_from_str)
         except (ValueError, TypeError):
-            add_error(depth_from_key, invalid_error)
+            add_error(errors, depth_from_key, invalid_error)
             return
 
         try:
             depth_to = float(depth_to_str)
         except (ValueError, TypeError):
-            add_error(depth_to_key, invalid_error)
+            add_error(errors, depth_to_key, invalid_error)
             return
 
         if depth_from > depth_to:
-            add_error(depth_to_key, _("Depth to must be greater than the depth from."))
+            add_error(errors, depth_to_key, _("Depth to must be greater than the depth from."))
+
+    return validator
+
+@scheming_validator
+@register_validator
+def parent_validator(field, schema):
+    """
+    A validator to ensure that if the parent sample is specified, 
+    then the acquisition start date of the sample must be either the same as or later than the acquisition start date of its parent sample.
+    Additionally, the sample and its parent must belong to the same organization and cannot be the same.
+    """
+    def validator(key, data, errors, context):
+          
+        parent_sample_id_key = ('parent',)
+        parent_sample_id = data.get(parent_sample_id_key, missing)
+        start_date_key = ('acquisition_start_date',)
+        start_date = data.get(start_date_key, missing)
+        owner_org_key = ('owner_org',)
+        owner_org = data.get(owner_org_key, missing)
+        sample_id_key = ('id',)
+        sample_id = data.get(sample_id_key, missing)
+
+        if parent_sample_id is missing or parent_sample_id is None or not str(parent_sample_id).strip():
+            return
+        
+        if sample_id == parent_sample_id:
+            add_error(errors, parent_sample_id_key, _('A sample cannot be its own parent.'))
+            return
+                    
+        try:
+            parent_sample = tk.get_action('package_show')(context, {'id': parent_sample_id})
+        except tk.ObjectNotFound:
+            add_error(errors, parent_sample_id_key, _('Parent sample not found.'))
+            return
+        except tk.NotAuthorized:
+            add_error(errors, parent_sample_id_key, _('You are not authorized to view the parent sample.'))           
+            return
+        
+        parent_owner_org = parent_sample.get('owner_org', missing)
+        if owner_org is missing or parent_owner_org is missing or owner_org != parent_owner_org:
+            add_error(errors, parent_sample_id_key, _('The sample and its parent must belong to the same organization.'))                      
+            return
+        
+        parent_start_date = parent_sample.get('acquisition_start_date', missing)
+        
+        if start_date and parent_start_date and str(start_date).strip() and str(parent_start_date).strip():
+            try:
+                start_date_dt = datetime.strptime(start_date, "%Y-%m-%d")
+                parent_start_date_dt = datetime.strptime(parent_start_date, "%Y-%m-%d")
+            except ValueError:
+                add_error(errors, parent_sample_id_key, _('Invalid date format. Use YYYY-MM-DD.'))                     
+                return
+
+            if start_date_dt < parent_start_date_dt:
+                add_error(errors, parent_sample_id_key, _('The Acquisition Start Date of the sample must be the same as or later than the acquisition start date of its parent sample.'))           
 
     return validator
 
@@ -500,5 +536,6 @@ def get_validators():
         "owner_org_validator": owner_org_validator,
         "sample_number_validator" : sample_number_validator,
         "acquisition_date_validator" : acquisition_date_validator,
-        "depth_validator" : depth_validator
+        "depth_validator" : depth_validator,
+        "parent_validator" : parent_validator
     }

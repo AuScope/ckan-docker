@@ -40,6 +40,7 @@ dataset_fields:
   label: Parent Sample
   form_snippet: sample_parent_field.html
   display_snippet: sample_parent_field.html
+  validators: parent_validator
   help_text: The source sample from which the sample is created or sub-sampled. Select the parent sample from existing samples.
   groupBy: About Sample
 
