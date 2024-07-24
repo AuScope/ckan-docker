@@ -31,6 +31,10 @@ Example:
 
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    $('.sortable-table').DataTable();
+    $('.sortable-table').DataTable({
+      searching: false,
+      lengthChange: false,
+      paging: false
+    });
   });
 </script>
