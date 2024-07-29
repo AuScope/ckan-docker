@@ -469,7 +469,7 @@ def depth_validator(field, schema):
             add_error(errors, depth_to_key, invalid_error)
             return
 
-        if depth_from > depth_to:
+        if depth_from >= depth_to:
             add_error(errors, depth_to_key, _("Depth to must be greater than the depth from."))
 
     return validator
