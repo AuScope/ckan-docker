@@ -4,6 +4,7 @@ import json
 
 import ckanext.scheming.helpers as sh
 import ckan.lib.navl.dictization_functions as df
+from typing import Any, Union, Optional
 
 from ckanext.scheming.validation import scheming_validator, register_validator
 from ckan.logic import NotFound
@@ -528,6 +529,39 @@ def parent_validator(field, schema):
 
     return validator
 
+
+@scheming_validator
+@register_validator
+def group_name_validator(field, schema):
+    
+    def validator(key, data,errors, context):
+        """Ensures that value can be used as a group's name
+        """
+
+        model = context['model']
+        session = context['session']
+        group = context.get('group')
+
+        query = session.query(model.Group.name).filter(
+            model.Group.name == data[key],
+            model.Group.state != model.State.DELETED
+        )
+        
+        if group:
+            group_id: Union[Optional[str], df.Missing] = group.id
+        else:
+            group_id = data.get(key[:-1] + ('id',))
+
+        if group_id and group_id is not missing:
+            query = query.filter(model.Group.id != group_id)
+
+        result = query.first()
+        if result:
+            add_error(errors, key, _('Collection name already exists in database.'))           
+
+    return validator
+
+
 def get_validators():
     return {
         "igsn_theme_required": igsn_theme_required,
@@ -537,5 +571,6 @@ def get_validators():
         "sample_number_validator" : sample_number_validator,
         "acquisition_date_validator" : acquisition_date_validator,
         "depth_validator" : depth_validator,
-        "parent_validator" : parent_validator
+        "parent_validator" : parent_validator,
+        "group_name_validator" : group_name_validator
     }
