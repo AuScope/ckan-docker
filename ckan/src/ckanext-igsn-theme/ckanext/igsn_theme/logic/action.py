@@ -11,9 +11,12 @@ from ckan.logic.auth import get_package_object
 import pandas as pd
 from ckan.common import  _
 from ckan.plugins.toolkit import h
+from ckan.logic import get_action, ValidationError
 from ckanext.igsn_theme.logic import (
     email_notifications
 )
+import ckan.authz as authz
+
 @tk.side_effect_free
 def igsn_theme_get_sum(context, data_dict):
     tk.check_access(
@@ -303,6 +306,24 @@ def delete_package_relationship(context, pkg_dict):
         logger.error(f"Failed to delete package relationship: {str(e)}")
 
 @tk.chained_action
+def organization_member_create(next_action, context, data_dict):
+    logger = logging.getLogger(__name__)
+    member = None
+    try:
+        logger.info("Adding member to collection: %s", data_dict)
+        member = next_action(context, data_dict)
+    except tk.ValidationError as e:
+        logger.error(f'Error during member addition: {e.error_dict}')
+        raise tk.ValidationError(e.error_dict)
+    except Exception as e:
+        logger.error(f'Unexpected error during member addition: {e}')
+        raise tk.ValidationError({'error': ['Unexpected error during member addition. Please contact support.']})
+    if member is not None:
+        email_notifications.organization_member_create_notify_email(context, data_dict)
+    return member
+
+
+@tk.chained_action
 def organization_create(next_action, context, data_dict):
     logger = logging.getLogger(__name__)
     collection = None
@@ -325,23 +346,45 @@ def organization_create(next_action, context, data_dict):
             h.flash_error(_('The collection has been created but there was an error sending the notification email. Please check the email configuration.'), 'error')
     return collection
 
+
+
 @tk.chained_action
-def organization_member_create(next_action, context, data_dict):
+def organization_delete(next_action, context, data_dict):
     logger = logging.getLogger(__name__)
-    member = None
+    collection = None
     try:
-        logger.info("Adding member to collection: %s", data_dict)
-        member = next_action(context, data_dict)
+        logger.info("Deleting collection: %s", pformat(data_dict))
+
+        org_id = tk.get_or_bust(data_dict, 'id')
+        organization = get_action('organization_show')({}, {'id': org_id})
+        logger.info(f'Collection deletion result: %s', pformat(organization))
+        if not organization:
+            raise tk.ObjectNotFound('Collection was not found.')
+        members=organization.get('users')
+        non_admin_users = []
+        for member in members:
+            if not member['sysadmin']:
+                non_admin_users.append(member)
+
+        if non_admin_users:
+            raise tk.ValidationError('The collection has members and cannot be deleted.')
+
+        next_action(context, data_dict)
     except tk.ValidationError as e:
-        logger.error(f'Error during member addition: {e.error_dict}')
+        logger.error(f'Error during collection deletion: {e.error_dict}')
         raise tk.ValidationError(e.error_dict)
     except Exception as e:
-        logger.error(f'Unexpected error during member addition: {e}')
-        raise tk.ValidationError({'error': ['Unexpected error during member addition. Please contact support.']})
-    if member is not None:
-        email_notifications.organization_member_create_notify_email(context, data_dict)
-    return member
+        logger.error(f'Unexpected error during collection deletion: {e}')
+        raise tk.ValidationError({'error': ['Unexpected error during collection deletion. Please contact support.']})
 
+    try:
+        email_notifications.organization_delete_notify_email(organization)
+        tk.h.flash_success(_('The collection has been deleted and the notification email has been sent successfully.'))
+    except Exception as e:
+        logger.error(f'Error during email sending: {e}')
+        tk.h.flash_error(_('The collection has been deleted but there was an error sending the notification email. Please check the email configuration.'), 'error')
+
+     
 def get_actions():
     return {
         'igsn_theme_get_sum': igsn_theme_get_sum,
@@ -353,7 +396,8 @@ def get_actions():
         'update_package_relationship' : update_package_relationship,
         'delete_package_relationship' : delete_package_relationship,
         'package_update' : package_update,
-        'organization_create' :organization_create,
-        'organization_member_create' :organization_member_create
+        'organization_member_create' :organization_member_create,
         # 'package_search': package_search,
+        'organization_create' :organization_create,
+        "organization_delete" : organization_delete,        
     }
