@@ -21,7 +21,7 @@ fields:
   - field_name: contact_email
     label: Contact Email 
     required: true
-    validators: ignore_missing unicode_safe strip_value email_validator
+    validators: not_empty unicode_safe strip_value email_validator
 
   - field_name: description
     label: Description
