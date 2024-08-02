@@ -247,6 +247,26 @@ def organization_create_notify_email(data_dict):
     """       
     mail_recipient(recipient_name, recipient_email, subject, body)
 
+def organization_delete_notify_email(organization):
+    collection_full_name = organization.get('title')
+    recipient_email = organization.get('contact_email')
+    recipient_name = organization.get('contact_name')
+    site_title = config.get('ckan.site_title')
+    site_url = config.get('ckan.site_url')
+
+    subject = f'Collection Deleted: {collection_full_name}'
+    body = f"""
+    Dear {recipient_name},
+
+    The collection '{collection_full_name}' has been successfully deleted.
+
+    Kind Regards,
+    AuScope Sample Repository
+    --
+    Message sent by {site_title} ({site_url})
+    """
+    mail_recipient(recipient_name, recipient_email, subject, body)
+
 def organization_member_create_notify_email(context, data_dict):
     """
     Notify the user and the collection contact when a new member is added to the collection.

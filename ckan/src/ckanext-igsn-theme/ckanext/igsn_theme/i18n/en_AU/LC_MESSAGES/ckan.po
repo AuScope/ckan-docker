@@ -2245,7 +2245,7 @@ msgid ""
 " performed while public or private datasets belong to this organization."
 msgstr ""
 "Are you sure you want to delete this Collection? Note*: Deleting cannot be"
-" performed while public or private samples belong to this organization."
+" performed while public or private samples belong to this collection."
 
 #: ckan/templates/organization/snippets/organization_form.html:43
 msgid "Save Organization"
