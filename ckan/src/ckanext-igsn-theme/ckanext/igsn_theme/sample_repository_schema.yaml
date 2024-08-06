@@ -40,7 +40,8 @@ dataset_fields:
   label: Parent Sample
   form_snippet: sample_parent_field.html
   display_snippet: sample_parent_field.html
-  help_text: Select the parent sample from existing samples.
+  validators: parent_validator
+  help_text: The source sample from which the sample is created or sub-sampled. Select the parent sample from existing samples.
   groupBy: About Sample
 
 - field_name: parent_sample
@@ -128,13 +129,15 @@ dataset_fields:
     - field_name: author_identifier
       label: Author Identifier
       display_snippet: URL
-      help_text: Uniquely identifies an individual or legal entity, according to identifier schemes
+      help_text: "Uniquely identifies an individual or legal entity, according to identifier schemes. Please specify the absolute URL, e.g. <code>https://orcid.org/0000-0003-0870-3192</code>"
+      help_allow_html: true
 
     - field_name: author_email
       label: Author Email
       required: true
       display_snippet: None
       display_email_name_field: author_name
+      validators: ignore_missing unicode_safe strip_value email_validator
       help_text: The email of the author
 
 - field_name: resource_type
@@ -148,36 +151,6 @@ dataset_fields:
   form_include_blank_choice: false      
   help_text: The type of the resource to be published; the default value for a physical sample is PhysicalObject
   groupBy: About Sample
-
-# XXX This conflicts with resource description, changed to notes to match original schema
-- field_name: notes
-  label: Description
-  required: true
-  preset: markdown
-  help_text: A summary describing the purpose, nature, and scope of the physical sample. Provide contextual information important to the use of the sample
-  groupBy: About Sample
-
-- field_name: user_keywords
-  label: User Specified Keywords
-  required: true
-  preset: tag_string_autocomplete
-  help_text: Keywords help with the discovery of the physical sample
-  groupBy: About Sample
-
-- field_name: gcmd_keywords_code
-  label: GCMD Science Keywords
-  form_snippet: gcmd_field.html
-  display_snippet: gcmd_field.html
-  help_text: Global Change Master Directory (GCMD) science keywords. Choose the keywords that represent the sample or its application.
-  groupBy: About Sample
-
-- field_name: gcmd_keywords
-  label: GCMD Science Keywords 
-  form_snippet: hidden_field.html
-  help_text: Global Change Master Directory (GCMD) science keywords. Choose the keywords that represent the sample or its application.
-  display_snippet: null
-  groupBy: About Sample
-
 
 - field_name: sample_type
   label: Sample Type
@@ -254,6 +227,35 @@ dataset_fields:
   form_include_blank_choice: true      
   groupBy: About Sample
 
+# XXX This conflicts with resource description, changed to notes to match original schema
+- field_name: notes
+  label: Description
+  required: true
+  preset: markdown
+  help_text: A summary describing the purpose, nature, and scope of the physical sample. Provide contextual information important to the use of the sample
+  groupBy: About Sample
+
+- field_name: user_keywords
+  label: User Specified Keywords
+  required: true
+  preset: tag_string_autocomplete
+  validators: not_empty tag_string_convert
+  help_text: Keywords help with the discovery of the physical sample
+  groupBy: About Sample
+
+- field_name: gcmd_keywords_code
+  label: GCMD Science Keywords
+  form_snippet: gcmd_field.html
+  display_snippet: gcmd_field.html
+  help_text: Global Change Master Directory (GCMD) science keywords. Choose the keywords that represent the sample or its application.
+  groupBy: About Sample
+
+- field_name: gcmd_keywords
+  label: GCMD Science Keywords 
+  form_snippet: hidden_field.html
+  help_text: Global Change Master Directory (GCMD) science keywords. Choose the keywords that represent the sample or its application.
+  display_snippet: null
+  groupBy: About Sample
 
 - field_name: fields_of_research_code
   label: Fields of Research Code
@@ -332,15 +334,36 @@ dataset_fields:
   display_snippet: null
   groupBy: Spatial & Temporal
 
-- field_name: depth_to
+- field_name: acquisition_start_date
+  label: Acquisition Start Date
+  preset: date
+  help_text: The start date of the sample collection. Specify the same start and end dates if the sample collected on the same day.
+  validators: acquisition_date_validator
+  groupBy: Spatial & Temporal 
+
+- field_name: acquisition_end_date
+  label: Acquisition End Date
+  preset: date
+  help_text: The end date of the sample collection. Specify the same start and end dates if the sample collected on the same day.
+  validators: acquisition_date_validator
+  groupBy: Spatial & Temporal
+
+- field_name: method
+  label: Method
+  help_text: Method used to collect or produce the sample
+  groupBy: Spatial & Temporal
+
+- field_name: depth_from
   label: Depth From (m)
   form_snippet: number_field.html  
+  validators: depth_validator
   help_text: Start of the depth in meters (m), e.g., if it is a drill core, start and end depths should be specified.
   groupBy: Spatial & Temporal 
 
-- field_name: depth_from
+- field_name: depth_to
   label: Depth To (m)
   form_snippet: number_field.html  
+  validators: depth_validator
   help_text: End of the depth or just depth in meters (m).
   groupBy: Spatial & Temporal
 
@@ -411,6 +434,7 @@ dataset_fields:
   label: Related Resource
   preset: composite_repeating
   form_snippet: composite_repeating_field.html
+  validators: composite_repeating_validator
   form_blanks: 0
   groupBy: Related Resources
   subfields:
@@ -571,25 +595,6 @@ dataset_fields:
           label: IsCollectedBy
       help_text: Description of the relationship from the physical sample being published to the related resource
 
-- field_name: method
-  label: Method
-  help_text: Method used to collect or produce the sample
-  groupBy: Supporting Metadata
-
-- field_name: acquisition_start_date
-  label: Acquisition Start Date
-  preset: date
-  help_text: The start date of the sample collection. Specify the same start and end dates if the sample collected on the same day.
-  validators: acquisition_date_validator
-  groupBy: Supporting Metadata  
-
-- field_name: acquisition_end_date
-  label: Acquisition End Date
-  preset: date
-  help_text: The end date of the sample collection. Specify the same start and end dates if the sample collected on the same day.
-  validators: acquisition_date_validator
-  groupBy: Supporting Metadata
-
 - field_name: commodities
   label: Commodities
   help_text: The type natural resources mined or extracted. You may add one or more commodities separated by comma, e.g. Au, Cu, Ni
@@ -627,6 +632,7 @@ dataset_fields:
   form_snippet: hidden_field.html
   display_snippet: null  
   help_text: The persistent identifier of the sample publisher
+  validators: ignore_missing unicode_safe strip_value url_validator
   groupBy: Supporting Metadata   
 
 - field_name: publisher_identifier_type
@@ -670,6 +676,7 @@ dataset_fields:
   label: Sample Repository Contact Name
   required: true
   form_snippet: sample_contact_name.html
+  display_snippet: null
   help_text: A primary contact can be approached by users requesting further information of the physical sample and its access
   groupBy: Supporting Metadata   
 
@@ -680,6 +687,7 @@ dataset_fields:
   form_snippet: sample_contact_email.html
   display_email_name_field: sample_repository_contact_name
   help_text: Email of the primary sample repository contact
+  validators: ignore_missing unicode_safe strip_value email_validator
   groupBy: Supporting Metadata   
 
 

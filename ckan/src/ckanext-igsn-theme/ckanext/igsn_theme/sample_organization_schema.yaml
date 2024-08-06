@@ -21,28 +21,24 @@ fields:
   - field_name: contact_email
     label: Contact Email 
     required: true
-
-  - field_name: related_dataset_title
-    label: Related Dataset Title
-    help_text: Enter the short title that represents the related dataset
-
-  - field_name: related_dataset_url
-    label: Related Dataset URL
-    display_snippet: URL
-    help_text: Associated dataset related to the collection
+    validators: not_empty unicode_safe strip_value email_validator
 
   - field_name: description
     label: Description
     preset: markdown
     required: true  
-
   - field_name: is_culturally_sensitive
-    label: Is culturally sensitive?
+    label: >
+      In Australia, 'Indigenous Data' refers to information or knowledge, in any format or medium, which is
+      about and may affect Indigenous peoples both collectively and individually [1].  
+      Does this collection relate to Indigenous people and impact Indigenous lives at the collective and/or individual level?
     required: true
-    default: non-sensitive
     preset: radio
     choices:
       - value: non-sensitive
         label: "No"
       - value: sensitive
         label: "Yes"
+      - value: unsure
+        label: "Unsure"
+    help_text: "[1] Maiam nayri Wingara. (2018) Indigenous Data Sovereignty Communique Indigenous Data Sovereignty Summit 20th June 2018, Canberra, ACT. https://static1.squarespace.com/static/5b3043afb40b9d20411f3512/t/63ed934fe861fa061ebb9202/1676514134724/Communique-Indigenous-Data-Sovereignty-Summit.pdf"
