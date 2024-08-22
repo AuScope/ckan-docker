@@ -135,26 +135,32 @@ def validate_acquisition_date(sample_df):
     errors = []
     
     for column in ['acquisition_start_date', 'acquisition_end_date']:
+        # Check for missing dates
+        missing_dates = sample_df[column].isna() | (sample_df[column] == '')
+        for index in missing_dates[missing_dates].index:
+            errors.append(f"Row {index}: '{column}' is missing")
+        
         # Check for non-empty cells that are not valid dates
         non_empty = sample_df[column].notna() & (sample_df[column] != '')
-        non_date = sample_df[non_empty & pd.to_datetime(sample_df[column], errors='coerce').isna()]
+        non_date = sample_df[non_empty & pd.to_datetime(sample_df[column], errors='coerce', format='%Y-%m-%d').isna()]
         
         for index, value in non_date[column].items():
             errors.append(f"Row {index}: '{column}' value '{value}' is not a valid date")
     
-    # Convert to datetime, coerce errors to NaT
-    sample_df['acquisition_start_date'] = pd.to_datetime(sample_df['acquisition_start_date'], errors='coerce')
-    sample_df['acquisition_end_date'] = pd.to_datetime(sample_df['acquisition_end_date'], errors='coerce')
+    # Convert to datetime, coerce errors to NaT, and format as 'YYYY-MM-DD'
+    for column in ['acquisition_start_date', 'acquisition_end_date']:
+        sample_df[column] = pd.to_datetime(sample_df[column], errors='coerce', format='%Y-%m-%d').dt.strftime('%Y-%m-%d')
     
     # Filter for rows where both dates are not null
     valid_df = sample_df.dropna(subset=['acquisition_start_date', 'acquisition_end_date'])
     
-    # Compare dates only for non-null pairs
-    invalid_mask = valid_df["acquisition_start_date"] >= valid_df["acquisition_end_date"]
+    # Compare dates
+    invalid_mask = pd.to_datetime(valid_df["acquisition_start_date"]) >= pd.to_datetime(valid_df["acquisition_end_date"])
     invalid_df = valid_df[invalid_mask]
     
     for index, row in invalid_df.iterrows():
         errors.append(f"Row {index}: acquisition_start_date {row['acquisition_start_date']} is not before acquisition_end_date {row['acquisition_end_date']}")
+    
     return errors
     
 def validate_parent_samples(df):
@@ -437,6 +443,7 @@ def validate_authors(authors_df):
     errors.extend(validate_affiliation_identifier(authors_df, valid_affiliation_identifier_types))
     errors.extend(validate_author_identifier(authors_df, valid_identifier_types))
     return errors
+
 
 def validate_samples(samples_df, related_resources_df, authors_df, funding_df):
     errors = []

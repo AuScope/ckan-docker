@@ -85,6 +85,11 @@ class BatchUploadView(MethodView):
             all_errors.extend(validate_related_resources(related_resources_df))
             all_errors.extend(validate_parent_samples(samples_df))
 
+            
+                
+            samples_data, errors = prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
+            all_errors.extend(errors)
+            
             if all_errors:
                 error_list = "\n".join(f"Error {i+1}. {error}. " for i, error in enumerate(all_errors))
                 # format the error list to be displayed in human readable format
@@ -92,9 +97,6 @@ class BatchUploadView(MethodView):
                 raise ValueError(f"""The following errors were found:
                     {formatted_errors}""")
                 
-            samples_data = prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
-            
-
             return_value = {
                 "samples": samples_data,
                 "authors": authors_df.to_dict("records"),
