@@ -1,7 +1,7 @@
 import ckan.plugins.toolkit as toolkit
+from ckan.plugins.toolkit import get_action
 import re
 import pandas as pd
-
 
 def validate_sample_depth(sample_df):
     errors = []
@@ -443,7 +443,52 @@ def validate_authors(authors_df):
     errors.extend(validate_affiliation_identifier(authors_df, valid_affiliation_identifier_types))
     errors.extend(validate_author_identifier(authors_df, valid_identifier_types))
     return errors
-
+def generate_sample_name(org_id, sample_type, sample_number):
+    org_name= get_organization_name(org_id)
+    org_name = org_name.replace(' ', '_')
+    sample_type = sample_type.replace(' ', '_')
+    sample_number = sample_number.replace(' ', '_')
+    
+    name = f"{org_name}-{sample_type}-Sample-{sample_number}"
+    name = re.sub(r'[^a-z0-9-_]', '', name.lower())
+    return name 
+def generate_sample_title(org_id, sample_type, sample_number):
+    org_name= get_organization_name(org_id)
+    org_name = org_name
+    sample_type = sample_type
+    sample_number = sample_number
+    title= f"{org_name} - {sample_type} Sample {sample_number}"
+    return title  
+def get_organization_name(organization_id):
+    try:
+        organization = get_action('organization_show')({}, {'id': organization_id})
+        organization_name = organization['name']
+        return organization_name
+    except:
+        return None
+def validate_sample_names(samples_df, org_id):
+    samples_data = []
+    existing_names = set()
+    errors = []
+    for _, row in samples_df.iterrows():
+        sample = row.to_dict()
+        sample["name"] = generate_sample_name(org_id, sample['sample_type'], sample['sample_number'])
+        # Check for uniqueness
+        if sample["name"] in existing_names:
+            errors.append(f"Duplicate sample name: {sample['name']}")
+        else:
+            existing_names.add(sample["name"])
+        samples_data.append(sample)
+        try:
+            package_list = toolkit.get_action('package_list')({}, {})
+            for package in package_list:
+                package_data = toolkit.get_action('package_show')({}, {'id': package})
+                existing_name = package_data.get('name')
+                if existing_name in existing_names:
+                    errors.append(f"Sample name {existing_name} already exists in CKAN")
+        except Exception as e:
+            errors.append(f"Error fetching CKAN data: {str(e)}")
+    return errors
 
 def validate_samples(samples_df, related_resources_df, authors_df, funding_df):
     errors = []

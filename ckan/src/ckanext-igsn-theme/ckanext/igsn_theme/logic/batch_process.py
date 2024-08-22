@@ -7,37 +7,10 @@ import pandas as pd
 import logging
 import json
 import re
-from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, is_numeric, is_cell_empty, is_url, validate_related_resources, validate_user_keywords, validate_authors, validate_samples
+from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, is_numeric, is_cell_empty, is_url, validate_related_resources, validate_user_keywords, validate_authors, validate_samples, generate_sample_name, generate_sample_title
 log = logging.getLogger(__name__)
 
 
-def generate_sample_name(org_id, sample_type, sample_number):
-        
-        org_name= get_organization_name(org_id)
-        org_name = org_name.replace(' ', '_')
-        sample_type = sample_type.replace(' ', '_')
-        sample_number = sample_number.replace(' ', '_')
-        
-        name = f"{org_name}-{sample_type}-Sample-{sample_number}"
-        name = re.sub(r'[^a-z0-9-_]', '', name.lower())
-        return name 
-
-def generate_sample_title(org_id, sample_type, sample_number):
-        
-        org_name= get_organization_name(org_id)
-        org_name = org_name
-        sample_type = sample_type
-        sample_number = sample_number
-        
-        title= f"{org_name} - {sample_type} Sample {sample_number}"
-        return title  
-def get_organization_name(organization_id):
-        try:
-            organization = get_action('organization_show')({}, {'id': organization_id})
-            organization_name = organization['name']
-            return organization_name
-        except:
-            return None
 def generate_location_geojson(coordinates_list):
         features = []
         for lat, lng in coordinates_list:
