@@ -37,8 +37,6 @@ def process_author_emails(sample, authors_df):
 
 def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id):
         samples_data = []
-        existing_names = set()
-        errors = []
         for _, row in samples_df.iterrows():
             sample = row.to_dict()
             sample["author"] = process_author_emails(sample, authors_df)
@@ -77,23 +75,8 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
             
             sample["name"] = generate_sample_name(org_id, sample['sample_type'], sample['sample_number'])
             sample["title"] = generate_sample_title(org_id, sample['sample_type'], sample['sample_number'])
-            # Check for uniqueness
-            if sample["name"] in existing_names:
-                errors.append(f"Duplicate sample name: {sample['name']}")
-            else:
-                existing_names.add(sample["name"])
-
             samples_data.append(sample)
-            try:
-                package_list = toolkit.get_action('package_list')({}, {})
-                for package in package_list:
-                    package_data = toolkit.get_action('package_show')({}, {'id': package})
-                    existing_name = package_data.get('name')
-                    if existing_name in existing_names:
-                        errors.append(f"Sample name {existing_name} already exists in CKAN")
-            except Exception as e:
-                errors.append(f"Error fetching CKAN data: {str(e)}")
-        return samples_data, errors
+        return samples_data
     
 def process_related_resources(sample, related_resources_df):
     related_resources_urls = sample.get("related_resources_urls")
