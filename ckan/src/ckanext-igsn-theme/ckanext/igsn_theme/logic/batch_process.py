@@ -52,6 +52,9 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
             sample['parent_sample'] = sample['parent_sample']
             sample['parent'] = ''
 
+            sample['acquisition_start_date'] = row['acquisition_start_date'].strftime('%Y-%m-%d') if pd.notnull(row['acquisition_start_date']) else None
+            sample['acquisition_end_date'] = row['acquisition_end_date'].strftime('%Y-%m-%d') if pd.notnull(row['acquisition_end_date']) else None
+
             org = toolkit.get_action('organization_show')({}, {'id': org_id})
             sample['owner_org'] = org_id
             sample['sample_repository_contact_name'] = org.get('contact_name', 'test')
