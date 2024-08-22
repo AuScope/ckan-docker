@@ -75,6 +75,7 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
             sample['notes'] = sample['description']
             sample['location_choice'] = 'noLocation'
             sample['parent_sample'] = sample['parent_sample']
+            sample['parent'] = ''
 
             org = toolkit.get_action('organization_show')({}, {'id': org_id})
             sample['owner_org'] = org_id
