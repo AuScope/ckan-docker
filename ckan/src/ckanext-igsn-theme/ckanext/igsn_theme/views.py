@@ -15,8 +15,8 @@ import json
 import pandas as pd
 from datetime import date
 import re
-from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, is_numeric, is_cell_empty, is_url, validate_related_resources, validate_user_keywords, validate_authors, validate_samples
-from ckanext.igsn_theme.logic.batch_process import generate_sample_name, generate_sample_title, get_organization_name, generate_location_geojson, process_author_emails, prepare_samples_data, process_related_resources, process_funding_info, get_epsg_name, set_parent_sample, find_parent_package, get_created_sample_id, read_excel_sheets
+from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, validate_related_resources, validate_authors, validate_samples, validate_sample_names
+from ckanext.igsn_theme.logic.batch_process import prepare_samples_data, set_parent_sample, read_excel_sheets
 from ckanext.igsn_theme.logic import (
     email_notifications
 )
@@ -84,12 +84,7 @@ class BatchUploadView(MethodView):
             all_errors.extend(validate_authors(authors_df))
             all_errors.extend(validate_related_resources(related_resources_df))
             all_errors.extend(validate_parent_samples(samples_df))
-
-            
-                
-            samples_data, errors = prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
-            all_errors.extend(errors)
-            
+            all_errors.extend(validate_sample_names(samples_df, org_id))
             if all_errors:
                 error_list = "\n".join(f"Error {i+1}. {error}. " for i, error in enumerate(all_errors))
                 # format the error list to be displayed in human readable format
@@ -97,6 +92,8 @@ class BatchUploadView(MethodView):
                 raise ValueError(f"""The following errors were found:
                     {formatted_errors}""")
                 
+            samples_data = prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
+            
             return_value = {
                 "samples": samples_data,
                 "authors": authors_df.to_dict("records"),
