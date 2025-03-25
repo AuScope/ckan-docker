@@ -13,6 +13,7 @@ igsn_theme-js:
     - js/datatable-module.js
     - js/jstree-view-module.js
     - js/parent-sample-selector-module.js
+    - js/facet-select-module.js
     - js/igsn_theme.js   
   extra:
     preload:

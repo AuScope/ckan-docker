@@ -13,6 +13,9 @@ Example:
 #}
 {% set url = h.url_for(organization.type ~ '.read', id=organization.name) %}
 {% set user_role = h.get_user_role_in_organization(organization.name) %}
+{% if user_role == 'editor' %}
+    {% set user_role = 'Curator' %}
+{% endif %}
 {% block item %}
 <tr class="clickable-row" data-href="{{ url }}">
   {% block item_inner %}
@@ -36,7 +39,7 @@ Example:
     {% if user_role %}
       {{ user_role | capitalize }}
     {% else %}
-      {% set params = {'org_id': organization.id, 'org_name': organization.name} %}
+      {% set params = {'org_id': organization.id} %}
       <a href="{{ h.url_for('igsn_theme.request_join_collection' , **params) }}" role="button" class="btn btn-link">{{ _('Join') }}</a>
     {% endif %}
   </td>

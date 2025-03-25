@@ -9,21 +9,35 @@
       <p>To register your samples with a new collection in the repository:</p>
       <ol>
         <li>Log in via (AAF)</li>
-        <li>Submit a <a href="{{ h.url_for('igsn_theme.request_new_collection') }}">request</a> to create a sample collection</li>
+        <li><a href="{{ h.url_for('igsn_theme.request_new_collection') }}" class="custom-link">Submit a request</a> to create a sample collection</li>
         <li>You will be notified via email after the collection is created</li>
-        <li>Select your <a href="{{ h.url_for('organization.index') }}">collection</a> and choose 
-          <span class="badge">Add Sample</span> / 
-          <span class="badge">Batch Upload Sample</span>
+        <li>Select your <a href="{{ h.url_for('organization.index') }}" class="custom-link">collection</a> and choose:
+          <ul>
+            <li><span class="badge">Add Sample</span>(register individual samples via the online form)</li>
+            <li>
+                <span class="badge">Start Batch Upload</span>
+                (register multiple samples by uploading a 
+                <a href="/base/files/auscope-sample-template-v3.xlsx" class="custom-link">spreadsheet</a>
+                )
+            </li>          
+          </ul>
         </li>
       </ol>
       
       <p>To register your samples with an existing collection in the repository:</p>
       <ol>
         <li>Log in via (AAF)</li>
-        <li>Select your <a href="{{ h.url_for('organization.index') }}">collection-of-interest</a></li>
+        <li>Select your <a href="{{ h.url_for('organization.index') }}" class="custom-link">collection-of-interest</a></li>
         <li>Click 
-          <span class="badge">Add Sample</span> / 
-          <span class="badge">Batch Upload Sample</span>
+          <ul>
+            <li><span class="badge">Add Sample</span>(register individual samples via the online form)</li>
+            <li>
+                <span class="badge">Start Batch Upload</span>
+                (register multiple samples by uploading a 
+                <a href="/base/files/auscope-sample-template-v3.xlsx" class="custom-link">spreadsheet</a>
+                )
+            </li>   
+          </ul>
         </li>
       </ol>
     {% endif %}
@@ -33,7 +47,6 @@
 <style>
   .badge {
     display: inline-block;
-    padding: 0.25em 0.4em;
     font-size: 75%;
     font-weight: 400;
     line-height: 1;
@@ -44,5 +57,15 @@
     background-color: var(--color-aus-royal-blue);
     margin-left: 5px;
     margin-right: 5px;
+  }
+  
+  .custom-link {
+    color: var(--color-aus-royal-blue);
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  .custom-link:hover {
+    text-decoration: underline;
   }
 </style>

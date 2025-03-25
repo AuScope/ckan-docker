@@ -9,12 +9,15 @@ this.ckan.module('jstree-view-module', function (jquery) {
             var id = this.el.attr('data-id');
             var title = this.el.attr('data-title');
 
+            var truncatedTitle = self.truncateText(title, 20);
+
             var data = [{
-                "text": title,
+                "text": truncatedTitle,
                 "id": id,
                 "state": {
                     "opened": true
-                }
+                },
+                "a_attr": { "title": title}
             }];
 
             $('#tree').jstree({
@@ -39,21 +42,26 @@ this.ckan.module('jstree-view-module', function (jquery) {
                     }
                 }
             }).on("select_node.jstree", function (e, data) {
-                if (data.node.children.length === 0) {
+                if (data.node.children.length === 0 && data.node.type !== "leaf") {
                     self.fetchChildren(data.node.id);
                 }
-            });
-            
-            $('#tree').on("dblclick", ".jstree-anchor", function (e) {
-                var href = $(this).attr('href');
-                if (href) {
-                    e.preventDefault();
-                    window.location.href = href;
+            }).on("click", ".jstree-anchor", function (e) {
+                e.preventDefault(); // Prevent default behavior
+
+                var node = $('#tree').jstree(true).get_node(this.id.replace('_anchor', ''));
+                console.log( node)
+                if (node && (node.children.length > 0 || node.type === "leaf")) {
+                    console.log("link");
+                    var href = $(this).attr("href");
+                    if (href) {
+                        window.location.href = href;  // Explicitly navigate to the link
+                    }
+                } else {
+                    e.preventDefault(); // Prevent navigation if the node is not clickable
                 }
             });
 
-        self.fetchChildren(id);
-
+            self.fetchChildren(id);
         },
 
         fetchChildren: function (packageId) {
@@ -84,6 +92,7 @@ this.ckan.module('jstree-view-module', function (jquery) {
         createChildProcessor: function (packageId) {
             var childrenCount;
             var checkedChildren = [];
+            var self = this;
 
             function verifyChild(child) {
                 $.ajax({
@@ -107,6 +116,8 @@ this.ckan.module('jstree-view-module', function (jquery) {
                 if (--childrenCount === 0) {
                     if (checkedChildren.length > 0) {
                         checkedChildren.forEach(function (validChild) {
+                            validChild.a_attr = Object.assign({}, validChild.a_attr, { "title": validChild.text, "href": "/dataset/" + validChild.id.toLowerCase(), "class": "clickable-node" });
+                            validChild.text = self.truncateText(validChild.text, 20);
                             $('#tree').jstree(true).create_node(packageId, validChild, "last");
                             $('#tree').jstree(true).open_node(packageId);
                         });
@@ -124,12 +135,20 @@ this.ckan.module('jstree-view-module', function (jquery) {
                         verifyChild({
                             "text": childData.object,
                             "id": childData.object,
-                            "a_attr": { href: "/dataset/" + childData.object.toLowerCase(), target: "_blank" }
+                            "a_attr": { href: "/dataset/" + childData.object.toLowerCase(), "class": "clickable-node" }
                         });
                     });
                 }
             };
+        },
+
+        truncateText: function (text, maxLength) {
+            if (text.length <= maxLength) {
+                return text;
+            }
+            var startText = text.slice(0, Math.ceil(maxLength / 2));
+            var endText = text.slice(-Math.floor(maxLength / 2));
+            return startText + '...' + endText;
         }
     }
-
 });

@@ -48,6 +48,7 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.ITemplateHelpers)
     plugins.implements(plugins.IValidators)
     plugins.implements(plugins.ITranslation)
+    plugins.implements(plugins.IFacets, inherit=True)
 
     # ITranslation
     def i18n_domain(self):
@@ -91,6 +92,9 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     def after_dataset_delete(self, context, pkg_dict):
         return action.delete_package_relationship(context, pkg_dict)
 
+    def after_dataset_show(self, *args, **kwargs):
+        return schema.after_dataset_show(*args, **kwargs)
+    
     def before_dataset_search(self, *args, **kwargs):
         return schema.before_dataset_search(*args, **kwargs)
     
@@ -124,3 +128,13 @@ class IgsnThemePlugin(plugins.SingletonPlugin):
     def get_validators(self):
         return validators.get_validators()
 
+
+    def dataset_facets(self, facets_dict, package_type):
+        facets_dict['sample_type'] = toolkit._('Sample Type')
+        facets_dict['locality'] = toolkit._('Locality')
+        return facets_dict
+    
+    def organization_facets(self, facets_dict, organization_type, package_type):
+        facets_dict['sample_type'] = toolkit._('Sample Type')
+        facets_dict['locality'] = toolkit._('Locality')
+        return facets_dict

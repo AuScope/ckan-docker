@@ -263,7 +263,7 @@ dataset_fields:
 
 - field_name: epsg_code
   label: Geographic Coordinate System
-  help_text: The measurement of height above mean sea level in meters
+  help_text: "A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and longitude."
   form_snippet: null
   display_snippet: null
   groupBy: Spatial & Temporal
@@ -271,7 +271,7 @@ dataset_fields:
 - field_name: epsg
   label: Geographic Coordinate System
   form_snippet: hidden_field.html
-  help_text: The measurement of height above mean sea level in meters
+  help_text: "A geographic coordinate system is a three-dimensional reference system that locates points on the Earth's surface. The unit of measure is usually decimal degrees. A point has two coordinate values: latitude and longitude."
   display_snippet: null
   groupBy: Spatial & Temporal
 

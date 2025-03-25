@@ -19,18 +19,28 @@ ckan.module('datatable-module', function ($, _) {
             var authorsData = preview_data.authors;
             var resourcesData = preview_data.related_resources;
             var samplesData = preview_data.samples;
-            sampleExcludedColumns = ["owner_org", "notes", "location_data", "location_choice", "related_resources_urls", "author_emails"];
-            sampleJsonColumns = ['author', 'related_resource'];
-            sampleJsonColumnsTitle = ['author_name', 'related_resource_title'];
+            var fundersData = preview_data.funders;
+
+            sampleExcludedColumns = ["owner_org", "notes", "location_data", "location_choice", "related_resources_urls", "author_emails", "private", "type","sample_repository_contact_email"];
+            sampleJsonColumns = ['author', 'related_resource', 'funder'];
+            sampleJsonColumnsTitle = ['author_name', 'related_resource_title', 'funder_name'];
+            var sampleColumnOrder = [
+               'status', 'log' , 'sample_number', 'description', 'user_keywords', 'sample_type', 'parent_sample', 'method',
+                'acquisition_start_date', 'acquisition_end_date', 'depth_from', 'depth_to', 
+                'supplementation_information', 'credit', 'commodities', 'locality', 'point_latitude', 
+                'point_longitude', 'elevation', 'epsg_code', 'sample_repository_contact_name', 
+                 , 'author_emails', 'related_resources_urls', 'project_ids'
+            ];
             this.setupDataTable('#authorsTable', authorsData);
+            this.setupDataTable('#fundersTable', fundersData);
             this.setupDataTable('#resourcesTable', resourcesData);
-            this.setupDataTable('#samplesTable', samplesData, true, sampleExcludedColumns, sampleJsonColumns, sampleJsonColumnsTitle);
+            this.setupDataTable('#samplesTable', samplesData, true, sampleExcludedColumns, sampleJsonColumns, sampleJsonColumnsTitle,sampleColumnOrder);
             $('.collapsible-header').click(function () {
                 $(this).next('.collapsible-content').slideToggle();
             });
         },
 
-        setupDataTable: function (selector, data, addStyle = false, excludedColumns = [], jsonColumns = [], jsonColumnsTitle = []) {
+        setupDataTable: function (selector, data, addStyle = false, excludedColumns = [], jsonColumns = [], jsonColumnsTitle = [], columnOrder = []) {
             var self = this;
             if (data && data.length > 0) {
                 var columns = Object.keys(data[0]).filter(function (key) {
@@ -39,6 +49,16 @@ ckan.module('datatable-module', function ($, _) {
                     return { title: key.charAt(0).toUpperCase() + key.slice(1), data: key };
                 });
 
+                if (columnOrder.length > 0) {
+                    columns = columnOrder.map(function (key) {
+                        return columns.find(function (col) {
+                            return col.data === key;
+                        });
+                    }).filter(function (col) {
+                        return col !== undefined;
+                    });
+                }
+                
                 var columnDefs = columns.map(function (column, index) {
                     if (jsonColumns.includes(column.data)) {
                         var jsonColumnIndex = jsonColumns.indexOf(column.data);
