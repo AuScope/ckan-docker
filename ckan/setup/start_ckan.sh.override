@@ -45,8 +45,6 @@ else
     export CKAN___SCHEMING__DATASET_SCHEMAS="ckanext.auscope_theme:data_repository_schema.yaml"
 fi
 
-pip install future
-
 # Compiling translations for the custom extension
 if echo "$CKAN__PLUGINS" | grep -q "igsn_theme"; then
     echo "Compiling translations for custom CKAN extensions..."
