@@ -89,7 +89,7 @@ class BatchUploadView(MethodView):
                 error_list = "\n".join(f"Error {i+1}. {error}. " for i, error in enumerate(all_errors))
                 # format the error list to be displayed in human readable format
                 formatted_errors = f"<pre style='white-space: pre-wrap;'>{error_list}</pre>"
-                raise ValueError(f"""The following errors were found:
+                raise ValueError(f"""<pre>The following errors were found. Note The row number starts from 0.</pre> :
                     {formatted_errors}""")
                 
             samples_data = prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
@@ -104,7 +104,7 @@ class BatchUploadView(MethodView):
             return return_value
 
         except Exception as e:
-            raise ValueError(f"Failed to read Excel file: {str(e)}")
+            raise ValueError(f"{str(e)}")
         
     def get(self):
         """

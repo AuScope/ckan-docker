@@ -45,7 +45,7 @@ def organization_list_for_user(next_action, context, data_dict):
 @tk.chained_action
 def package_create(next_action, context, data_dict):
     logger = logging.getLogger(__name__)
-    logger.info("package_create before data_dict: %s", pformat(data_dict))
+    # logger.info("package_create before data_dict: %s", pformat(data_dict))
     
     package_type = data_dict.get('type')
     package_plugin = lib_plugins.lookup_package_plugin(package_type)
@@ -86,7 +86,7 @@ def package_create(next_action, context, data_dict):
         data_dict['acquisition_end_date'] = acquisition_end_date
 
 
-    logger.info("package_create after data_dict: %s", pformat(data_dict))
+    # logger.info("package_create after data_dict: %s", pformat(data_dict))
 
     return next_action(context, data_dict)
 
@@ -310,7 +310,7 @@ def organization_member_create(next_action, context, data_dict):
     logger = logging.getLogger(__name__)
     member = None
     try:
-        logger.info("Adding member to collection: %s", data_dict)
+        # logger.info("Adding member to collection: %s", data_dict)
         member = next_action(context, data_dict)
     except tk.ValidationError as e:
         logger.error(f'Error during member addition: {e.error_dict}')
@@ -328,7 +328,7 @@ def organization_create(next_action, context, data_dict):
     logger = logging.getLogger(__name__)
     collection = None
     try:
-        logger.info("Creating organization: %s", pformat(data_dict))
+        # logger.info("Creating organization: %s", pformat(data_dict))
         collection = next_action(context, data_dict)
     except tk.ValidationError as e:
         logger.error(f'Error during collection creation: {e.error_dict}')
@@ -353,11 +353,11 @@ def organization_delete(next_action, context, data_dict):
     logger = logging.getLogger(__name__)
     collection = None
     try:
-        logger.info("Deleting collection: %s", pformat(data_dict))
+        # logger.info("Deleting collection: %s", pformat(data_dict))
 
         org_id = tk.get_or_bust(data_dict, 'id')
         organization = get_action('organization_show')({}, {'id': org_id})
-        logger.info(f'Collection deletion result: %s', pformat(organization))
+        # logger.info(f'Collection deletion result: %s', pformat(organization))
         if not organization:
             raise tk.ObjectNotFound('Collection was not found.')
         members=organization.get('users')

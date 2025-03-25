@@ -136,29 +136,29 @@ def set_parent_sample(context):
         created_samples = session.get('created_samples', [])
         log = logging.getLogger(__name__)
         for sample in samples:
-            log.info(f"set_parent_sample sample : {sample}")
+            # log.info(f"set_parent_sample sample : {sample}")
 
             parent_sample = sample.get('parent_sample')
             if not parent_sample:
                 continue
 
-            log.info(f"set_parent_sample parent_sample : {parent_sample}")
+            # log.info(f"set_parent_sample parent_sample : {parent_sample}")
 
             # Attempt to find the parent sample by DOI or sample number
             parent_package = find_parent_package(parent_sample, context, samples, created_samples)
             if not parent_package:
                 continue
 
-            log.info(f"parent_package : {parent_package}")
+            # log.info(f"parent_package : {parent_package}")
 
             # Update the sample with the parent sample ID
             sample_id = get_created_sample_id(sample)
-            log.info(f"sample_id : {sample_id}")
+            # log.info(f"sample_id : {sample_id}")
 
             if 'id' not in parent_package:
                 parent_package['id'] = get_created_sample_id(parent_package)
 
-            log.info(f"parent_package['id'] : {parent_package['id']}")
+            # log.info(f"parent_package['id'] : {parent_package['id']}")
 
             if sample_id and 'id' in parent_package:
                 try:
