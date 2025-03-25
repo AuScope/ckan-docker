@@ -45,6 +45,8 @@ do
     fi
 done
 
+pip install future
+
 # Set debug to true
 echo "Enabling debug mode"
 ckan config-tool $CKAN_INI -s DEFAULT "debug = true"
