@@ -50,6 +50,8 @@ RUN pip install -e "git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-
 COPY spatial-reqs.txt /tmp/spatial-reqs.txt
 RUN pip install -r /tmp/spatial-reqs.txt
 
+RUN pip install future
+
 ### DOI extension ###
 RUN pip install -e "git+https://github.com/AuScope/ckanext-doi.git@auscope_customise#egg=ckanext-doi"
 
