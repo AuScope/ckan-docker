@@ -155,8 +155,13 @@ ckan config-tool $CKAN_INI "ckanext.spatial.search_backend=$CKANEXT__SPATIAL__SE
 echo "python3 prerun"
 python3 prerun.py
 
-echo "Set up ckan.datapusher.api_token in the CKAN config file"
-ckan config-tool $CKAN_INI "ckan.datapusher.api_token=$(ckan -c $CKAN_INI user token add ckan_admin datapusher | tail -n 1 | tr -d '\t')"
+# Only set datapusher token if provided
+if [ -n "${DATAPUSHER_API_TOKEN:-}" ]; then
+  ckan config-tool "$CKAN_INI" "ckan.datapusher.api_token=$DATAPUSHER_API_TOKEN"
+  echo "Configured ckan.datapusher.api_token from env var"
+else
+  echo "No DATAPUSHER_API_TOKEN provided; datapusher uploads will be unavailable until set"
+fi
 
 # Run any startup scripts provided by images extending this one
 echo "Starting entrypoint scripts"
