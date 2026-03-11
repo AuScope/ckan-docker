@@ -405,11 +405,11 @@ def validate_author_identifier(authors_df, valid_identifier_types):
 def validate_sample_type(sample_df):
     errors = []
     sample_types = [
-        "AC Chips", "Core", "Core - Friable", "Core Catcher", "Core Half Round",
+        "Chips", "Chips - AC", "Chips - RC", "Core", "Core - Friable", "Core Catcher", "Core Half Round",
         "Core Piece", "Core Quarter Round", "Core Section", "Core Section Half",
-        "Core Slab", "Core Sub-Piece", "Core U-Channel", "Experimental", "Full Core",
+        "Core Slab", "Core Sub-Piece", "Core U-Channel", "Cuttings", "Experimental", "Full Core",
         "Grab", "Heavy Mineral Concentrate", "Individual Sample", "Litter", "Other",
-        "Phyllos", "RC Chips", "Rock Powder", "Soil Profile", "Soil", "Surface Soil",
+        "Phyllos", "QA -QC", "Rock Powder", "Soil Profile", "Soil", "Surface Soil",
         "Termite Mound", "Vegetation", "Water", "Pisolite", "Hardpan soil",
         "Thin Section", "Polished Block", "Polished Round"
     ]

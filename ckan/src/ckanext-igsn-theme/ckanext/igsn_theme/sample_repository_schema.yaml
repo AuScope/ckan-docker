@@ -157,8 +157,12 @@ dataset_fields:
   required: true
   preset: select
   choices:
-    - value: AC Chips
-      label: AC Chips
+    - value: Chips
+      label: Chips
+    - value: Chips - AC
+      label: Chips - AC
+    - value: Chips - RC
+      label: Chips - RC
     - value: Core
       label: Core
     - value: Core - Friable
@@ -181,12 +185,16 @@ dataset_fields:
       label: Core Sub-Piece
     - value: Core U-Channel
       label: Core U-Channel
+    - value: Cuttings
+      label: Cuttings
     - value: Experimental
       label: Experimental
     - value: Full Core
       label: Full Core
     - value: Grab
       label: Grab
+    - value: Hardpan soil
+      label: Hardpan soil
     - value: Heavy Mineral Concentrate
       label: Heavy Mineral Concentrate
     - value: Individual Sample
@@ -197,8 +205,14 @@ dataset_fields:
       label: Other
     - value: Phyllos
       label: Phyllos
-    - value: RC Chips
-      label: RC Chips
+    - value: Pisolite
+      label: Pisolite
+    - value: Polished Block
+      label: Polished Block
+    - value: Polished Round
+      label: Polished Round
+    - value: QA-QC
+      label: QA-QC
     - value: Rock Powder
       label: Rock Powder
     - value: Soil Profile
@@ -209,20 +223,12 @@ dataset_fields:
       label: Surface Soil
     - value: Termite Mound
       label: Termite Mound
+    - value: Thin Section
+      label: Thin Section
     - value: Vegetation
       label: Vegetation
     - value: Water
       label: Water
-    - value: Pisolite
-      label: Pisolite
-    - value: Hardpan soil
-      label: Hardpan soil
-    - value: Thin Section
-      label: Thin Section
-    - value: Polished Block
-      label: Polished Block
-    - value: Polished Round
-      label: Polished Round
   help_text: A vocabulary for describing the type of a physical sample.
   form_include_blank_choice: true      
   groupBy: About Sample
