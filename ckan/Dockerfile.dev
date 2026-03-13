@@ -83,6 +83,14 @@ RUN pip install -e "git+https://github.com/AuScope/ckanext-dcat.git@auscope_cust
 
 COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 COPY setup/start_ckan_development.sh.override ${APP_DIR}/start_ckan_development.sh
+
+# Convert CRLF (Windows) → LF (Linux) in case code was checked out on Windows, then make it executable
+RUN set -eux; \
+    for f in ${APP_DIR}/start_ckan*.sh ${APP_DIR}/prerun.py ${APP_DIR}/create_auscope_org.sql; do \
+      [ -f "$f" ] && sed -i "s/\r$//" "$f"; \
+    done; \
+    chmod +x ${APP_DIR}/start_ckan*.sh
+
 COPY setup/create_auscope_org.sql ${APP_DIR}/create_auscope_org.sql
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
