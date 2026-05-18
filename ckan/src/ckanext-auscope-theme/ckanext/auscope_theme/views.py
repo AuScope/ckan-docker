@@ -1,5 +1,6 @@
-from flask import Blueprint, request, Response, render_template
+from flask import Blueprint, redirect, request, Response, render_template
 import requests
+from ckan.plugins import toolkit
 
 
 auscope_theme = Blueprint(
@@ -55,5 +56,17 @@ def declaration():
 def citation_guide():
     return render_template('citation-guide/citation-guide.html')
 
+def make_tools_blueprint():
+    bp = Blueprint('auscope_tools', __name__)
+
+    @bp.route('/tools')
+    def external():
+        url = toolkit.config.get('auscope.tools_url', 'https://avre.auscope.org.au')
+        return redirect(url, code=301)
+
+    return bp
+
 def get_blueprints():
-    return [auscope_theme]
+    blueprints = [auscope_theme]
+    blueprints.append(make_tools_blueprint())
+    return blueprints
