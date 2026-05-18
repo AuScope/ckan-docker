@@ -11,6 +11,7 @@ auscope_theme-js:
     - /shared/public/base/js/gcmd-fields-handler-module.js
 
     - js/auscope_theme.js
+    - js/header-tools.js
   extra:
     preload:
       - vendor/jquery  
