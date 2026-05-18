@@ -1,6 +1,7 @@
-from flask import Blueprint, request, Response, render_template, redirect, url_for, session , jsonify
+from flask import Blueprint, redirect, request, Response, render_template, redirect, url_for, session, jsonify
 from flask.views import MethodView
 import requests
+from ckan.plugins import toolkit
 import os
 from werkzeug.utils import secure_filename
 from ckan.plugins.toolkit import get_action, h
@@ -423,6 +424,18 @@ def fetch_gcmd():
         return Response(response.content, content_type=response.headers['Content-Type'], status=response.status_code)
     else:
         return {"error": "Failed to fetch gcmd"}, 502
+
+def make_tools_blueprint():
+    bp = Blueprint('auscope_tools', __name__)
+
+    @bp.route('/tools')
+    def external():
+        url = toolkit.config.get('auscope.tools_url', 'https://avre.auscope.org.au')
+        return redirect(url, code=301)
+
+    return bp
     
 def get_blueprints():
-    return [igsn_theme]
+    blueprints = [igsn_theme]
+    blueprints.append(make_tools_blueprint())
+    return blueprints
