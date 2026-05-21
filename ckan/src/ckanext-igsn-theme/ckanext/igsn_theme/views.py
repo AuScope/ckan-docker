@@ -226,7 +226,9 @@ class BatchUploadView(MethodView):
             h.flash_error(_('Validation error: ') + str(e), 'error')
             return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
         except Exception as e:
-            h.flash_error(_('Unexpected error: ') + str(e), 'error')
+            import traceback
+            log.error('Unexpected error uploading batch sample: ' + traceback.format_exc())
+            h.flash_error(_('Unexpected error, see container log for more detail: ') + str(e), 'error')
             return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
 
         return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
