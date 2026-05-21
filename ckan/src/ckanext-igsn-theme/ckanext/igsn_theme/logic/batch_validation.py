@@ -555,7 +555,7 @@ def validate_sample_type(sample_df: pd.DataFrame) -> list[str]:
         "Core Piece", "Core Quarter Round", "Core Section", "Core Section Half",
         "Core Slab", "Core Sub-Piece", "Core U-Channel", "Cuttings", "Experimental", "Full Core",
         "Grab", "Heavy Mineral Concentrate", "Individual Sample", "Litter", "Other",
-        "Phyllos", "QA -QC", "Rock Powder", "Soil Profile", "Soil", "Surface Soil",
+        "Phyllos", "QA-QC", "Rock Powder", "Soil Profile", "Soil", "Surface Soil",
         "Termite Mound", "Vegetation", "Water", "Pisolite", "Hardpan soil",
         "Thin Section", "Polished Block", "Polished Round"
     ]
