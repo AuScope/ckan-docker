@@ -393,6 +393,7 @@ def is_cell_empty(cell: object) -> bool:
     :returns: True if the value is null or an empty string, otherwise False.
     """
     return pd.isna(cell) or (isinstance(cell, str) and cell.strip() == '')
+
 def is_numeric(value: object) -> bool:
     """
     Determine whether a value can be converted to a float.
@@ -538,6 +539,7 @@ def validate_author_identifier(authors_df: pd.DataFrame, valid_identifier_types:
             errors.append(f"Invalid author identifier URLs found in the following: rows [{', '.join(map(str, invalid_url_rows))}]")
     
     return errors
+
 def validate_sample_type(sample_df: pd.DataFrame) -> list[str]:
     """
     Validate sample type values.
@@ -587,6 +589,7 @@ def validate_user_keywords(user_keywords: str) -> str:
         # Remove any characters that are not allowed
         sanitized_keywords = re.sub(r'[^\w\s.-]', ' ', user_keywords)
         return sanitized_keywords   
+
 def validate_authors(authors_df: pd.DataFrame) -> list[str]:
     """
     Run author sheet validations.
@@ -605,6 +608,7 @@ def validate_authors(authors_df: pd.DataFrame) -> list[str]:
     errors.extend(validate_affiliation_identifier(authors_df, valid_affiliation_identifier_types))
     errors.extend(validate_author_identifier(authors_df, valid_identifier_types))
     return errors
+
 def generate_sample_name(org_id: str, sample_type: str, sample_number: str) -> str:
     """
     Generate a CKAN-compatible sample name.
@@ -625,6 +629,7 @@ def generate_sample_name(org_id: str, sample_type: str, sample_number: str) -> s
     name = f"{org_name}-{sample_type}-Sample-{sample_number}"
     name = re.sub(r'[^a-z0-9-_]', '', name.lower())
     return name 
+
 def generate_sample_title(org_id: str, sample_type: str, sample_number: str) -> str:
     """
     Generate a human-readable sample title.
@@ -640,6 +645,7 @@ def generate_sample_title(org_id: str, sample_type: str, sample_number: str) -> 
     sample_number = sample_number
     title= f"{org_name} - {sample_type} Sample {sample_number}"
     return title  
+
 def get_organization_name(organization_id: str) -> str | None:
     """
     Fetch an organization name from CKAN.
@@ -653,6 +659,7 @@ def get_organization_name(organization_id: str) -> str | None:
         return organization_name
     except:
         return None
+
 def validate_sample_names(samples_df: pd.DataFrame, org_id: str) -> list[str]:
     """
     Validate generated sample names for uniqueness.
@@ -669,7 +676,7 @@ def validate_sample_names(samples_df: pd.DataFrame, org_id: str) -> list[str]:
     errors = []
     for _, row in samples_df.iterrows():
         sample = row.to_dict()
-        sample["name"] = generate_sample_name(org_id, sample['sample_type'], sample['sample_number'])
+        sample["name"] = generate_sample_name(org_id, sample['sample_type'], str(sample['sample_number']))
         # Check for uniqueness
         if sample["name"] in existing_names:
             errors.append(f"Duplicate sample name: {sample['name']}")
