@@ -73,8 +73,8 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
             }
             sample.update(defaults)
             
-            sample["name"] = generate_sample_name(org_id, sample['sample_type'], sample['sample_number'])
-            sample["title"] = generate_sample_title(org_id, sample['sample_type'], sample['sample_number'])
+            sample["name"] = generate_sample_name(org_id, sample['sample_type'], str(sample['sample_number']))
+            sample["title"] = generate_sample_title(org_id, sample['sample_type'], str(sample['sample_number']))
             samples_data.append(sample)
         return samples_data
     
