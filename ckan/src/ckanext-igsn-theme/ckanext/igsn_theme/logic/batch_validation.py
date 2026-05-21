@@ -190,13 +190,10 @@ def validate_acquisition_date(sample_df: pd.DataFrame) -> list[str]:
     :returns: A list of validation error messages.
     """
     errors = []
-    
+
+    # Since 'acquisition_start_date', 'acquisition_end_date' are OPTIONAL
+    # we tolerate empty/missing values
     for column in ['acquisition_start_date', 'acquisition_end_date']:
-        # Check for missing dates
-        missing_dates = sample_df[column].isna() | (sample_df[column] == '')
-        for index in missing_dates[missing_dates].index:
-            errors.append(f"Row {index}: '{column}' is missing")
-        
         # Check for non-empty cells that are not valid dates
         non_empty = sample_df[column].notna() & (sample_df[column] != '')
         non_date = sample_df[non_empty & pd.to_datetime(sample_df[column], errors='coerce', format='%Y-%m-%d').isna()]
