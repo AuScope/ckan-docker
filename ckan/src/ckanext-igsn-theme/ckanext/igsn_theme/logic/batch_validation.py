@@ -3,7 +3,16 @@ from ckan.plugins.toolkit import get_action
 import re
 import pandas as pd
 
-def validate_sample_depth(sample_df):
+def validate_sample_depth(sample_df: pd.DataFrame) -> list[str]:
+    """
+    Validate sample depth values.
+
+    Checks that ``depth_from`` and ``depth_to`` are valid numeric values when
+    provided, and ensures that ``depth_from`` is less than ``depth_to``.
+
+    :param sample_df: DataFrame containing sample depth columns.
+    :returns: A list of validation error messages.
+    """
     errors = []
 
     filtered_df = sample_df.dropna(subset=["depth_from", "depth_to"])
@@ -29,7 +38,16 @@ def validate_sample_depth(sample_df):
         errors.append(f"Row {index}: Depth from {row['depth_from']} to {row['depth_to']} is invalid")
     return errors
 
-def validate_elevation(sample_df):
+def validate_elevation(sample_df: pd.DataFrame) -> list[str]:
+    """
+    Validate elevation values.
+
+    Ensures that non-empty values in the ``elevation`` column can be parsed as
+    numbers.
+
+    :param sample_df: DataFrame containing an ``elevation`` column.
+    :returns: A list of validation error messages.
+    """
     errors = []
     # Filter out empty cells
     non_empty_elevations = sample_df["elevation"].dropna().replace('', pd.NA).dropna()
@@ -45,7 +63,17 @@ def validate_elevation(sample_df):
     return errors
     
 
-def validate_match_related_resource_url(sample_df, resource_df):
+def validate_match_related_resource_url(sample_df: pd.DataFrame, resource_df: pd.DataFrame) -> list[str]:
+    """
+    Validate that related resource URLs match between sample and resource sheets.
+
+    Extracts URLs from the sample sheet and compares them with URLs from the
+    related resource sheet.
+
+    :param sample_df: DataFrame containing ``related_resources_urls``.
+    :param resource_df: DataFrame containing ``related_resource_url``.
+    :returns: A list of validation error messages.
+    """
     errors = []
     
     # Extract unique URLs from sample_df
@@ -70,7 +98,17 @@ def validate_match_related_resource_url(sample_df, resource_df):
     
     return errors
     
-def validate_match_user_email(sample_df, author_df):
+def validate_match_user_email(sample_df: pd.DataFrame, author_df: pd.DataFrame) -> list[str]:
+    """
+    Validate that author emails match between sample and author sheets.
+
+    Email comparison is case-insensitive and supports semicolon-delimited email
+    values in the sample sheet.
+
+    :param sample_df: DataFrame containing ``author_emails``.
+    :param author_df: DataFrame containing ``author_email``.
+    :returns: A list of validation error messages.
+    """
     errors = []
     sample_emails = set()
     for cell in sample_df['author_emails']:
@@ -99,7 +137,17 @@ def validate_match_user_email(sample_df, author_df):
     
     return errors
 
-def validate_match_project_identifier(sample_df, project_df):
+def validate_match_project_identifier(sample_df: pd.DataFrame, project_df: pd.DataFrame) -> list[str]:
+    """
+    Validate that project identifiers match between sample and project sheets.
+
+    Compares project IDs in the sample sheet with project identifiers in the
+    project sheet.
+
+    :param sample_df: DataFrame containing ``project_ids``.
+    :param project_df: DataFrame containing ``project_identifier``.
+    :returns: A list of validation error messages.
+    """
     errors = []
     
     # Extract unique project IDs from sample_df
@@ -131,7 +179,16 @@ def validate_match_project_identifier(sample_df, project_df):
     
     return errors
 
-def validate_acquisition_date(sample_df):
+def validate_acquisition_date(sample_df: pd.DataFrame) -> list[str]:
+    """
+    Validate acquisition start and end dates.
+
+    Checks for missing values, invalid date formats, and ensures the start date
+    is earlier than the end date.
+
+    :param sample_df: DataFrame containing acquisition date columns.
+    :returns: A list of validation error messages.
+    """
     errors = []
     
     for column in ['acquisition_start_date', 'acquisition_end_date']:
@@ -163,7 +220,17 @@ def validate_acquisition_date(sample_df):
     
     return errors
     
-def validate_parent_samples(df):
+def validate_parent_samples(df: pd.DataFrame) -> list[str]:
+    """
+    Validate parent sample references and parent-child date relationships.
+
+    Checks for self-references, missing parent samples, and acquisition start
+    dates that occur before the parent's acquisition start date.
+
+    :param df: DataFrame containing sample and parent sample data.
+    :returns: A list of validation error messages.
+    :raises ValueError: If CKAN package data cannot be fetched.
+    """
     errors = []
     
     # Convert date columns to datetime
@@ -188,7 +255,13 @@ def validate_parent_samples(df):
         errors.append(f"Error fetching CKAN data: {str(e)}")
         raise ValueError("\n".join(errors))
 
-    def validate_sample(row):
+    def validate_sample(row: pd.Series) -> bool:
+        """
+        Validate a single sample row against parent sample rules.
+
+        :param row: A row from the sample dataframe.
+        :returns: True if the parent relationship is valid, otherwise False.
+        """
         if pd.isnull(row['parent_sample']) or row['parent_sample'] == '':
             return True
 
@@ -227,7 +300,16 @@ def validate_parent_samples(df):
 
     return errors
 
-def check_required_fields(df, columns_to_check):
+def check_required_fields(df: pd.DataFrame, columns_to_check: list[str]) -> list[str]:
+    """
+    Check required dataframe columns for missing values.
+
+    A value is considered missing if it is null or an empty string.
+
+    :param df: DataFrame to validate.
+    :param columns_to_check: Column names that must contain values.
+    :returns: A list of validation error messages.
+    """
     errors = []
     empty_check = df[columns_to_check].isna() | (df[columns_to_check] == '')
     missing_fields = {}
@@ -242,7 +324,13 @@ def check_required_fields(df, columns_to_check):
             errors.append(f"Missing values in column '{col}': rows {indexes}")
     return errors
 
-def check_unique_sample_number(samples_df):
+def check_unique_sample_number(samples_df: pd.DataFrame) -> list[str]:
+    """
+    Check that sample numbers are unique.
+
+    :param samples_df: DataFrame containing ``sample_number`` values.
+    :returns: A list of validation error messages.
+    """
     errors = []
     duplicates = samples_df[samples_df['sample_number'].duplicated(keep=False)]
     if not duplicates.empty:
@@ -250,7 +338,17 @@ def check_unique_sample_number(samples_df):
         errors.append(f"Duplicate sample numbers detected: {duplicate_values.index.tolist()}")
     return errors
     
-def validate_epsg(samples_df):
+def validate_epsg(samples_df: pd.DataFrame) -> list[str]:
+    """
+    Validate EPSG codes and coordinate field consistency.
+
+    Ensures latitude and longitude are numeric when provided, requires an EPSG
+    code when both coordinates are present, and checks that the EPSG code is in
+    the allowed list.
+
+    :param samples_df: DataFrame containing coordinate and EPSG fields.
+    :returns: A list of validation error messages.
+    """
     errors = []
     # List of valid EPSG codes
     valid_epsg_codes = [
@@ -287,9 +385,21 @@ def validate_epsg(samples_df):
         errors.append(f"Invalid EPSG codes detected. Valid codes are: {', '.join(map(str, valid_epsg_codes))}. Found invalid codes: {', '.join(map(str, invalid_codes))}")
     return errors
 
-def is_cell_empty(cell):
+def is_cell_empty(cell: object) -> bool:
+    """
+    Determine whether a cell value should be treated as empty.
+
+    :param cell: The cell value to test.
+    :returns: True if the value is null or an empty string, otherwise False.
+    """
     return pd.isna(cell) or (isinstance(cell, str) and cell.strip() == '')
-def is_numeric(value):
+def is_numeric(value: object) -> bool:
+    """
+    Determine whether a value can be converted to a float.
+
+    :param value: The value to test.
+    :returns: True if the value is numeric, otherwise False.
+    """
     try:
         float(value)
         return True
@@ -300,11 +410,8 @@ def is_url(url: str) -> bool:
     """
     Check if the given string is a valid URL.
 
-    Args:
-    url (str): The URL to check.
-
-    Returns:
-    bool: True if the URL is valid, False otherwise.
+    :param url: The URL to check.
+    :returns: True if the URL is valid, False otherwise.
     """
     # use re to check if the url is valid
     url_pattern = re.compile(
@@ -317,7 +424,17 @@ def is_url(url: str) -> bool:
     )
     return bool(url_pattern.match(url))
 
-def validate_affiliation_identifier(authors_df, valid_affiliation_identifier_types):
+def validate_affiliation_identifier(authors_df: pd.DataFrame, valid_affiliation_identifier_types: list[str]) -> list[str]:
+    """
+    Validate author affiliation identifiers and their types.
+
+    Ensures identifier types are present when identifiers are provided, that
+    types are allowed, and that identifiers are valid URLs.
+
+    :param authors_df: DataFrame containing affiliation identifier fields.
+    :param valid_affiliation_identifier_types: Allowed affiliation identifier types.
+    :returns: A list of validation error messages.
+    """
     errors = []
     if 'author_affiliation_identifier' in authors_df.columns:
         authors_df['author_affiliation_identifier'] = authors_df['author_affiliation_identifier'].fillna('').astype(str).str.strip()
@@ -348,7 +465,16 @@ def validate_affiliation_identifier(authors_df, valid_affiliation_identifier_typ
             errors.append(error_message)
     return errors
 
-def validate_related_resources(related_resources_df):
+def validate_related_resources(related_resources_df: pd.DataFrame) -> list[str]:
+    """
+    Validate related resource entries.
+
+    Checks for missing required fields, invalid URLs, invalid resource types,
+    and invalid relation types.
+
+    :param related_resources_df: DataFrame containing related resource metadata.
+    :returns: A list of validation error messages.
+    """
     errors = []
     required_fields = ['related_resource_type', 'related_resource_url', 'related_resource_title', 'relation_type']
     valid_resource_types = ["Audiovisual", "Book", "BookChapter", "Collection", "ComputationalNotebook", "ConferencePaper", "ConferenceProceeding", "DataPaper", "Dataset", "Dissertation", "Event", "Image", "Instrument", "InteractiveResource", "Journal", "JournalArticle", "Model", "Other", "OutputManagementPlan", "PeerReview", "PhysicalObject", "Preprint", "Report", "Service", "Software", "Sound", "Standard", "StudyRegistration", "Text", "Workflow"]
@@ -379,7 +505,17 @@ def validate_related_resources(related_resources_df):
 
     return errors
 
-def validate_author_identifier(authors_df, valid_identifier_types):
+def validate_author_identifier(authors_df: pd.DataFrame, valid_identifier_types: list[str]) -> list[str]:
+    """
+    Validate author identifiers and their types.
+
+    Ensures identifier types are present when identifiers are provided, validates
+    allowed identifier types, and checks that identifiers are valid URLs.
+
+    :param authors_df: DataFrame containing author identifier fields.
+    :param valid_identifier_types: Allowed author identifier types.
+    :returns: A list of validation error messages.
+    """
     errors = []
     if 'author_identifier' in authors_df.columns:
         valid_identifiers = authors_df[~authors_df['author_identifier'].apply(lambda x: is_cell_empty(x.strip() if isinstance(x, str) else x))]
@@ -402,7 +538,15 @@ def validate_author_identifier(authors_df, valid_identifier_types):
             errors.append(f"Invalid author identifier URLs found in the following: rows [{', '.join(map(str, invalid_url_rows))}]")
     
     return errors
-def validate_sample_type(sample_df):
+def validate_sample_type(sample_df: pd.DataFrame) -> list[str]:
+    """
+    Validate sample type values.
+
+    Ensures non-empty ``sample_type`` values are in the allowed list.
+
+    :param sample_df: DataFrame containing ``sample_type``.
+    :returns: A list of validation error messages.
+    """
     errors = []
     sample_types = [
         "Chips", "Chips - AC", "Chips - RC", "Core", "Core - Friable", "Core Catcher", "Core Half Round",
@@ -423,7 +567,16 @@ def validate_sample_type(sample_df):
     
     return errors
 
-def validate_user_keywords(user_keywords):
+def validate_user_keywords(user_keywords: str) -> str:
+    """
+    Validate and sanitize user keywords.
+
+    Allows word characters, whitespace, periods, and hyphens. Any disallowed
+    characters are replaced with spaces.
+
+    :param user_keywords: Raw user keyword string.
+    :returns: The original string if valid, otherwise a sanitized version.
+    """
     # Regular expression pattern for allowed characters
     pattern = r'^[\w\s.-]+$'
     
@@ -434,7 +587,16 @@ def validate_user_keywords(user_keywords):
         # Remove any characters that are not allowed
         sanitized_keywords = re.sub(r'[^\w\s.-]', ' ', user_keywords)
         return sanitized_keywords   
-def validate_authors(authors_df):
+def validate_authors(authors_df: pd.DataFrame) -> list[str]:
+    """
+    Run author sheet validations.
+
+    Applies required field checks, affiliation identifier validation, and author
+    identifier validation.
+
+    :param authors_df: DataFrame containing author metadata.
+    :returns: A list of validation error messages.
+    """
     errors = []
     authors_columns_to_check = ['author_email', 'author_name', 'author_affiliation', 'author_name_type']
     valid_identifier_types = ["ORCID", "ISNI", "LCNA", "VIAF", "GND", "DAI", "ResearcherID", "ScopusID", "Other"]
@@ -443,7 +605,18 @@ def validate_authors(authors_df):
     errors.extend(validate_affiliation_identifier(authors_df, valid_affiliation_identifier_types))
     errors.extend(validate_author_identifier(authors_df, valid_identifier_types))
     return errors
-def generate_sample_name(org_id, sample_type, sample_number):
+def generate_sample_name(org_id: str, sample_type: str, sample_number: str) -> str:
+    """
+    Generate a CKAN-compatible sample name.
+
+    The generated name is based on the organization name, sample type, and
+    sample number.
+
+    :param org_id: CKAN organization identifier.
+    :param sample_type: Sample type value.
+    :param sample_number: Sample number value.
+    :returns: A normalized sample name.
+    """
     org_name= get_organization_name(org_id)
     org_name = org_name.replace(' ', '_')
     sample_type = sample_type.replace(' ', '_')
@@ -452,21 +625,45 @@ def generate_sample_name(org_id, sample_type, sample_number):
     name = f"{org_name}-{sample_type}-Sample-{sample_number}"
     name = re.sub(r'[^a-z0-9-_]', '', name.lower())
     return name 
-def generate_sample_title(org_id, sample_type, sample_number):
+def generate_sample_title(org_id: str, sample_type: str, sample_number: str) -> str:
+    """
+    Generate a human-readable sample title.
+
+    :param org_id: CKAN organization identifier.
+    :param sample_type: Sample type value.
+    :param sample_number: Sample number value.
+    :returns: A sample title string.
+    """
     org_name= get_organization_name(org_id)
     org_name = org_name
     sample_type = sample_type
     sample_number = sample_number
     title= f"{org_name} - {sample_type} Sample {sample_number}"
     return title  
-def get_organization_name(organization_id):
+def get_organization_name(organization_id: str) -> str | None:
+    """
+    Fetch an organization name from CKAN.
+
+    :param organization_id: CKAN organization identifier.
+    :returns: The organization name if found, otherwise None.
+    """
     try:
         organization = get_action('organization_show')({}, {'id': organization_id})
         organization_name = organization['name']
         return organization_name
     except:
         return None
-def validate_sample_names(samples_df, org_id):
+def validate_sample_names(samples_df: pd.DataFrame, org_id: str) -> list[str]:
+    """
+    Validate generated sample names for uniqueness.
+
+    Checks for duplicate generated sample names within the uploaded dataframe and
+    whether generated names already exist in CKAN.
+
+    :param samples_df: DataFrame containing sample metadata.
+    :param org_id: CKAN organization identifier.
+    :returns: A list of validation error messages.
+    """
     samples_data = []
     existing_names = set()
     errors = []
@@ -490,7 +687,20 @@ def validate_sample_names(samples_df, org_id):
             errors.append(f"Error fetching CKAN data: {str(e)}")
     return errors
 
-def validate_samples(samples_df, related_resources_df, authors_df, funding_df):
+def validate_samples(samples_df: pd.DataFrame, related_resources_df: pd.DataFrame, authors_df: pd.DataFrame, funding_df: pd.DataFrame) -> list[str]:
+    """
+    Run the full set of sample sheet validations.
+
+    Applies required field checks and specialized validators for sample numbers,
+    coordinates, depths, elevation, sample types, related resources, author
+    emails, project identifiers, and acquisition dates.
+
+    :param samples_df: DataFrame containing sample metadata.
+    :param related_resources_df: DataFrame containing related resource metadata.
+    :param authors_df: DataFrame containing author metadata.
+    :param funding_df: DataFrame containing funding or project metadata.
+    :returns: A list of validation error messages.
+    """
     errors = []
     samples_columns_to_check = ['sample_number', 'description', 'user_keywords', 'sample_type', 'author_emails']
     errors.extend(check_required_fields(samples_df, samples_columns_to_check))
