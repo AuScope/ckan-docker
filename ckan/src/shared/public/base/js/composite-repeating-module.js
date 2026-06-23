@@ -87,8 +87,7 @@ ckan.module('composite-repeating-module', function ($, _) {
               dataType: 'json',
               delay: 250,
               data: function (params) {
-                var encodedQuery = encodeURIComponent(params);
-                return { affiliation: encodedQuery };
+                return { affiliation: params };
               },
               processResults: function (data) {
                 return {
