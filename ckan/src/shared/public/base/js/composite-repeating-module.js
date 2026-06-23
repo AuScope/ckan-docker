@@ -110,8 +110,8 @@ ckan.module('composite-repeating-module', function ($, _) {
               },
               cache: true
             },
-            placeholder: 'Search for an affiliation',
-            minimumInputLength: 3,
+            placeholder: 'Search for an affiliation, please enter the first words',
+            minimumInputLength: 1,
           })
 
           $input.on('select2-selected', function (e) {
