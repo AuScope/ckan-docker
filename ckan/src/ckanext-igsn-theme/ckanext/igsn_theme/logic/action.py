@@ -75,14 +75,16 @@ def package_create(next_action, context, data_dict):
         acquisition_start_date = data_dict['acquisition_start_date']
         if isinstance(acquisition_start_date, pd.Timestamp):
             acquisition_start_date = acquisition_start_date.strftime('%Y-%m-%d')
-        acquisition_start_date = acquisition_start_date.strip()
+        if isinstance(acquisition_start_date, str):
+            acquisition_start_date = acquisition_start_date.strip()
         data_dict['acquisition_start_date'] = acquisition_start_date
 
     if 'acquisition_end_date' in data_dict:
         acquisition_end_date = data_dict['acquisition_end_date']
         if isinstance(acquisition_end_date, pd.Timestamp):
             acquisition_end_date = acquisition_end_date.strftime('%Y-%m-%d')
-        acquisition_end_date = acquisition_end_date.strip()
+        if isinstance(acquisition_end_date, str):
+            acquisition_end_date = acquisition_end_date.strip()
         data_dict['acquisition_end_date'] = acquisition_end_date
 
 
@@ -183,7 +185,7 @@ def manage_parent_related_resource(data_dict):
 def generate_sample_name(data_dict):
     owner_org = data_dict['owner_org']
     sample_type = data_dict['sample_type']
-    sample_number = data_dict['sample_number']
+    sample_number = str(data_dict['sample_number'])
     org_name= tk.get_action('organization_show')({}, {'id': owner_org})['name']
     org_name = org_name.replace(' ', '_')
     sample_type = sample_type.replace(' ', '_')
