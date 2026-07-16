@@ -75,6 +75,10 @@ def validate_match_related_resource_url(sample_df: pd.DataFrame, resource_df: pd
     :returns: A list of validation error messages.
     """
     errors = []
+
+    # Exit if nothing to check
+    if 'related_resource_url' not in resource_df:
+        return errors
     
     # Extract unique URLs from sample_df
     sample_urls = set()
@@ -149,6 +153,10 @@ def validate_match_project_identifier(sample_df: pd.DataFrame, project_df: pd.Da
     :returns: A list of validation error messages.
     """
     errors = []
+
+    # Exit if nothing to check
+    if 'project_identifier' not in project_df:
+        return errors
     
     # Extract unique project IDs from sample_df
     sample_project_ids = set()
@@ -480,7 +488,7 @@ def validate_related_resources(related_resources_df: pd.DataFrame) -> list[str]:
     valid_relation_types = [
         "IsCitedBy", "Cites", "IsSupplementTo", "IsSupplementedBy", "IsContinuedBy", "Continues","IsNewVersionOf", "IsPreviousVersionOf","IsPartOf","HasPart","IsPublishedIn","IsReferencedBy","References","IsDocumentedBy","Documents","IsCompiledBy","Compiles","IsVariantFormOf",    "IsOriginalFormOf","IsIdenticalTo","HasMetadata", "IsMetadataFor","Reviews","IsReviewedBy","IsDerivedFrom","IsSourceOf","Describes","IsDescribedBy","HasVersion","IsVersionOf","Requires","IsRequiredBy","Obsoletes","IsObsoletedBy","Collects","IsCollectedBy"
     ]
-    
+
     # Check for any missing required fields in any of the related resources entries
     if related_resources_df[required_fields].applymap(lambda x: is_cell_empty(x.strip() if isinstance(x, str) else x)).any().any():
         errors.append("Missing required fields in related resources entries.")
@@ -548,13 +556,42 @@ def validate_sample_type(sample_df: pd.DataFrame) -> list[str]:
     """
     errors = []
     sample_types = [
-        "Chips", "Chips - AC", "Chips - RC", "Core", "Core - Friable", "Core Catcher", "Core Half Round",
-        "Core Piece", "Core Quarter Round", "Core Section", "Core Section Half",
-        "Core Slab", "Core Sub-Piece", "Core U-Channel", "Cuttings", "Experimental", "Full Core",
-        "Grab", "Heavy Mineral Concentrate", "Individual Sample", "Litter", "Other",
-        "Phyllos", "QA-QC", "Rock Powder", "Soil Profile", "Soil", "Surface Soil",
-        "Termite Mound", "Vegetation", "Water", "Pisolite", "Hardpan soil",
-        "Thin Section", "Polished Block", "Polished Round"
+        "Chips",
+        "Chips - AC",
+        "Chips - RC",
+        "Core",
+        "Core - Friable",
+        "Core Catcher",
+        "Core Half Round",
+        "Core Piece",
+        "Core Quarter Round",
+        "Core Section",
+        "Core Section Half",
+        "Core Slab",
+        "Core Sub-Piece",
+        "Core U-Channel",
+        "Cuttings",
+        "Experimental",
+        "Full Core",
+        "Grab",
+        "Hardpan Soil",
+        "Heavy Mineral Concentrate",
+        "Individual Sample",
+        "Litter",
+        "Other",
+        "Phyllos",
+        "Pisolite",
+        "Polished Block",
+        "Polished Round",
+        "QA-QC",
+        "Rock Powder",
+        "Soil Profile",
+        "Soil",
+        "Surface Soil",
+        "Termite Mound",
+        "Thin Section",
+        "Vegetation",
+        "Water"
     ]
     # Filter out empty or null values
     valid_samples = sample_df[sample_df['sample_type'].notna() & (sample_df['sample_type'] != '')]
