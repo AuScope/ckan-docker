@@ -83,7 +83,8 @@ class BatchUploadView(MethodView):
             
             all_errors.extend(validate_samples(samples_df, related_resources_df, authors_df, funding_df))
             all_errors.extend(validate_authors(authors_df))
-            all_errors.extend(validate_related_resources(related_resources_df))
+            if len(related_resources_df) > 0:
+                all_errors.extend(validate_related_resources(related_resources_df))
             all_errors.extend(validate_parent_samples(samples_df))
             all_errors.extend(validate_sample_names(samples_df, org_id))
             if all_errors:
