@@ -7,7 +7,7 @@ import pandas as pd
 import logging
 import json
 import re
-from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, is_numeric, is_cell_empty, is_url, validate_related_resources, validate_user_keywords, validate_authors, validate_samples, generate_sample_name, generate_sample_title
+from ckanext.igsn_theme.logic.batch_validation import get_organization_name, is_numeric, is_cell_empty, is_url, validate_user_keywords, generate_sample_name, generate_sample_title
 log = logging.getLogger(__name__)
 
 
@@ -37,6 +37,13 @@ def process_author_emails(sample, authors_df):
 
 def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id):
         samples_data = []
+        # Keep a dictionary to cache EPSG names to avoid repeated API calls for the same EPSG code
+        current_epsg_dict = {}
+        org = toolkit.get_action('organization_show')({}, {'id': org_id})
+        org_contact_name = org.get('contact_name', 'test')
+        org_contact_email = org.get('contact_email', '')
+        # Get the organization name uses a costly API call, so we do it once and reuse it for all samples
+        org_name = get_organization_name(org_id)
         for _, row in samples_df.iterrows():
             sample = row.to_dict()
             sample["author"] = process_author_emails(sample, authors_df)
@@ -53,10 +60,9 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
             sample['acquisition_start_date'] = row['acquisition_start_date'].strftime('%Y-%m-%d') if pd.notnull(row['acquisition_start_date']) else None
             sample['acquisition_end_date'] = row['acquisition_end_date'].strftime('%Y-%m-%d') if pd.notnull(row['acquisition_end_date']) else None
 
-            org = toolkit.get_action('organization_show')({}, {'id': org_id})
             sample['owner_org'] = org_id
-            sample['sample_repository_contact_name'] = org.get('contact_name', 'test')
-            sample['sample_repository_contact_email'] = org.get('contact_email', '')
+            sample['sample_repository_contact_name'] = org_contact_name
+            sample['sample_repository_contact_email'] = org_contact_email
             
             if 'point_latitude' in sample and sample['point_latitude'] != '' and 'point_longitude' in sample and sample['point_longitude'] != '':
                 if not is_numeric(sample['point_latitude']) or not is_numeric(sample['point_longitude']):
@@ -64,7 +70,11 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
                 sample['location_choice'] = 'point'
                 coordinates = [(sample['point_latitude'], sample['point_longitude'])]
                 sample['location_data'] = generate_location_geojson(coordinates)
-            sample['epsg'] = get_epsg_name(sample['epsg_code'])
+            if sample['epsg_code'] not in current_epsg_dict:
+                sample['epsg'] = get_epsg_name(sample['epsg_code'])
+                current_epsg_dict[sample['epsg_code']] = sample['epsg']
+            else:
+                sample['epsg'] = current_epsg_dict[sample['epsg_code']]
             defaults = {
                 "publisher_identifier_type": "ROR",
                 "publisher_identifier": "https://ror.org/04s1m4564",
@@ -73,8 +83,8 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
             }
             sample.update(defaults)
             
-            sample["name"] = generate_sample_name(org_id, sample['sample_type'], str(sample['sample_number']))
-            sample["title"] = generate_sample_title(org_id, sample['sample_type'], str(sample['sample_number']))
+            sample["name"] = generate_sample_name(org_name, sample['sample_type'], str(sample['sample_number']))
+            sample["title"] = generate_sample_title(org_name, sample['sample_type'], str(sample['sample_number']))
             samples_data.append(sample)
         return samples_data
     

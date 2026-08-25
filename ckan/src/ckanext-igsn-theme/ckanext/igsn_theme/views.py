@@ -67,10 +67,8 @@ class BatchUploadView(MethodView):
         Returns:
         dict: Data extracted from the Excel file for preview.
         """
-        logger = logging.getLogger(__name__)
         try:
             all_errors = []
-            logger = logging.getLogger(__name__)
             content = uploaded_file.read()
             excel_data = BytesIO(content)
             sheets = ["samples", "authors", "related_resources", "funding"]
@@ -95,14 +93,13 @@ class BatchUploadView(MethodView):
                     {formatted_errors}""")
                 
             samples_data = prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
-            
             return_value = {
                 "samples": samples_data,
                 "authors": authors_df.to_dict("records"),
                 "related_resources": related_resources_df.to_dict("records"),
                 "funders": funding_df.to_dict("records")
 
-            }  
+            }
             return return_value
 
         except Exception as e:

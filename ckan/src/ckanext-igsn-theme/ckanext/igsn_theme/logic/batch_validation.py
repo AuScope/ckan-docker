@@ -1,3 +1,6 @@
+import logging
+log = logging.getLogger(__name__)
+
 import ckan.plugins.toolkit as toolkit
 from ckan.plugins.toolkit import get_action
 import re
@@ -643,19 +646,18 @@ def validate_authors(authors_df: pd.DataFrame) -> list[str]:
     errors.extend(validate_author_identifier(authors_df, valid_identifier_types))
     return errors
 
-def generate_sample_name(org_id: str, sample_type: str, sample_number: str) -> str:
+def generate_sample_name(org_name: str, sample_type: str, sample_number: str) -> str:
     """
     Generate a CKAN-compatible sample name.
 
     The generated name is based on the organization name, sample type, and
     sample number.
 
-    :param org_id: CKAN organization identifier.
+    :param org_name: CKAN organization name.
     :param sample_type: Sample type value.
     :param sample_number: Sample number value.
     :returns: A normalized sample name.
     """
-    org_name= get_organization_name(org_id)
     org_name = org_name.replace(' ', '_')
     sample_type = sample_type.replace(' ', '_')
     sample_number = sample_number.replace(' ', '_')
@@ -664,21 +666,17 @@ def generate_sample_name(org_id: str, sample_type: str, sample_number: str) -> s
     name = re.sub(r'[^a-z0-9-_]', '', name.lower())
     return name 
 
-def generate_sample_title(org_id: str, sample_type: str, sample_number: str) -> str:
+def generate_sample_title(org_name: str, sample_type: str, sample_number: str) -> str:
     """
     Generate a human-readable sample title.
 
-    :param org_id: CKAN organization identifier.
+    :param org_name: CKAN organization name.
     :param sample_type: Sample type value.
     :param sample_number: Sample number value.
     :returns: A sample title string.
     """
-    org_name= get_organization_name(org_id)
-    org_name = org_name
-    sample_type = sample_type
-    sample_number = sample_number
-    title= f"{org_name} - {sample_type} Sample {sample_number}"
-    return title  
+    title = f"{org_name} - {sample_type} Sample {sample_number}"
+    return title
 
 def get_organization_name(organization_id: str) -> str | None:
     """
@@ -705,27 +703,33 @@ def validate_sample_names(samples_df: pd.DataFrame, org_id: str) -> list[str]:
     :param org_id: CKAN organization identifier.
     :returns: A list of validation error messages.
     """
-    samples_data = []
-    existing_names = set()
     errors = []
+    # Fetch existing sample names from CKAN
+    existing_names = []
+    try:
+        package_list = toolkit.get_action('package_list')({}, {})
+        for package in package_list:
+            package_data = toolkit.get_action('package_show')({}, {'id': package})
+            existing_name = package_data.get('name')
+            existing_names.append(existing_name)
+    except Exception as e:
+        errors.append(f"Error fetching CKAN data: {str(e)}")
+    log.info(f"Existing sample names in CKAN: {existing_names}")
+
+    new_names = set()
+    # get_organization_name function uses a costly API call, so we call it once and store the result
+    org_name = get_organization_name(org_id)
+    # Generate sample names and check for uniqueness
     for _, row in samples_df.iterrows():
         sample = row.to_dict()
-        sample["name"] = generate_sample_name(org_id, sample['sample_type'], str(sample['sample_number']))
+        sample["name"] = generate_sample_name(org_name, sample['sample_type'], str(sample['sample_number']))
         # Check for uniqueness
-        if sample["name"] in existing_names:
+        if sample["name"] in new_names:
             errors.append(f"Duplicate sample name: {sample['name']}")
+        elif sample["name"] in existing_names:
+            errors.append(f"Sample name {sample['name']} already exists in CKAN")
         else:
-            existing_names.add(sample["name"])
-        samples_data.append(sample)
-        try:
-            package_list = toolkit.get_action('package_list')({}, {})
-            for package in package_list:
-                package_data = toolkit.get_action('package_show')({}, {'id': package})
-                existing_name = package_data.get('name')
-                if existing_name in existing_names:
-                    errors.append(f"Sample name {existing_name} already exists in CKAN")
-        except Exception as e:
-            errors.append(f"Error fetching CKAN data: {str(e)}")
+            new_names.add(sample["name"])
     return errors
 
 def validate_samples(samples_df: pd.DataFrame, related_resources_df: pd.DataFrame, authors_df: pd.DataFrame, funding_df: pd.DataFrame) -> list[str]:
