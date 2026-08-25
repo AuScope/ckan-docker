@@ -293,7 +293,10 @@ def batch_job_status_page(job_id):
         base.abort(403, _('Unauthorized'))
 
     org_id = request.args.get('group', '')
-    state = read_job_state(job_id) or {'status': 'unknown'}
+    try:
+        state = read_job_state(job_id) or {'status': 'unknown'}
+    except ValueError:
+        base.abort(404, _('Job not found'))
     return render_template(
         'batch/job_status.html',
         job_id=job_id,
@@ -324,7 +327,10 @@ def batch_job_status_api(job_id):
     except NotAuthorized:
         return jsonify({'error': 'Unauthorized'}), 403
 
-    state = read_job_state(job_id)
+    try:
+        state = read_job_state(job_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid job_id'}), 400
     if state is None:
         return jsonify({'status': 'unknown', 'total': 0, 'processed': 0,
                         'successful': 0, 'unsuccessful': 0, 'samples': []})

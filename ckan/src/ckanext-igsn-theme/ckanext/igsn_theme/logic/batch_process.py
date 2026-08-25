@@ -18,10 +18,20 @@ log = logging.getLogger(__name__)
 _JOB_STATE_DIR = os.path.join(tempfile.gettempdir(), 'ckan_batch_jobs')
 
 
+_UUID_RE = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
+
+
+def _validate_job_id(job_id):
+    """Raise ValueError if *job_id* is not a valid UUID string."""
+    if not _UUID_RE.match(str(job_id)):
+        raise ValueError(f"Invalid job_id: {job_id!r}")
+
+
 def _job_state_path(job_id):
     """Return the filesystem path for the state file of *job_id*."""
+    _validate_job_id(job_id)
     os.makedirs(_JOB_STATE_DIR, exist_ok=True)
-    # Sanitise the job_id so it is safe to use as a filename component.
+    # job_id has already been validated as a UUID (hex digits and hyphens only).
     safe_id = re.sub(r'[^A-Za-z0-9_\-]', '_', str(job_id))
     return os.path.join(_JOB_STATE_DIR, f'batch_job_{safe_id}.json')
 
