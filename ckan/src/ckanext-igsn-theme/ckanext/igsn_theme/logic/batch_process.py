@@ -28,12 +28,21 @@ def _validate_job_id(job_id):
 
 
 def _job_state_path(job_id):
-    """Return the filesystem path for the state file of *job_id*."""
+    """Return the filesystem path for the state file of *job_id*.
+
+    Raises ``ValueError`` if *job_id* is not a valid UUID or if the resolved
+    path would escape the job-state directory.
+    """
     _validate_job_id(job_id)
     os.makedirs(_JOB_STATE_DIR, exist_ok=True)
-    # job_id has already been validated as a UUID (hex digits and hyphens only).
-    safe_id = re.sub(r'[^A-Za-z0-9_\-]', '_', str(job_id))
-    return os.path.join(_JOB_STATE_DIR, f'batch_job_{safe_id}.json')
+    # job_id has been validated as UUID (hex + hyphens only); the re.sub is an
+    # additional defence-in-depth step before building the filesystem path.
+    safe_id = re.sub(r'[^A-Za-z0-9\-]', '', str(job_id))
+    candidate = os.path.abspath(os.path.join(_JOB_STATE_DIR, f'batch_job_{safe_id}.json'))
+    # Verify the resolved path is still inside _JOB_STATE_DIR (defence-in-depth).
+    if not candidate.startswith(os.path.abspath(_JOB_STATE_DIR) + os.sep):
+        raise ValueError(f"Computed job state path escapes the state directory: {candidate!r}")
+    return candidate
 
 
 def write_job_state(job_id, state):
