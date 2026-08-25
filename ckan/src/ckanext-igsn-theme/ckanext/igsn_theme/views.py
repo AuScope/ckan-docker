@@ -112,6 +112,52 @@ class BatchUploadView(MethodView):
         self._prepare()
         org_id = request.args.get('group')
         return render_template('batch/new.html', group=org_id, preview_data={}, file_name="")
+
+    def save_data(self, data, context):
+        """
+        Saves the data to CKAN by creating packages for each sample.
+
+        Args:
+        data (list): List of sample data dictionaries to be saved.
+        context (dict): The CKAN context for authorization. 
+
+        Returns:
+        tuple: A tuple containing:
+            - created_sample_ids (list): List of dictionaries with 'id' and 'sample_number' for each successfully created sample.
+            - successful_creations (int): Count of successfully created samples.
+            - unsuccessful_creations (int): Count of unsuccessfully created samples.
+        """
+        log.info(f"Starting to save data for {len(data)} samples.")
+        log.info(f"Context: {context}")
+        created_sample_ids = []
+        successful_creations = 0
+        unsuccessful_creations = 0
+        for sample_data in data:
+            try:
+                log.info(f"Attempting to create sample with data: {sample_data}")
+                created_sample = get_action('package_create')(context, sample_data)
+                created_sample_ids.append({
+                    'id': created_sample['id'],
+                    'sample_number': sample_data.get('sample_number')
+                })
+                successful_creations += 1
+                sample_data['status'] = "created"
+            except Exception as e:
+                error_message = str(e)
+                log.error(f"Failed to create sample: {error_message}")
+                unsuccessful_creations += 1
+                sample_data['status'] = "error"
+                sample_data['log'] = error_message
+
+                # Rollback: delete all successfully created samples
+                for sample in created_sample_ids:
+                    try:
+                        get_action('package_delete')(context, {'id': sample['id']})
+                    except Exception as delete_exception:
+                        # Log the exception, but continue with the rollback
+                        log.error(f"Failed to delete sample {sample['id']}: {delete_exception}")
+                break
+        return created_sample_ids, successful_creations, unsuccessful_creations
     
     def post(self):
         """
@@ -122,7 +168,7 @@ class BatchUploadView(MethodView):
         uploaded_file = request.files.get('file')
         save_option = request.form.get('save')
         preview_option = request.form.get('preview')
-        update_option = request.form.get('update')
+        #update_option = request.form.get('update')
         preview_data = {}
         file_name = ''
         
@@ -154,36 +200,14 @@ class BatchUploadView(MethodView):
                 if not preview_data or not preview_data.get('samples'):
                     h.flash_error(_('Please generate a preview first.'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))
+                log.info(f"Preview data retrieved from session for saving: {preview_data}")
+                log.info(f"File name retrieved from session for saving: {file_name}")
 
                 data = preview_data['samples']
-                created_sample_ids = []
-                successful_creations = 0
-                unsuccessful_creations = 0
+                log.info(f"{len(data)=}")
 
-                for sample_data in data:
-                    try:
-                        created_sample = get_action('package_create')(context, sample_data)
-                        created_sample_ids.append({
-                            'id': created_sample['id'],
-                            'sample_number': sample_data.get('sample_number')
-                        })
-                        successful_creations += 1
-                        sample_data['status'] = "created"
-                    except Exception as e:
-                        error_message = str(e)
-                        log.error(f"Failed to create sample: {error_message}")
-                        unsuccessful_creations += 1
-                        sample_data['status'] = "error"
-                        sample_data['log'] = error_message
-
-                        # Rollback: delete all successfully created samples
-                        for sample in created_sample_ids:
-                            try:
-                                get_action('package_delete')(context, {'id': sample['id']})
-                            except Exception as delete_exception:
-                                # Log the exception, but continue with the rollback
-                                log.error(f"Failed to delete sample {sample['id']}: {delete_exception}")
-                        break
+                # Save the data and handle rollback in case of errors, modifies 'preview_data' to include statusfor each sample
+                created_sample_ids, successful_creations, unsuccessful_creations = self.save_data(data, context)
 
                 for sample_data in data:
                     if 'status' not in sample_data:
