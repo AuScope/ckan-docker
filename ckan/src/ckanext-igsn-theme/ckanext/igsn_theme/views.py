@@ -238,7 +238,7 @@ class BatchUploadView(MethodView):
                 session.pop('preview_data', None)
                 session.pop('file_name', None)
 
-                return redirect(url_for(
+                return redirect(toolkit.config["ckan.site_url"].rstrip("/") + url_for(
                     'igsn_theme.batch_job_status_page',
                     job_id=job_id,
                     group=org_id
