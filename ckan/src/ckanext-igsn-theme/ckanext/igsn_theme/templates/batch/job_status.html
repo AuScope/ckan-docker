@@ -1,0 +1,177 @@
+{% extends "batch/base.html" %}
+
+{% block subtitle %}{{ _('Batch Upload Job Status') }}{% endblock %}
+
+{% block primary_content %}
+<section class="module">
+  <div class="module-content">
+
+    <h1>{{ _('Batch Upload Status') }}</h1>
+
+    {# ------------------------------------------------------------------ #}
+    {# Progress / spinner shown while job is running or queued             #}
+    {# ------------------------------------------------------------------ #}
+    <div id="job-running-panel">
+      <p id="status-message" class="text-muted">{{ _('Your batch upload has been queued and will start shortly.') }}</p>
+
+      <div class="progress" style="height: 24px;">
+        <div id="progress-bar"
+             class="progress-bar progress-bar-striped active"
+             role="progressbar"
+             aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+             style="width: 0%; min-width: 2em;">
+          0%
+        </div>
+      </div>
+
+      <p class="text-muted" style="margin-top: 8px;">
+        <span id="processed-count">0</span> / <span id="total-count">{{ state.total }}</span>
+        {{ _('samples processed') }}
+      </p>
+    </div>
+
+    {# ------------------------------------------------------------------ #}
+    {# Result panel – shown once the job reaches a terminal state          #}
+    {# ------------------------------------------------------------------ #}
+    <div id="job-result-panel" style="display:none;">
+
+      <div id="result-success-alert" class="alert alert-success" style="display:none;">
+        <strong>{{ _('Success!') }}</strong>
+        <span id="result-success-msg"></span>
+      </div>
+
+      <div id="result-error-alert" class="alert alert-danger" style="display:none;">
+        <strong>{{ _('Error') }}</strong>
+        <span id="result-error-msg"></span>
+      </div>
+
+      <h3>{{ _('Per-sample results') }}</h3>
+      <table id="results-table" class="table table-bordered table-condensed">
+        <thead>
+          <tr>
+            <th>{{ _('Sample number') }}</th>
+            <th>{{ _('Status') }}</th>
+            <th>{{ _('Log') }}</th>
+          </tr>
+        </thead>
+        <tbody id="results-tbody"></tbody>
+      </table>
+
+      <a href="{{ h.url_for('igsn_theme.batch_upload', group=group) }}" class="btn btn-default">
+        {{ _('Start a new batch upload') }}
+      </a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block secondary_content %}
+<section class="module module-narrow module-shallow">
+  <h2 class="module-heading">
+    <i class="fa fa-info-circle"></i> {{ _('Batch upload job') }}
+  </h2>
+  <div class="module-content">
+    <p>{{ _('Job ID:') }} <code>{{ job_id }}</code></p>
+    <p>{{ _('This page updates automatically. You can leave and return later.') }}</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+(function () {
+  var JOB_ID  = {{ job_id | tojson }};
+  var STATUS_URL = '/batch_job_status/' + JOB_ID;
+  var POLL_INTERVAL_MS = 3000;
+  var timer = null;
+
+  function updateUI(state) {
+    var total       = state.total       || 0;
+    var processed   = state.processed   || 0;
+    var successful  = state.successful  || 0;
+    var unsuccessful = state.unsuccessful || 0;
+    var status      = state.status      || 'unknown';
+
+    document.getElementById('total-count').textContent     = total;
+    document.getElementById('processed-count').textContent = processed;
+
+    var pct = total > 0 ? Math.round(processed / total * 100) : 0;
+    var bar = document.getElementById('progress-bar');
+    bar.style.width   = pct + '%';
+    bar.textContent   = pct + '%';
+    bar.setAttribute('aria-valuenow', pct);
+
+    var msgEl = document.getElementById('status-message');
+    if (status === 'queued') {
+      msgEl.textContent = '{{ _("Your batch upload has been queued and will start shortly.") }}';
+    } else if (status === 'running') {
+      msgEl.textContent = '{{ _("Processing samples, please wait…") }}';
+    }
+
+    if (status === 'complete' || status === 'failed') {
+      clearInterval(timer);
+      showResults(state);
+    }
+  }
+
+  function showResults(state) {
+    document.getElementById('job-running-panel').style.display = 'none';
+    document.getElementById('job-result-panel').style.display  = 'block';
+
+    if (state.status === 'complete') {
+      var elSuccess = document.getElementById('result-success-alert');
+      elSuccess.style.display = '';
+      document.getElementById('result-success-msg').textContent =
+        ' ' + state.successful + ' {{ _("samples were created successfully.") }}';
+    } else {
+      var elError = document.getElementById('result-error-alert');
+      elError.style.display = '';
+      document.getElementById('result-error-msg').textContent =
+        ' ' + state.successful + ' {{ _("samples created,") }} ' +
+        state.unsuccessful + ' {{ _("failed (and have been rolled back).") }}';
+    }
+
+    var tbody = document.getElementById('results-tbody');
+    tbody.innerHTML = '';
+    (state.samples || []).forEach(function (s) {
+      var tr = document.createElement('tr');
+      tr.className = s.status === 'created' ? 'success' : 'danger';
+
+      function makeCell(text) {
+        var td = document.createElement('td');
+        td.textContent = text || '';
+        return td;
+      }
+
+      var logCell = document.createElement('td');
+      var pre = document.createElement('pre');
+      pre.style.cssText = 'white-space:pre-wrap;margin:0';
+      pre.textContent = s.log || '';
+      logCell.appendChild(pre);
+
+      tr.appendChild(makeCell(s.sample_number));
+      tr.appendChild(makeCell(s.status));
+      tr.appendChild(logCell);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function poll() {
+    fetch(STATUS_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (data) { updateUI(data); })
+      .catch(function (err) { console.error('poll error', err); });
+  }
+
+  // Initial render from server-side state
+  updateUI({{ state | tojson }});
+
+  var initialStatus = {{ state.status | tojson }};
+  if (initialStatus !== 'complete' && initialStatus !== 'failed') {
+    timer = setInterval(poll, POLL_INTERVAL_MS);
+  }
+})();
+</script>
+{% endblock %}

@@ -16,8 +16,12 @@ import json
 import pandas as pd
 from datetime import date
 import re
+import uuid as _uuid
 from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, validate_related_resources, validate_authors, validate_samples, validate_sample_names
-from ckanext.igsn_theme.logic.batch_process import prepare_samples_data, set_parent_sample, read_excel_sheets
+from ckanext.igsn_theme.logic.batch_process import (
+    prepare_samples_data, read_excel_sheets,
+    batch_save_job, read_job_state, write_job_state,
+)
 from ckanext.igsn_theme.logic import (
     email_notifications
 )
@@ -206,34 +210,39 @@ class BatchUploadView(MethodView):
                 data = preview_data['samples']
                 log.info(f"{len(data)=}")
 
-                # Save the data and handle rollback in case of errors, modifies 'preview_data' to include statusfor each sample
-                created_sample_ids, successful_creations, unsuccessful_creations = self.save_data(data, context)
+                # Generate a stable job ID before enqueuing so it can be
+                # threaded through both the state file and the worker function.
+                job_id = str(_uuid.uuid4())
 
-                for sample_data in data:
-                    if 'status' not in sample_data:
-                        sample_data['status'] = "error"
-                    if 'type' not in sample_data:
-                        sample_data['type'] = "NA"
-                    if 'log' not in sample_data:
-                        sample_data['log'] = ""
+                # Seed the state file immediately so the status endpoint has
+                # something to return before the worker picks up the job.
+                write_job_state(job_id, {
+                    'status': 'queued',
+                    'total': len(data),
+                    'processed': 0,
+                    'successful': 0,
+                    'unsuccessful': 0,
+                    'samples': [],
+                })
 
-                if unsuccessful_creations == 0:
-                    # Store the created samples in the session for later use
-                    session['created_samples'] = created_sample_ids
-                    # All samples were created successfully
-                    set_parent_sample(context)
-                    session.pop('preview_data', None)
-                    session.pop('file_name', None)
-                    session.pop('created_samples', None)
-                    h.flash_success(_('Successfully processed your submission'))
-                    return render_template('batch/new.html', group=org_id, preview_data={}, file_name='')
-                
-                elif successful_creations == 0:
-                    h.flash_error(_('Failed to create any samples.'), 'error')
-                    return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
-                else:
-                    h.flash_error(f"Successfully created {successful_creations} samples. {unsuccessful_creations} samples failed to create and have been rolled back.")
-                    return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
+                # Enqueue the save operation as a background job so it does
+                # not block the web request.
+                toolkit.enqueue_job(
+                    batch_save_job,
+                    [job_id, data, current_user.name, org_id],
+                    title=f'Batch upload for {org_id} by {current_user.name}',
+                )
+
+                # Clear the preview from the session – the worker has its own
+                # copy of the data passed as arguments.
+                session.pop('preview_data', None)
+                session.pop('file_name', None)
+
+                return redirect(toolkit.config["ckan.site_url"].rstrip("/") + url_for(
+                    'igsn_theme.batch_job_status_page',
+                    job_id=job_id,
+                    group=org_id
+                ))
 
             else:
                 h.flash_error(_('Invalid action'), 'error')
@@ -269,6 +278,67 @@ igsn_theme.add_url_rule(
     view_func=BatchUploadView.as_view('batch_upload'),
     methods=['GET', 'POST']
 )
+
+@igsn_theme.route('/batch_job/<job_id>', methods=['GET'])
+def batch_job_status_page(job_id):
+    """
+    Render the batch-upload job status/result page.
+
+    The page polls ``/batch_job_status/<job_id>`` via JavaScript and updates
+    itself until the job reaches a terminal state (``complete`` or ``failed``).
+    """
+    context = {
+        'user': current_user.name,
+        'auth_user_obj': current_user,
+    }
+    try:
+        check_access('package_create', context)
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized'))
+
+    org_id = request.args.get('group', '')
+    try:
+        state = read_job_state(job_id) or {'status': 'unknown'}
+    except ValueError:
+        base.abort(404, _('Job not found'))
+    return render_template(
+        'batch/job_status.html',
+        job_id=job_id,
+        group=org_id,
+        state=state,
+    )
+
+
+@igsn_theme.route('/batch_job_status/<job_id>', methods=['GET'])
+def batch_job_status_api(job_id):
+    """
+    JSON endpoint to poll the status of a background batch-upload job.
+
+    Returns a JSON object with at minimum the keys:
+    ``status``        – one of ``queued``, ``running``, ``complete``, ``failed``, ``unknown``
+    ``total``         – total number of samples in the job
+    ``processed``     – number processed so far
+    ``successful``    – successfully created packages
+    ``unsuccessful``  – failed packages
+    ``samples``       – list of per-sample dicts (status/log fields populated)
+    """
+    context = {
+        'user': current_user.name,
+        'auth_user_obj': current_user,
+    }
+    try:
+        check_access('package_create', context)
+    except NotAuthorized:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    try:
+        state = read_job_state(job_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid job_id'}), 400
+    if state is None:
+        return jsonify({'status': 'unknown', 'total': 0, 'processed': 0,
+                        'successful': 0, 'unsuccessful': 0, 'samples': []})
+    return jsonify(state)
 
 def convert_to_serializable(obj):
     """
