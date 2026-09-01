@@ -10,5 +10,6 @@ pyproj==2.6.1; python_version < '3.9'
 pyproj @ git+https://github.com/pyproj4/pyproj.git@b84639b0cb1928579648fb0687b212d007a3b9ca; python_version >= '3.9'
 
 Shapely
-OWSLib==0.28.1
-geojson==3.0.1
+OWSLib==0.32.0
+geojson==3.1.0
+
