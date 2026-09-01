@@ -19,7 +19,7 @@ import re
 import uuid as _uuid
 from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, validate_related_resources, validate_authors, validate_samples, validate_sample_names
 from ckanext.igsn_theme.logic.batch_process import (
-    prepare_samples_data, set_parent_sample, read_excel_sheets,
+    prepare_samples_data, read_excel_sheets,
     batch_save_job, read_job_state, write_job_state,
 )
 from ckanext.igsn_theme.logic import (

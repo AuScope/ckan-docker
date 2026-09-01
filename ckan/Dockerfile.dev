@@ -92,6 +92,7 @@ RUN set -eux; \
     chmod +x ${APP_DIR}/start_ckan*.sh
 
 COPY setup/create_auscope_org.sql ${APP_DIR}/create_auscope_org.sql
+COPY setup/supervisord.conf.override /etc/supervisord.conf
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
 
