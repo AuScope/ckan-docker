@@ -201,14 +201,14 @@ class BatchUploadView(MethodView):
             elif save_option == 'Save':
                 preview_data = session.get('preview_data', {})
                 file_name = session.get('file_name', '')
-                if not preview_data or not preview_data.get('samples'):
+                if not preview_data or not preview_data.get('samples') or not isinstance(preview_data['samples'], list):
                     h.flash_error(_('Please generate a preview first.'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))
-                log.info(f"Preview data retrieved from session for saving: {preview_data}")
+                log.info(f"First 2 of preview data retrieved from session for saving: {preview_data['samples'][:2]}")
+                log.info(f"{len(preview_data['samples'])=}")
                 log.info(f"File name retrieved from session for saving: {file_name}")
 
                 data = preview_data['samples']
-                log.info(f"{len(data)=}")
 
                 # Generate a stable job ID before enqueuing so it can be
                 # threaded through both the state file and the worker function.
@@ -227,11 +227,14 @@ class BatchUploadView(MethodView):
 
                 # Enqueue the save operation as a background job so it does
                 # not block the web request.
-                toolkit.enqueue_job(
+                log.info(f"Enqueuing batch save job with custom job ID: {job_id} for organization: {org_id} by user: {current_user.name}")
+                rq_job =toolkit.enqueue_job(
                     batch_save_job,
                     [job_id, data, current_user.name, org_id],
-                    title=f'Batch upload for {org_id} by {current_user.name}',
+                    title=f'Batch upload for Org# {org_id} by {current_user.name}',
                 )
+                queue_job_id = getattr(rq_job, "id", None)
+                log.info(f"Enqueued batch save job with RQ job ID: {queue_job_id} and custom job ID: {job_id}")
 
                 # Clear the preview from the session – the worker has its own
                 # copy of the data passed as arguments.
