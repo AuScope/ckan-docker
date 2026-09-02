@@ -82,8 +82,8 @@ def batch_save_job(job_id, data, user_name, org_id):
         'user': user_name,
         'ignore_auth': False,
     }
-
-    log.info("batch_save_job started for job_id=%s, %d samples", job_id, len(data))
+    print(f"PRINT batch_save_job started for job_id={job_id}, {len(data)} samples", flush=True)
+    #log.info("batch_save_job started for job_id=%s, %d samples", job_id, len(data))
     write_job_state(job_id, {
         'status': 'running',
         'total': len(data),
@@ -92,6 +92,7 @@ def batch_save_job(job_id, data, user_name, org_id):
         'unsuccessful': 0,
         'samples': [],
     })
+    print(f"batch_save_job: job state written", flush=True)
 
     created_sample_ids = []
     successful_creations = 0
@@ -100,7 +101,8 @@ def batch_save_job(job_id, data, user_name, org_id):
     for i, sample_data in enumerate(data):
         _error_occurred = False
         try:
-            log.info("batch_save_job: creating sample %d/%d", i + 1, len(data))
+            print(f"batch_save_job: creating sample {i + 1}/{len(data)}", flush=True)
+            #log.info("batch_save_job: creating sample %d/%d", i + 1, len(data))
             created_sample = get_action('package_create')(context, sample_data)
             created_sample_ids.append({
                 'id': created_sample['id'],
@@ -161,7 +163,8 @@ def batch_save_job(job_id, data, user_name, org_id):
         'unsuccessful': unsuccessful_creations,
         'samples': _serialisable_samples(data),
     })
-    log.info("batch_save_job finished for job_id=%s status=%s", job_id, final_status)
+    print(f"batch_save_job finished for job_id={job_id} status={final_status}", flush=True)
+    #log.info("batch_save_job finished for job_id=%s status=%s", job_id, final_status)
 
 
 def _serialisable_samples(samples):

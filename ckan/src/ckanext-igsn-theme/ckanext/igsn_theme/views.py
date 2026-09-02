@@ -216,37 +216,37 @@ class BatchUploadView(MethodView):
 
                 # Seed the state file immediately so the status endpoint has
                 # something to return before the worker picks up the job.
-                #write_job_state(job_id, {
-                #    'status': 'queued',
-                #    'total': len(data),
-                #    'processed': 0,
-                #    'successful': 0,
-                #    'unsuccessful': 0,
-                #    'samples': [],
-                #})
+                write_job_state(job_id, {
+                    'status': 'queued',
+                    'total': len(data),
+                    'processed': 0,
+                    'successful': 0,
+                    'unsuccessful': 0,
+                    'samples': [],
+                })
 
                 # Enqueue the save operation as a background job so it does
                 # not block the web request.
                 log.info(f"Enqueuing batch save job with custom job ID: {job_id} for organization: {org_id} by user: {current_user.name}")
-                batch_save_job(job_id, data, current_user.name, org_id)
-                #rq_job =toolkit.enqueue_job(
-                #    batch_save_job,
-                #    [job_id, data, current_user.name, org_id],
-                #    title=f'Batch upload for Org# {org_id} by {current_user.name}',
-                #)
-                #queue_job_id = getattr(rq_job, "id", None)
-                #log.info(f"Enqueued batch save job with RQ job ID: {queue_job_id} and custom job ID: {job_id}")
+                #batch_save_job(job_id, data, current_user.name, org_id)
+                rq_job =toolkit.enqueue_job(
+                    batch_save_job,
+                    [job_id, data, current_user.name, org_id],
+                    title=f'Batch upload for Org# {org_id} by {current_user.name}',
+                )
+                queue_job_id = getattr(rq_job, "id", None)
+                log.info(f"Enqueued batch save job with RQ job ID: {queue_job_id} and custom job ID: {job_id}")
 
                 # Clear the preview from the session – the worker has its own
                 # copy of the data passed as arguments.
-                #session.pop('preview_data', None)
-                #session.pop('file_name', None)
+                session.pop('preview_data', None)
+                session.pop('file_name', None)
 
-                #return redirect(toolkit.config["ckan.site_url"].rstrip("/") + url_for(
-                #    'igsn_theme.batch_job_status_page',
-                #    job_id=job_id,
-                #    group=org_id
-                #))
+                return redirect(toolkit.config["ckan.site_url"].rstrip("/") + url_for(
+                    'igsn_theme.batch_job_status_page',
+                    job_id=job_id,
+                    group=org_id
+                ))
 
             else:
                 h.flash_error(_('Invalid action'), 'error')
