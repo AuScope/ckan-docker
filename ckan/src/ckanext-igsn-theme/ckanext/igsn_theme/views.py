@@ -25,7 +25,7 @@ from ckanext.igsn_theme.logic.batch_process import (
 from ckanext.igsn_theme.logic import (
     email_notifications
 )
-from job import simple_job  # Import the simple_job function
+from ckanext.igsn_theme.job import simple_job  # Import the simple_job function
 check_access = logic.check_access
 NotAuthorized = logic.NotAuthorized
 NotFound = logic.NotFound
