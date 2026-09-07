@@ -215,17 +215,6 @@ class BatchUploadView(MethodView):
                 # threaded through both the state file and the worker function.
                 job_id = str(_uuid.uuid4())
 
-                # Probe: verify all job args can be pickled before handing to RQ.
-                # If this raises, the error will appear in the web process log
-                # rather than silently killing the RQ worker child.
-                import pickle as _pickle
-                try:
-                    _pickle.dumps([job_id, data, current_user.name, org_id])
-                    log.info("batch_save_job args pickle probe: OK")
-                except Exception as _pickle_err:
-                    log.error("batch_save_job args pickle probe FAILED: %s", _pickle_err)
-                    raise
-
                 # Seed the state file immediately so the status endpoint has
                 # something to return before the worker picks up the job.
                 write_job_state(job_id, {
@@ -240,8 +229,7 @@ class BatchUploadView(MethodView):
                 # Enqueue the save operation as a background job so it does
                 # not block the web request.
                 log.info(f"Enqueuing batch save job with custom job ID: {job_id} for organization: {org_id} by user: {current_user.name}")
-                #batch_save_job(job_id, data, current_user.name, org_id)
-                rq_job =toolkit.enqueue_job(
+                rq_job = toolkit.enqueue_job(
                     batch_save_job,
                     [job_id, data, current_user.name, org_id],
                     title=f'Batch upload for Org# {org_id} by {current_user.name}',
