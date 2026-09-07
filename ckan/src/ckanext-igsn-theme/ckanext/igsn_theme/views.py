@@ -21,6 +21,7 @@ from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, v
 from ckanext.igsn_theme.logic.batch_process import (
     prepare_samples_data, read_excel_sheets,
     batch_save_job, read_job_state, write_job_state,
+    _serialisable_samples,
 )
 from ckanext.igsn_theme.logic import (
     email_notifications
@@ -208,11 +209,22 @@ class BatchUploadView(MethodView):
                 log.info(f"{len(preview_data['samples'])=}")
                 log.info(f"File name retrieved from session for saving: {file_name}")
 
-                data = preview_data['samples']
+                data = _serialisable_samples(preview_data['samples'])
 
                 # Generate a stable job ID before enqueuing so it can be
                 # threaded through both the state file and the worker function.
                 job_id = str(_uuid.uuid4())
+
+                # Probe: verify all job args can be pickled before handing to RQ.
+                # If this raises, the error will appear in the web process log
+                # rather than silently killing the RQ worker child.
+                import pickle as _pickle
+                try:
+                    _pickle.dumps([job_id, data, current_user.name, org_id])
+                    log.info("batch_save_job args pickle probe: OK")
+                except Exception as _pickle_err:
+                    log.error("batch_save_job args pickle probe FAILED: %s", _pickle_err)
+                    raise
 
                 # Seed the state file immediately so the status endpoint has
                 # something to return before the worker picks up the job.
