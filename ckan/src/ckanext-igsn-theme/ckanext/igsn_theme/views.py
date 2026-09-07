@@ -25,7 +25,6 @@ from ckanext.igsn_theme.logic.batch_process import (
 from ckanext.igsn_theme.logic import (
     email_notifications
 )
-from ckanext.igsn_theme.job import simple_job  # Import the simple_job function
 check_access = logic.check_access
 NotAuthorized = logic.NotAuthorized
 NotFound = logic.NotFound
@@ -231,10 +230,8 @@ class BatchUploadView(MethodView):
                 log.info(f"Enqueuing batch save job with custom job ID: {job_id} for organization: {org_id} by user: {current_user.name}")
                 #batch_save_job(job_id, data, current_user.name, org_id)
                 rq_job =toolkit.enqueue_job(
-                    simple_job,  # Use the simple_job function for testing
-                    [],
-                    #batch_save_job,
-                    #[job_id, data, current_user.name, org_id],
+                    batch_save_job,
+                    [job_id, data, current_user.name, org_id],
                     title=f'Batch upload for Org# {org_id} by {current_user.name}',
                 )
                 queue_job_id = getattr(rq_job, "id", None)
