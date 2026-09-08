@@ -45,7 +45,7 @@ stderr_logfile=/var/log/ckan-worker.stderr.log
 
 ; Make sure that the worker is started on system start and automatically
 ; restarted if it crashes unexpectedly.
-autostart=true
+autostart=false
 autorestart=true
 
 

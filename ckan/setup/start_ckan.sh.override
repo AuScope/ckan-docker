@@ -152,9 +152,22 @@ UWSGI_OPTS="--plugins http,python \
 
 if [ $? -eq 0 ]
 then
-    # Start supervisord
+    # Start supervisord in background (worker autostart=false, started explicitly below)
     supervisord --configuration /etc/supervisord.conf &
-    # Start uwsgi
+    SUPERVISORD_PID=$!
+
+    # Wait for supervisord socket to be ready
+    for i in $(seq 1 10); do
+        supervisorctl status > /dev/null 2>&1 && break
+        echo "Waiting for supervisord to be ready... ($i)"
+        sleep 1
+    done
+
+    # Start the worker now that ckan.ini is fully written
+    echo "Starting ckan-worker via supervisorctl"
+    supervisorctl start ckan-worker:ckan-worker-00
+
+    # Start uwsgi in foreground as PID 1 equivalent
     su ckan -c "/usr/sbin/uwsgi $UWSGI_OPTS"
 else
   echo "[prerun] failed...not starting CKAN."
