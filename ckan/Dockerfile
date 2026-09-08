@@ -97,8 +97,12 @@ COPY patches ${APP_DIR}/patches
 
 RUN for d in $APP_DIR/patches/*; do \
   if [ -d $d ]; then \
-  for f in `ls $d/*.patch | sort -g`; do \
-  cd $SRC_DIR/`basename "$d"` && echo "$0: Applying patch $f to $SRC_DIR/`basename $d`"; patch -p1 < "$f" ; \
+  for f in $(ls $d/*.patch $d/*.py 2>/dev/null | sort -g); do \
+  cd $SRC_DIR/$(basename "$d") && echo "$0: Applying patch $f to $SRC_DIR/$(basename $d)"; \
+  case "$f" in \
+    *.patch) patch -p1 < "$f" ;; \
+    *.py)    python3 "$f" ;; \
+  esac ; \
   done ; \
   fi ; \
   done
