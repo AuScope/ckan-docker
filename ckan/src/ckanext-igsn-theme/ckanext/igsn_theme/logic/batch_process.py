@@ -65,6 +65,19 @@ def read_job_state(job_id):
 
 
 def batch_save_job(job_id, data, user_name, org_id):
+    try:
+        _batch_save_job(job_id, data, user_name, org_id)
+    except SystemExit as exc:
+        log.error("batch_save_job: SystemExit raised with code %s", exc.code)
+        write_job_state(job_id, {'status': 'failed', 'error': f'SystemExit: {exc.code}'})
+        raise
+    except BaseException as exc:
+        log.error("batch_save_job: unhandled exception: %s", exc, exc_info=True)
+        write_job_state(job_id, {'status': 'failed', 'error': str(exc)})
+        raise
+
+
+def _batch_save_job(job_id, data, user_name, org_id):
     """
     Background job that creates CKAN packages for each sample in *data*.
 
