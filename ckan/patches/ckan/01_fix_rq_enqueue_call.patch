@@ -1,0 +1,22 @@
+--- a/ckan/lib/jobs.py
++++ b/ckan/lib/jobs.py
+@@ -155,9 +155,17 @@ def enqueue(fn: Callable[..., Any],
+     if rq_kwargs is None:
+         rq_kwargs = {}
+     timeout = config.get(u'ckan.jobs.timeout')
+     rq_kwargs[u'timeout'] = rq_kwargs.get(u'timeout', timeout)
+ 
+-    job = get_queue(queue).enqueue_call(
+-        func=fn, args=args, kwargs=kwargs, **rq_kwargs)
++    # rq >= 1.0 removed enqueue_call() in favour of enqueue().
++    q = get_queue(queue)
++    if hasattr(q, 'enqueue_call'):
++        log.info(u'enqueue: using enqueue_call (rq < 1.0) for queue "%s"', queue)
++        job = q.enqueue_call(func=fn, args=args, kwargs=kwargs, **rq_kwargs)
++    else:
++        log.info(u'enqueue: using enqueue (rq >= 1.0) for queue "%s"', queue)
++        job = q.enqueue(fn, args=args, kwargs=kwargs, **rq_kwargs)
++    log.info(u'enqueue: job %s created, origin queue key: %s', job.id, job.origin)
+     job.meta[u'title'] = title
+     job.save()
+     msg = u'Added background job {}'.format(job.id)
