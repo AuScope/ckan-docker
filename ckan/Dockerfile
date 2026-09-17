@@ -49,9 +49,9 @@ RUN pip install --upgrade pip
 
 RUN pip install future
 
-RUN pip install -e "git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-spatial"
 COPY spatial-reqs.txt /tmp/spatial-reqs.txt
 RUN pip install -r /tmp/spatial-reqs.txt
+RUN pip install -e "git+https://github.com/ckan/ckanext-spatial.git#egg=ckanext-spatial"
 
 RUN pip install future
 
@@ -89,6 +89,7 @@ RUN pip install -e "git+https://github.com/AuScope/ckanext-dcat.git@auscope_cust
 COPY setup/prerun.py.override ${APP_DIR}/prerun.py
 COPY setup/start_ckan.sh.override ${APP_DIR}/start_ckan.sh
 COPY setup/create_auscope_org.sql ${APP_DIR}/create_auscope_org.sql
+COPY setup/supervisord.conf.override /etc/supervisord.conf
 # Apply any patches needed to CKAN core or any of the built extensions (not the
 # runtime mounted ones)
 

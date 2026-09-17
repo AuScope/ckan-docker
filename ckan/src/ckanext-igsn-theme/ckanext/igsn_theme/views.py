@@ -16,8 +16,13 @@ import json
 import pandas as pd
 from datetime import date
 import re
+import uuid as _uuid
 from ckanext.igsn_theme.logic.batch_validation import validate_parent_samples, validate_related_resources, validate_authors, validate_samples, validate_sample_names
-from ckanext.igsn_theme.logic.batch_process import prepare_samples_data, set_parent_sample, read_excel_sheets
+from ckanext.igsn_theme.logic.batch_process import (
+    prepare_samples_data, read_excel_sheets,
+    batch_save_job, read_job_state, write_job_state,
+    _serialisable_samples,
+)
 from ckanext.igsn_theme.logic import (
     email_notifications
 )
@@ -67,10 +72,8 @@ class BatchUploadView(MethodView):
         Returns:
         dict: Data extracted from the Excel file for preview.
         """
-        logger = logging.getLogger(__name__)
         try:
             all_errors = []
-            logger = logging.getLogger(__name__)
             content = uploaded_file.read()
             excel_data = BytesIO(content)
             sheets = ["samples", "authors", "related_resources", "funding"]
@@ -83,7 +86,8 @@ class BatchUploadView(MethodView):
             
             all_errors.extend(validate_samples(samples_df, related_resources_df, authors_df, funding_df))
             all_errors.extend(validate_authors(authors_df))
-            all_errors.extend(validate_related_resources(related_resources_df))
+            if len(related_resources_df) > 0:
+                all_errors.extend(validate_related_resources(related_resources_df))
             all_errors.extend(validate_parent_samples(samples_df))
             all_errors.extend(validate_sample_names(samples_df, org_id))
             if all_errors:
@@ -94,14 +98,13 @@ class BatchUploadView(MethodView):
                     {formatted_errors}""")
                 
             samples_data = prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id)
-            
             return_value = {
                 "samples": samples_data,
                 "authors": authors_df.to_dict("records"),
                 "related_resources": related_resources_df.to_dict("records"),
                 "funders": funding_df.to_dict("records")
 
-            }  
+            }
             return return_value
 
         except Exception as e:
@@ -114,6 +117,52 @@ class BatchUploadView(MethodView):
         self._prepare()
         org_id = request.args.get('group')
         return render_template('batch/new.html', group=org_id, preview_data={}, file_name="")
+
+    def save_data(self, data, context):
+        """
+        Saves the data to CKAN by creating packages for each sample.
+
+        Args:
+        data (list): List of sample data dictionaries to be saved.
+        context (dict): The CKAN context for authorization. 
+
+        Returns:
+        tuple: A tuple containing:
+            - created_sample_ids (list): List of dictionaries with 'id' and 'sample_number' for each successfully created sample.
+            - successful_creations (int): Count of successfully created samples.
+            - unsuccessful_creations (int): Count of unsuccessfully created samples.
+        """
+        log.info(f"Starting to save data for {len(data)} samples.")
+        log.info(f"Context: {context}")
+        created_sample_ids = []
+        successful_creations = 0
+        unsuccessful_creations = 0
+        for sample_data in data:
+            try:
+                log.info(f"Attempting to create sample with data: {sample_data}")
+                created_sample = get_action('package_create')(context, sample_data)
+                created_sample_ids.append({
+                    'id': created_sample['id'],
+                    'sample_number': sample_data.get('sample_number')
+                })
+                successful_creations += 1
+                sample_data['status'] = "created"
+            except Exception as e:
+                error_message = str(e)
+                log.error(f"Failed to create sample: {error_message}")
+                unsuccessful_creations += 1
+                sample_data['status'] = "error"
+                sample_data['log'] = error_message
+
+                # Rollback: delete all successfully created samples
+                for sample in created_sample_ids:
+                    try:
+                        get_action('package_delete')(context, {'id': sample['id']})
+                    except Exception as delete_exception:
+                        # Log the exception, but continue with the rollback
+                        log.error(f"Failed to delete sample {sample['id']}: {delete_exception}")
+                break
+        return created_sample_ids, successful_creations, unsuccessful_creations
     
     def post(self):
         """
@@ -124,7 +173,7 @@ class BatchUploadView(MethodView):
         uploaded_file = request.files.get('file')
         save_option = request.form.get('save')
         preview_option = request.form.get('preview')
-        update_option = request.form.get('update')
+        #update_option = request.form.get('update')
         preview_data = {}
         file_name = ''
         
@@ -153,65 +202,51 @@ class BatchUploadView(MethodView):
             elif save_option == 'Save':
                 preview_data = session.get('preview_data', {})
                 file_name = session.get('file_name', '')
-                if not preview_data or not preview_data.get('samples'):
+                if not preview_data or not preview_data.get('samples') or not isinstance(preview_data['samples'], list):
                     h.flash_error(_('Please generate a preview first.'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))
+                log.info(f"First 2 of preview data retrieved from session for saving: {preview_data['samples'][:2]}")
+                log.info(f"{len(preview_data['samples'])=}")
+                log.info(f"File name retrieved from session for saving: {file_name}")
 
-                data = preview_data['samples']
-                created_sample_ids = []
-                successful_creations = 0
-                unsuccessful_creations = 0
+                data = _serialisable_samples(preview_data['samples'])
 
-                for sample_data in data:
-                    try:
-                        created_sample = get_action('package_create')(context, sample_data)
-                        created_sample_ids.append({
-                            'id': created_sample['id'],
-                            'sample_number': sample_data.get('sample_number')
-                        })
-                        successful_creations += 1
-                        sample_data['status'] = "created"
-                    except Exception as e:
-                        error_message = str(e)
-                        log.error(f"Failed to create sample: {error_message}")
-                        unsuccessful_creations += 1
-                        sample_data['status'] = "error"
-                        sample_data['log'] = error_message
+                # Generate a stable job ID before enqueuing so it can be
+                # threaded through both the state file and the worker function.
+                job_id = str(_uuid.uuid4())
 
-                        # Rollback: delete all successfully created samples
-                        for sample in created_sample_ids:
-                            try:
-                                get_action('package_delete')(context, {'id': sample['id']})
-                            except Exception as delete_exception:
-                                # Log the exception, but continue with the rollback
-                                log.error(f"Failed to delete sample {sample['id']}: {delete_exception}")
-                        break
+                # Seed the state file immediately so the status endpoint has
+                # something to return before the worker picks up the job.
+                write_job_state(job_id, {
+                    'status': 'queued',
+                    'total': len(data),
+                    'processed': 0,
+                    'successful': 0,
+                    'unsuccessful': 0,
+                    'samples': [],
+                })
 
-                for sample_data in data:
-                    if 'status' not in sample_data:
-                        sample_data['status'] = "error"
-                    if 'type' not in sample_data:
-                        sample_data['type'] = "NA"
-                    if 'log' not in sample_data:
-                        sample_data['log'] = ""
+                # Enqueue the save operation as a background job so it does
+                # not block the web request.
+                log.info(f"Enqueuing batch save job with custom job ID: {job_id} for organization: {org_id} by user: {current_user.name}")
+                rq_job = toolkit.enqueue_job(
+                    batch_save_job,
+                    [job_id, data, current_user.name, org_id],
+                    title=f'Batch upload for Org# {org_id} by {current_user.name}',
+                )
+                queue_job_id = getattr(rq_job, "id", None)
+                log.info(f"Enqueued batch save job with RQ job ID: {queue_job_id} and custom job ID: {job_id}")
 
-                if unsuccessful_creations == 0:
-                    # Store the created samples in the session for later use
-                    session['created_samples'] = created_sample_ids
-                    # All samples were created successfully
-                    set_parent_sample(context)
-                    session.pop('preview_data', None)
-                    session.pop('file_name', None)
-                    session.pop('created_samples', None)
-                    h.flash_success(_('Successfully processed your submission'))
-                    return render_template('batch/new.html', group=org_id, preview_data={}, file_name='')
-                
-                elif successful_creations == 0:
-                    h.flash_error(_('Failed to create any samples.'), 'error')
-                    return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
-                else:
-                    h.flash_error(f"Successfully created {successful_creations} samples. {unsuccessful_creations} samples failed to create and have been rolled back.")
-                    return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
+                # Clear the preview from the session – the worker has its own
+                # copy of the data passed as arguments.
+                session.pop('preview_data', None)
+                session.pop('file_name', None)
+
+                return redirect(toolkit.config["ckan.site_url"].rstrip("/") + url_for(
+                    'igsn_theme.batch_job_status_page',
+                    job_id=job_id,
+                    group=org_id
+                ))
 
             else:
                 h.flash_error(_('Invalid action'), 'error')
@@ -226,7 +261,9 @@ class BatchUploadView(MethodView):
             h.flash_error(_('Validation error: ') + str(e), 'error')
             return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
         except Exception as e:
-            h.flash_error(_('Unexpected error: ') + str(e), 'error')
+            import traceback
+            log.error('Unexpected error uploading batch sample: ' + traceback.format_exc())
+            h.flash_error(_('Unexpected error, see container log for more detail: ') + str(e), 'error')
             return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
 
         return render_template('batch/new.html', group=org_id, preview_data=preview_data, file_name=file_name)
@@ -245,6 +282,67 @@ igsn_theme.add_url_rule(
     view_func=BatchUploadView.as_view('batch_upload'),
     methods=['GET', 'POST']
 )
+
+@igsn_theme.route('/batch_job/<job_id>', methods=['GET'])
+def batch_job_status_page(job_id):
+    """
+    Render the batch-upload job status/result page.
+
+    The page polls ``/batch_job_status/<job_id>`` via JavaScript and updates
+    itself until the job reaches a terminal state (``complete`` or ``failed``).
+    """
+    context = {
+        'user': current_user.name,
+        'auth_user_obj': current_user,
+    }
+    try:
+        check_access('package_create', context)
+    except NotAuthorized:
+        base.abort(403, _('Unauthorized'))
+
+    org_id = request.args.get('group', '')
+    try:
+        state = read_job_state(job_id) or {'status': 'unknown'}
+    except ValueError:
+        base.abort(404, _('Job not found'))
+    return render_template(
+        'batch/job_status.html',
+        job_id=job_id,
+        group=org_id,
+        state=state,
+    )
+
+
+@igsn_theme.route('/batch_job_status/<job_id>', methods=['GET'])
+def batch_job_status_api(job_id):
+    """
+    JSON endpoint to poll the status of a background batch-upload job.
+
+    Returns a JSON object with at minimum the keys:
+    ``status``        – one of ``queued``, ``running``, ``complete``, ``failed``, ``unknown``
+    ``total``         – total number of samples in the job
+    ``processed``     – number processed so far
+    ``successful``    – successfully created packages
+    ``unsuccessful``  – failed packages
+    ``samples``       – list of per-sample dicts (status/log fields populated)
+    """
+    context = {
+        'user': current_user.name,
+        'auth_user_obj': current_user,
+    }
+    try:
+        check_access('package_create', context)
+    except NotAuthorized:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    try:
+        state = read_job_state(job_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid job_id'}), 400
+    if state is None:
+        return jsonify({'status': 'unknown', 'total': 0, 'processed': 0,
+                        'successful': 0, 'unsuccessful': 0, 'samples': []})
+    return jsonify(state)
 
 def convert_to_serializable(obj):
     """

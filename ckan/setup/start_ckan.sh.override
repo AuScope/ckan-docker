@@ -2,6 +2,15 @@
 
 # Add ckan.datapusher.api_token to the CKAN config file (updated with corrected value later)
 ckan config-tool $CKAN_INI ckan.datapusher.api_token=xxx
+
+# Write the Redis URL from the environment variable into ckan.ini so that
+# both the uWSGI web process AND the supervisord worker process read the
+# same value.  The CKAN_REDIS_URL env var is consumed by ckanext-envvars
+# for the web process but the worker reads ckan.ini directly.
+if [ -n "${CKAN_REDIS_URL:-}" ]; then
+    ckan config-tool $CKAN_INI "ckan.redis.url = $CKAN_REDIS_URL"
+    echo "Set ckan.redis.url = $CKAN_REDIS_URL"
+fi
 APP_DIR=$(dirname "$CKAN_INI")
 SRC_EXTENSIONS_DIR=$APP_DIR/src_extensions
 echo "Ckan app directory: $APP_DIR"
@@ -125,7 +134,7 @@ echo "Adding AuScope organization to DB"
 export PGPASSWORD=$CKAN_DB_PASSWORD
 export PGUSER=$CKAN_DB_USER
 export PGDATABASE=$CKAN_DB
-DB_HOST = $(echo $CKAN_SQLALCHEMY_URL | cut -d '@' -f2 | cut -d':' -f1)
+DB_HOST=$(echo $CKAN_SQLALCHEMY_URL | cut -d '@' -f2 | cut -d':' -f1)
 psql -h $DB_HOST -p 5432 -f create_auscope_org.sql
 # psql -h db -p 5432 -f create_auscope_org.sql
 
