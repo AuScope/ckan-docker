@@ -173,6 +173,31 @@ def _batch_save_job(job_id, data, user_name, org_id):
         except Exception as exc:
             log.error("batch_save_job: set_parent_sample failed: %s", exc)
 
+    # Mint DOIs for successfully created samples.
+    #
+    # The ckanext-doi extension only mints/publishes a DOI on DataCite from its
+    # ``after_dataset_update`` hook; ``after_dataset_create`` merely reserves a
+    # local DOI record. Because this batch job creates samples with
+    # ``package_create`` and (for parentless samples) never issues a subsequent
+    # ``package_update``, that hook never fires and DOIs are never minted.
+    #
+    # Trigger one ``package_update`` per created sample so the DOI hook runs.
+    # We reload each package via ``package_show`` first (mirroring
+    # ``set_parent_sample_with_data``) so the dict has correctly-typed ``state``,
+    # ``private`` and ``publication_date`` values. The DOI hook is idempotent:
+    # it only mints when the DOI is unpublished and otherwise just checks the
+    # metadata, so updating an already-parented sample again is safe.
+    if unsuccessful_creations == 0:
+        for created in created_sample_ids:
+            try:
+                pkg = toolkit.get_action('package_show')(context, {'id': created['id']})
+                toolkit.get_action('package_update')(context, pkg)
+            except Exception as exc:
+                log.error(
+                    "batch_save_job: DOI-minting update failed for %s: %s",
+                    created['id'], exc,
+                )
+
     final_status = 'complete' if unsuccessful_creations == 0 else 'failed'
     write_job_state(job_id, {
         'status': final_status,
