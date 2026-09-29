@@ -44,7 +44,7 @@ def organization_list_for_user(next_action, context, data_dict):
 
 @tk.chained_action
 def package_create(next_action, context, data_dict):
-    logger = logging.getLogger(__name__)
+    # logger = logging.getLogger(__name__)
     # logger.info("package_create before data_dict: %s", pformat(data_dict))
     
     package_type = data_dict.get('type')
@@ -77,6 +77,8 @@ def package_create(next_action, context, data_dict):
             acquisition_start_date = acquisition_start_date.strftime('%Y-%m-%d')
         if isinstance(acquisition_start_date, str):
             acquisition_start_date = acquisition_start_date.strip()
+        if acquisition_start_date is None:
+            acquisition_start_date = ''
         data_dict['acquisition_start_date'] = acquisition_start_date
 
     if 'acquisition_end_date' in data_dict:
@@ -85,6 +87,8 @@ def package_create(next_action, context, data_dict):
             acquisition_end_date = acquisition_end_date.strftime('%Y-%m-%d')
         if isinstance(acquisition_end_date, str):
             acquisition_end_date = acquisition_end_date.strip()
+        if acquisition_end_date is None:
+            acquisition_end_date = ''
         data_dict['acquisition_end_date'] = acquisition_end_date
 
 
