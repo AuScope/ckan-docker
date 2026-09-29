@@ -205,7 +205,7 @@ class BatchUploadView(MethodView):
                 if not preview_data or not preview_data.get('samples') or not isinstance(preview_data['samples'], list):
                     h.flash_error(_('Please generate a preview first.'), 'error')
                     return redirect(url_for('igsn_theme.batch_upload', group=org_id))
-                log.info(f"First 2 of preview data retrieved from session for saving: {preview_data['samples'][:2]}")
+                log.debug(f"First 2 of preview data retrieved from session for saving: {preview_data['samples'][:2]}")
                 log.info(f"{len(preview_data['samples'])=}")
                 log.info(f"File name retrieved from session for saving: {file_name}")
 
