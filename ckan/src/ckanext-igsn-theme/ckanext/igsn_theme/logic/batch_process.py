@@ -115,7 +115,6 @@ def _batch_save_job(job_id, data, user_name, org_id):
         'unsuccessful': 0,
         'samples': [],
     })
-    print(f"batch_save_job: job state written", flush=True)
 
     created_sample_ids = []
     successful_creations = 0
@@ -210,7 +209,6 @@ def _batch_save_job(job_id, data, user_name, org_id):
         'unsuccessful': unsuccessful_creations,
         'samples': _serialisable_samples(data),
     })
-    print(f"batch_save_job finished for job_id={job_id} status={final_status}", flush=True)
     #log.info("batch_save_job finished for job_id=%s status=%s", job_id, final_status)
 
 
