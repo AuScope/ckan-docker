@@ -100,9 +100,13 @@ def _batch_save_job(job_id, data, user_name, org_id):
     context = {
         'user': user_name,
         'ignore_auth': False,
+        # This job runs in a background RQ worker with no Flask request
+        # context. ckanext-doi's after_dataset_update flashes a success message
+        # on mint/update, which would raise "Working outside of request
+        # context". Signal the DOI hook to skip flashing.
+        'defer_flash': True,
     }
-    print(f"PRINT batch_save_job started for job_id={job_id}, {len(data)} samples", flush=True)
-    #log.info("batch_save_job started for job_id=%s, %d samples", job_id, len(data))
+    log.info("batch_save_job started for job_id=%s, %d samples", job_id, len(data))
     write_job_state(job_id, {
         'status': 'running',
         'total': len(data),
@@ -120,8 +124,7 @@ def _batch_save_job(job_id, data, user_name, org_id):
     for i, sample_data in enumerate(data):
         _error_occurred = False
         try:
-            print(f"batch_save_job: creating sample {i + 1}/{len(data)}", flush=True)
-            #log.info("batch_save_job: creating sample %d/%d", i + 1, len(data))
+            log.info("batch_save_job: creating sample %d/%d", i + 1, len(data))
             created_sample = get_action('package_create')(context, sample_data)
             created_sample_ids.append({
                 'id': created_sample['id'],
