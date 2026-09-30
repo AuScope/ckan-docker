@@ -45,21 +45,49 @@
 {% endblock %}
 
 {% block header_site_navigation_tabs %}
+
+<span id="auscope-tools-config"
+        data-tools-href="/tools"
+        data-tools-external="https://avre.auscope.org.au"
+        hidden></span>
+
 {{ h.build_nav_main(
 (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Datasets'), ["dataset",
 "resource"]),
-('home.about', _('About')) ) }}
+('home.about', _('About')),
+('auscope_tools.external', _('AuScope Tools'))
+) }}
 <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
         {{ _('Help') }} <b class="caret"></b>
     </a>
     <ul class="dropdown-menu">
-        <li><a href="http://hdl.handle.net/102.100.100/635402?index=1" target="_blank">{{ _('User Manual') }}</a></li>
-        <li><a href="https://doi.org/10.25919/0m8k-rq54" target="_blank">{{ _('Data Deposit Guidelines') }}</a></li>
-        <li><a href="/citation-guide" target="_blank">{{ _('Citation Guide') }}</a></li>
+        <li>
+            <a href="http://hdl.handle.net/102.100.100/635402?index=1" target="_blank">
+                <i class="fa-solid fa-book-open"></i>
+                &nbsp;{{ _('User Manual') }}
+            </a>
+        </li>
+        <li>
+            <a href="https://doi.org/10.25919/0m8k-rq54" target="_blank">
+                <i class="fa-solid fa-clipboard-list"></i>
+                &nbsp;{{ _('Data Deposit Guidelines') }}
+            </a>
+        </li>
+        <li>
+            <a href="/citation-guide" target="_blank">
+                <i class="fa-solid fa-quote-right"></i>
+                &nbsp;{{ _('Citation Guide') }}
+            </a>
+        </li>
     </ul>
 </li>
 
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% asset 'auscope_theme/auscope_theme-js' %}
 {% endblock %}
 
 <a class="btn btn-primary" data-module="modal-contact" data-module-template="" href="" title="">
