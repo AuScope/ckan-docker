@@ -87,24 +87,24 @@ ckan.module('composite-repeating-module', function ($, _) {
               dataType: 'json',
               delay: 250,
               data: function (params) {
-                return { affiliation: params };
+                return { query: params };
               },
               processResults: function (data) {
                 return {
                   results: $.map(data.items, function (item) {
                     let anyName = "Unknown"
                     // An organisation has lots of names, acronyms and aliases
-                    for (const name of item.organization.names) {
+                    for (const name of item.names) {
                       // But we only want the 'ror_display' name type
                       for (const type of name.types) {
                         if (type === 'ror_display') {
-                          return { id: item.organization.id, text: name.value };
+                          return { id: item.id, text: name.value };
                         }
                       }
                       anyName = name.value;
                     }
                     // If there is no 'ror_display' name type
-                    return { id: item.organization.id, text: anyName };
+                    return { id: item.id, text: anyName };
                   })
                 };
               },
