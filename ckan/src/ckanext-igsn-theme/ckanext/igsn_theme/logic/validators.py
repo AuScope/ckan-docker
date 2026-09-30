@@ -104,18 +104,18 @@ def location_validator(field, schema):
                 add_error(errors, elevation_key, invalid_error)
    
         try:
-            logger.debug("location_data: %s", location_data)
+            # logger.debug("location_data: %s", location_data)
             
             geom = shape(location_data['features'][0]['geometry'])
-            logger.debug("WKT for spatial field: %s", geom.wkt)
+            # logger.debug("WKT for spatial field: %s", geom.wkt)
             
             geojson_geom = geojson.dumps(mapping(geom))
-            logger.debug("GeoJSON for spatial field: %s", geojson_geom)
+            # logger.debug("GeoJSON for spatial field: %s", geojson_geom)
             
             data['spatial',] = geojson_geom
 
 
-            logger.debug("Data after setting spatial: %s", pformat(data))
+            # logger.debug("Data after setting spatial: %s", pformat(data))
 
         except Exception as e:
             logger.error("Error processing GeoJSON: %s", e)

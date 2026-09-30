@@ -65,6 +65,12 @@ def read_job_state(job_id):
 
 
 def batch_save_job(job_id, data, user_name, org_id):
+    """Wrapper around :func:`_batch_save_job` that records failures to disk.
+
+    Runs the batch save job and, if any exception (including ``SystemExit``)
+    is raised, persists a ``failed`` job state before re-raising so the status
+    endpoint can report the error.
+    """
     try:
         _batch_save_job(job_id, data, user_name, org_id)
     except SystemExit as exc:
@@ -94,9 +100,13 @@ def _batch_save_job(job_id, data, user_name, org_id):
     context = {
         'user': user_name,
         'ignore_auth': False,
+        # This job runs in a background RQ worker with no Flask request
+        # context. ckanext-doi's after_dataset_update flashes a success message
+        # on mint/update, which would raise "Working outside of request
+        # context". Signal the DOI hook to skip flashing.
+        'defer_flash': True,
     }
-    print(f"PRINT batch_save_job started for job_id={job_id}, {len(data)} samples", flush=True)
-    #log.info("batch_save_job started for job_id=%s, %d samples", job_id, len(data))
+    log.info("batch_save_job started for job_id=%s, %d samples", job_id, len(data))
     write_job_state(job_id, {
         'status': 'running',
         'total': len(data),
@@ -105,7 +115,6 @@ def _batch_save_job(job_id, data, user_name, org_id):
         'unsuccessful': 0,
         'samples': [],
     })
-    print(f"batch_save_job: job state written", flush=True)
 
     created_sample_ids = []
     successful_creations = 0
@@ -114,8 +123,7 @@ def _batch_save_job(job_id, data, user_name, org_id):
     for i, sample_data in enumerate(data):
         _error_occurred = False
         try:
-            print(f"batch_save_job: creating sample {i + 1}/{len(data)}", flush=True)
-            #log.info("batch_save_job: creating sample %d/%d", i + 1, len(data))
+            log.info("batch_save_job: creating sample %d/%d", i + 1, len(data))
             created_sample = get_action('package_create')(context, sample_data)
             created_sample_ids.append({
                 'id': created_sample['id'],
@@ -167,6 +175,31 @@ def _batch_save_job(job_id, data, user_name, org_id):
         except Exception as exc:
             log.error("batch_save_job: set_parent_sample failed: %s", exc)
 
+    # Mint DOIs for successfully created samples.
+    #
+    # The ckanext-doi extension only mints/publishes a DOI on DataCite from its
+    # ``after_dataset_update`` hook; ``after_dataset_create`` merely reserves a
+    # local DOI record. Because this batch job creates samples with
+    # ``package_create`` and (for parentless samples) never issues a subsequent
+    # ``package_update``, that hook never fires and DOIs are never minted.
+    #
+    # Trigger one ``package_update`` per created sample so the DOI hook runs.
+    # We reload each package via ``package_show`` first (mirroring
+    # ``set_parent_sample_with_data``) so the dict has correctly-typed ``state``,
+    # ``private`` and ``publication_date`` values. The DOI hook is idempotent:
+    # it only mints when the DOI is unpublished and otherwise just checks the
+    # metadata, so updating an already-parented sample again is safe.
+    if unsuccessful_creations == 0:
+        for created in created_sample_ids:
+            try:
+                pkg = toolkit.get_action('package_show')(context, {'id': created['id']})
+                toolkit.get_action('package_update')(context, pkg)
+            except Exception as exc:
+                log.error(
+                    "batch_save_job: DOI-minting update failed for %s: %s",
+                    created['id'], exc,
+                )
+
     final_status = 'complete' if unsuccessful_creations == 0 else 'failed'
     write_job_state(job_id, {
         'status': final_status,
@@ -176,7 +209,6 @@ def _batch_save_job(job_id, data, user_name, org_id):
         'unsuccessful': unsuccessful_creations,
         'samples': _serialisable_samples(data),
     })
-    print(f"batch_save_job finished for job_id={job_id} status={final_status}", flush=True)
     #log.info("batch_save_job finished for job_id=%s status=%s", job_id, final_status)
 
 
@@ -196,6 +228,15 @@ def _serialisable_samples(samples):
 
 
 def generate_location_geojson(coordinates_list):
+        """Build a GeoJSON FeatureCollection of points from *coordinates_list*.
+
+        Args:
+            coordinates_list (list): Iterable of ``(lat, lng)`` tuples.
+
+        Returns:
+            dict: A GeoJSON ``FeatureCollection`` with one Point feature per
+                  coordinate pair.
+        """
         features = []
         for lat, lng in coordinates_list:
             point_feature = {
@@ -215,11 +256,42 @@ def generate_location_geojson(coordinates_list):
         return feature_collection
 
 def process_author_emails(sample, authors_df):
+        """Return JSON author records matching the emails listed on *sample*.
+
+        Splits the semicolon-separated ``author_emails`` field of *sample*,
+        looks up the matching rows in *authors_df*, and returns them as a JSON
+        string.
+
+        Args:
+            sample (dict): Sample row containing an ``author_emails`` field.
+            authors_df (pandas.DataFrame): Author records keyed by
+                ``author_email``.
+
+        Returns:
+            str: JSON-encoded list of matched author records.
+        """
         author_emails = [email.strip() for email in sample.get("author_emails", "").split(";")]
         matched_authors = authors_df[authors_df["author_email"].isin(author_emails)]
         return json.dumps(matched_authors.to_dict("records"))
 
 def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_df, org_id):
+        """Transform spreadsheet rows into CKAN package dicts ready for creation.
+
+        Iterates over *samples_df*, enriching each row with author, related
+        resource and funding data from the other DataFrames, resolving EPSG
+        names, building location GeoJSON, applying default publisher fields,
+        and generating each sample's name and title.
+
+        Args:
+            samples_df (pandas.DataFrame): One row per sample.
+            authors_df (pandas.DataFrame): Author records.
+            related_resources_df (pandas.DataFrame): Related resource records.
+            funding_df (pandas.DataFrame): Funding/project records.
+            org_id (str): Organisation ID owning the samples.
+
+        Returns:
+            list: List of sample data dicts suitable for ``package_create``.
+        """
         samples_data = []
         # Keep a dictionary to cache EPSG names to avoid repeated API calls for the same EPSG code
         current_epsg_dict = {}
@@ -273,6 +345,23 @@ def prepare_samples_data(samples_df, authors_df, related_resources_df, funding_d
         return samples_data
     
 def process_related_resources(sample, related_resources_df):
+    """Return JSON related-resource records for the URLs listed on *sample*.
+
+    Splits the semicolon-separated ``related_resources_urls`` field, validates
+    each URL and its required fields, and returns the matching rows from
+    *related_resources_df* as a JSON string.
+
+    Args:
+        sample (dict): Sample row containing a ``related_resources_urls`` field.
+        related_resources_df (pandas.DataFrame): Related resource records keyed
+            by ``related_resource_url``.
+
+    Returns:
+        str: JSON-encoded list of matched related resources (``"[]"`` if none).
+
+    Raises:
+        ValueError: If a URL is invalid or required fields are missing.
+    """
     related_resources_urls = sample.get("related_resources_urls")
     if is_cell_empty(related_resources_urls):
         return "[]"
@@ -289,6 +378,24 @@ def process_related_resources(sample, related_resources_df):
     return json.dumps(matched_resources.to_dict("records"))
 
 def process_funding_info(sample, funding_df):
+    """Return JSON funding records for the project IDs listed on *sample*.
+
+    Splits the semicolon-separated ``project_ids`` field, validates that each
+    project has the required funding fields in *funding_df*, and returns the
+    matching rows as a JSON string.
+
+    Args:
+        sample (dict): Sample row containing a ``project_ids`` field.
+        funding_df (pandas.DataFrame): Funding records keyed by
+            ``project_identifier``.
+
+    Returns:
+        str: JSON-encoded list of matched funding records (``"[]"`` if none).
+
+    Raises:
+        ValueError: If funding information is missing or incomplete for a
+            referenced project ID.
+    """
     if not is_cell_empty(sample.get("project_ids")):
         project_ids = [project_id.strip() for project_id in sample.get("project_ids").split(";")]
         for project_id in project_ids:
@@ -310,7 +417,19 @@ def process_funding_info(sample, funding_df):
         # matched_funder_name = funding_df.loc[funding_df["project_identifier"].isin(project_ids), "funder_name"]
         # return matched_funder_name.tolist()
     return "[]"
+
 def get_epsg_name(epsg_code):
+        """Look up the human-readable EPSG name for *epsg_code*.
+
+        Queries the EPSG registry API and returns the name of the first
+        matching coordinate reference system.
+
+        Args:
+            epsg_code: EPSG code to look up.
+
+        Returns:
+            str or None: The EPSG name, or ``None`` if the request fails.
+        """
         external_url = f'https://apps.epsg.org/api/v1/CoordRefSystem/?includeDeprecated=false&pageSize=50&page={0}&keywords={epsg_code}'
         response = requests.get(external_url)
         if response.ok:
@@ -442,6 +561,18 @@ def get_created_sample_id(preview_sample):
     return None
 
 def read_excel_sheets(excel_data, sheets):
+    """Read the requested *sheets* from an Excel file into DataFrames.
+
+    Each sheet is read with ``na_filter=False``; unreadable or empty sheets
+    map to an empty DataFrame rather than raising.
+
+    Args:
+        excel_data: A file-like object containing the Excel workbook.
+        sheets (list): Names of the sheets to read.
+
+    Returns:
+        dict: Mapping of sheet name to its ``pandas.DataFrame``.
+    """
     dfs = {}
     for sheet in sheets:
         excel_data.seek(0)
