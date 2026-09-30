@@ -48,10 +48,16 @@
     {% set org_type = h.default_group_type('organization') %}
     {% set group_type = h.default_group_type('group') %}
 
+    <span id="auscope-tools-config"
+        data-tools-href="/tools"
+        data-tools-external="https://avre.auscope.org.au"
+        hidden></span>
+
     {{ h.build_nav_main(
         (org_type ~ '.index', h.humanize_entity_type('organization', org_type, 'main nav') or _('Collections'), ['organization']),
         (dataset_type ~ '.search', h.humanize_entity_type('package', dataset_type, 'main nav') or _('Samples'), ["dataset","resource"]),
-        ('home.about', _('About')) )
+        ('home.about', _('About')),
+	('auscope_tools.external', _('AuScope Tools')) )
     }}
 
 {% endblock %}
@@ -61,4 +67,9 @@
     <img src="{{ h.url_for_static_or_external('/base/images/AuScope Logo Icon.png') }}" alt="Auscope Logo" title="AuScope Sample Repository" />
     <span class="logo-text">AuScope Sample Repository</span>
  </a>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  {% asset 'auscope_theme/auscope_theme-js' %}
 {% endblock %}

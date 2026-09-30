@@ -103,23 +103,22 @@ def location_validator(field, schema):
             except (ValueError, TypeError):
                 add_error(errors, elevation_key, invalid_error)
    
-        log = logging.getLogger(__name__)
         try:
-            log.debug("location_data: %s", location_data)
+            logger.debug("location_data: %s", location_data)
             
             geom = shape(location_data['features'][0]['geometry'])
-            log.debug("WKT for spatial field: %s", geom.wkt)
+            logger.debug("WKT for spatial field: %s", geom.wkt)
             
             geojson_geom = geojson.dumps(mapping(geom))
-            log.debug("GeoJSON for spatial field: %s", geojson_geom)
+            logger.debug("GeoJSON for spatial field: %s", geojson_geom)
             
             data['spatial',] = geojson_geom
 
 
-            log.debug("Data after setting spatial: %s", pformat(data))
+            logger.debug("Data after setting spatial: %s", pformat(data))
 
         except Exception as e:
-            log.error("Error processing GeoJSON: %s", e)
+            logger.error("Error processing GeoJSON: %s", e)
             add_error(errors, location_data_key, f"Error processing GeoJSON: {e}")
 
     return validator
@@ -360,7 +359,6 @@ def owner_org_validator(key, data, errors, context):
 @register_validator
 def sample_number_validator(field, schema):
     def validator(key, data, errors, context):
-
         sample_number = data.get(key)
         owner_org_key = ('owner_org',)
         owner_org = data.get(owner_org_key, missing)
@@ -391,7 +389,6 @@ def sample_number_validator(field, schema):
             add_error(errors, key, 'Error checking uniqueness of sample_number')
         except Exception as e:
             add_error(errors, key, f'Error querying Solr: {str(e)}')
-
         return
 
     return validator
@@ -437,7 +434,6 @@ def acquisition_date_validator(field, schema):
         if acquisition_start_date > acquisition_end_date:
             add_error(errors, acquisition_end_date_key, 'Acquisition end date must be later than the start date.')
             return
-
     return validator
 
 @scheming_validator
@@ -483,7 +479,6 @@ def parent_validator(field, schema):
     Additionally, the sample and its parent must belong to the same organization and cannot be the same.
     """
     def validator(key, data, errors, context):
-          
         parent_sample_id_key = ('parent',)
         parent_sample_id = data.get(parent_sample_id_key, missing)
         start_date_key = ('acquisition_start_date',)
@@ -506,12 +501,12 @@ def parent_validator(field, schema):
             add_error(errors, parent_sample_id_key, _('Parent sample not found.'))
             return
         except tk.NotAuthorized:
-            add_error(errors, parent_sample_id_key, _('You are not authorized to view the parent sample.'))           
+            add_error(errors, parent_sample_id_key, _('You are not authorized to view the parent sample.'))
             return
         
         parent_owner_org = parent_sample.get('owner_org', missing)
         if owner_org is missing or parent_owner_org is missing or owner_org != parent_owner_org:
-            add_error(errors, parent_sample_id_key, _('The sample and its parent must belong to the same organization.'))                      
+            add_error(errors, parent_sample_id_key, _('The sample and its parent must belong to the same organization.'))
             return
         
         parent_start_date = parent_sample.get('acquisition_start_date', missing)
@@ -521,11 +516,11 @@ def parent_validator(field, schema):
                 start_date_dt = datetime.strptime(start_date, "%Y-%m-%d")
                 parent_start_date_dt = datetime.strptime(parent_start_date, "%Y-%m-%d")
             except ValueError:
-                add_error(errors, parent_sample_id_key, _('Invalid date format. Use YYYY-MM-DD.'))                     
+                add_error(errors, parent_sample_id_key, _('Invalid date format. Use YYYY-MM-DD.'))
                 return
 
             if start_date_dt < parent_start_date_dt:
-                add_error(errors, parent_sample_id_key, _('The Acquisition Start Date of the sample must be the same as or later than the acquisition start date of its parent sample.'))           
+                add_error(errors, parent_sample_id_key, _('The Acquisition Start Date of the sample must be the same as or later than the acquisition start date of its parent sample.'))
 
     return validator
 
